@@ -3,17 +3,15 @@ import type { Metadata } from 'next';
 export function createMetadata(override: Metadata): Metadata {
   return {
     ...override,
-    icons: {
-      icon: '/favicon.ico',
-      shortcut: '/favicon.ico',
-      apple: '/assets/logo.png',
-    },
+    // Icons are provided by the App Router file conventions
+    // (src/app/icon.png, apple-icon.png, favicon.ico) so Next emits
+    // content-hashed URLs that bust browser caches on rebrand.
     openGraph: {
       title: override.title ?? undefined,
       description: override.description ?? undefined,
-      url: 'https://www.newapi.ai',
+      url: 'https://tokenpapa.ai',
       images: '/assets/logo.png',
-      siteName: 'New API',
+      siteName: 'TokenPAPA',
       type: 'website',
       ...override.openGraph,
     },

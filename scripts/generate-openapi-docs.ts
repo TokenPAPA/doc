@@ -272,66 +272,6 @@ async function generate() {
   for (const [dir, title] of aiModelMeta.entries()) {
     await writeMetaJson(`./content/docs/zh/api/ai-model/${dir}`, { title });
   }
-
-  // Generate Management API docs with custom path control
-  const managementMeta = new Map<string, string>(); // dir -> title
-  await generateFiles({
-    input: createOpenAPI({ input: await getSchemaInputs('management') }),
-    output: './content/docs/zh/api/management',
-    per: 'custom',
-    includeDescription: true,
-    addGeneratedComment: true,
-    toPages(builder) {
-      const items = builder.extract();
-
-      for (const op of items.operations) {
-        const extracted = builder.fromExtractedOperation(op);
-        if (!extracted) continue;
-
-        const pathItem = extracted.pathItem as unknown as PathItemObject;
-        const operation = extracted.operation as unknown as OperationObject;
-        const { displayName } = extracted;
-
-        const tag = operation.tags?.[0] || 'default';
-        const { slugPath, metaByDir } = tagToSlugPath(tag, slugOverrides);
-        for (const m of metaByDir) managementMeta.set(m.dir, m.title);
-        // Convert route path to simple file name
-        const fileName = op.path
-          .replace(/^\/api\//, '')
-          .replace(/\/+$/, '')
-          .replace(/\//g, '-')
-          .replace(/[{}]/g, '')
-          .replace(/^-/, '');
-
-        const entry: OperationOutput = {
-          type: 'operation',
-          schemaId: builder.id,
-          item: op,
-          path: `${slugPath}/${fileName}-${op.method}.mdx`,
-          info: {
-            title: displayName,
-            description: operation.description || pathItem.description,
-          },
-        };
-
-        builder.create(entry);
-      }
-    },
-  });
-  console.log('✅ Management API docs generated!');
-
-  await writeMetaJson('./content/docs/zh/api/management', {
-    title: '管理接口',
-  });
-  for (const [dir, title] of managementMeta.entries()) {
-    await writeMetaJson(`./content/docs/zh/api/management/${dir}`, { title });
-  }
-
-  // Add management auth guide page (Apifox has a dedicated doc page in backend management)
-  await ensureFileFromTemplate(
-    './content/docs/zh/api/management/auth.mdx',
-    './scripts/templates/zh-management-auth.mdx'
-  );
 }
 
 generate()

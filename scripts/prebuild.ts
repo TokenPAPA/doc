@@ -1,30 +1,15 @@
 /**
  * Prebuild Script
- * Generates changelog before build
+ *
+ * The changelog page (content/docs/<lang>/guide/wiki/changelog.mdx) was removed
+ * together with the rest of the "Introduction" group, so changelog generation is
+ * no longer run here. Kept as an extension point for future prebuild steps.
  */
-
-import { generateChangelog } from './build-changelog';
 
 async function prebuild() {
   console.log('═══════════════════════════════════════════════');
-  console.log('🚀 Starting prebuild process...');
+  console.log('🚀 Prebuild: nothing to do.');
   console.log('═══════════════════════════════════════════════\n');
-
-  const startTime = Date.now();
-
-  try {
-    await generateChangelog();
-
-    const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-
-    console.log('═══════════════════════════════════════════════');
-    console.log(`✅ Prebuild completed! Duration: ${duration}s`);
-    console.log('═══════════════════════════════════════════════\n');
-  } catch (error) {
-    console.error('❌ Prebuild failed:', error);
-    // Don't exit process, let the build continue
-    console.log('⚠ Build will continue but may use old or missing data\n');
-  }
 }
 
 // Execute prebuild

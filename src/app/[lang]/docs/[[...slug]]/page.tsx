@@ -5,7 +5,7 @@ import {
   DocsPage,
   DocsTitle,
 } from 'fumadocs-ui/page';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { getMDXComponents } from '@/mdx-components';
 import type { Metadata } from 'next';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
@@ -22,6 +22,10 @@ export default async function Page(props: {
   params: Promise<{ lang: string; slug?: string[] }>;
 }) {
   const { slug, lang } = await props.params;
+  // The docs root no longer has a landing page; send visitors straight to the user guide.
+  if (!slug || slug.length === 0) {
+    redirect(`/${lang}/docs/guide/feature-guide/user/auth`);
+  }
   const page = source.getPage(slug, lang);
   if (!page) notFound();
 
@@ -74,6 +78,10 @@ export async function generateMetadata(props: {
   params: Promise<{ lang: string; slug?: string[] }>;
 }): Promise<Metadata> {
   const { slug, lang } = await props.params;
+  // Docs root redirects to the user guide; no metadata needed for the empty slug.
+  if (!slug || slug.length === 0) {
+    return {};
+  }
   const page = source.getPage(slug, lang);
   if (!page) notFound();
 

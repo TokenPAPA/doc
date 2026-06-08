@@ -1,8 +1,6 @@
 import { source } from '@/lib/source';
 import { DocsLayout } from 'fumadocs-ui/layouts/docs';
 import { baseOptions, linkItems } from '@/lib/layout.shared';
-import { Footer } from '@/components/footer';
-import { ComplianceNotice } from '@/components/compliance-notice';
 // AI feature temporarily disabled
 // import { AISearchTrigger } from '@/components/search';
 import 'katex/dist/katex.min.css';
@@ -49,9 +47,7 @@ export default async function Layout({
         },
       }}
     >
-      <ComplianceNotice lang={lang} />
       {children}
-      <Footer lang={lang} />
       {/* AI feature temporarily disabled */}
       {/* <AISearchTrigger /> */}
     </DocsLayout>
