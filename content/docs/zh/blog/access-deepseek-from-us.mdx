@@ -1,0 +1,204 @@
+---
+title: 如何从美国访问 DeepSeek API（无需中国手机号）
+description: 从美国访问 DeepSeek API 的完整指南。了解如何注册、获取 API 密钥，并在没有中国手机号的情况下开始使用 DeepSeek V3/R1 —— 提供面向美国用户的价格与文档。
+---
+
+# 如何从美国访问 DeepSeek API（无需中国手机号）
+
+DeepSeek 的大语言模型 —— 包括 DeepSeek V3、DeepSeek R1 和 DeepSeek Coder —— 提供了 AI 行业中极具竞争力的价格。但如果你是一名身处美国的开发者，可能已经撞上了一堵令人沮丧的墙：*DeepSeek 官方注册需要中国手机号。*
+
+本指南将带你了解**如何在没有中国手机号的情况下从美国访问 DeepSeek API**，包括三种可行方法、价格对比，以及集成的最佳实践。
+
+---
+
+## 为什么美国开发者想要 DeepSeek API
+
+DeepSeek 因以下几个原因在 AI 社区获得了显著关注：
+
+- **成本**：在质量相当的情况下，DeepSeek V3 大约比 GPT-4o 便宜 10-20 倍
+- **性能**：DeepSeek R1 在推理基准测试上可与 OpenAI o1 媲美
+- **开放权重**：DeepSeek 发布模型权重，支持自托管
+- **编码能力**：DeepSeek Coder 持续位列顶尖编码 LLM 之列
+
+主要障碍是什么？注册。下面教你如何越过它。
+
+---
+
+## 方法一：使用 API 中转平台（推荐美国开发者）
+
+**从美国访问 DeepSeek API** 最简单的方式是通过 API 中转平台。这类服务充当桥梁 —— 它们在后端拥有中国基础设施的访问能力，并向你暴露一个标准的、兼容 OpenAI 的 API。
+
+### 工作原理
+
+```
+Your App → Relay API (OpenAI-compatible endpoint) → DeepSeek API (China)
+```
+
+**优势：**
+- ✅ 无需中国手机号
+- ✅ 兼容 OpenAI 的 SDK —— 可直接替换你现有的代码
+- ✅ 美国本地计费（信用卡 / PayPal）
+- ✅ 英文文档与支持
+- ✅ 由于批量定价，通常比直连更便宜
+
+**选择中转服务商时应关注：**
+
+| 特性 | 为何重要 |
+|---------|---------------|
+| 兼容 OpenAI 的 API | 无需改代码 —— 只需切换 base URL 和 API 密钥 |
+| 英文文档 | 多数中转平台面向中国开发者；面向美国优化的会用英文撰写 |
+| 美国支付方式 | 信用卡、PayPal 或 Stripe —— 而非支付宝/微信 |
+| 稳定性 SLA | 生产环境使用的可用性保障 |
+| 多模型 | 支持 DeepSeek V3、R1、Coder 和 MiniMax |
+
+---
+
+## 方法二：直接在 DeepSeek 注册
+
+如果你更倾向于直连，下面是官方注册流程 —— 不过截至 2025 年它仍然需要中国手机号进行验证。
+
+### 第 1 步：访问 DeepSeek 平台
+前往 [platform.deepseek.com](https://platform.deepseek.com) 并点击 "Sign Up"。
+
+### 第 2 步：用中国手机号验证
+DeepSeek 需要用 +86 号码进行短信验证。如果你没有，就会卡在这一步。
+
+### 第 3 步：生成 API 密钥
+注册完成后，进入 API Keys 部分并创建一个新密钥。
+
+### 第 4 步：开始发起请求
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-deepseek-api-key",
+    base_url="https://api.deepseek.com"
+)
+
+response = client.chat.completions.create(
+    model="deepseek-chat",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+print(response.choices[0].message.content)
+```
+
+> **注意**：直接注册的付款使用人民币、通过中国支付方式完成 —— 这是美国开发者的又一道障碍。
+
+---
+
+## 方法三：自托管 DeepSeek 模型
+
+对于想要完全掌控的开发者，你可以自托管 DeepSeek 的开放权重模型：
+
+```bash
+# Using Ollama (easiest)
+ollama run deepseek-r1:7b
+
+# Using llama.cpp
+./main -m DeepSeek-R1-Distill-Q4_K_M.gguf -p "Your prompt here"
+
+# Using vLLM (production-scale)
+vllm serve deepseek-ai/DeepSeek-V3
+```
+
+**硬件要求：**
+- DeepSeek V3：约 700GB 显存（多 GPU 配置）
+- DeepSeek R1 Distill (7B)：约 8GB 显存 —— 可在消费级硬件上运行
+
+自托管完全避开了手机号问题，但对于生产负载需要可观的基础设施投入。
+
+---
+
+## DeepSeek API 价格（2025）
+
+| 模型 | 输入（每百万 tokens） | 输出（每百万 tokens） |
+|-------|----------------------|-----------------------|
+| DeepSeek V3 | $0.27 | $1.10 |
+| DeepSeek R1 | $0.55 | $2.19 |
+| DeepSeek Coder | $0.14 | $0.28 |
+| GPT-4o（作为参考） | $2.50 | $10.00 |
+
+> *价格来自 DeepSeek 与 OpenAI 官方定价页面（截至 2025 年 6 月）。*
+
+即便通过有少量加价的中转平台，DeepSeek API 仍然**显著便宜**于美国本土的替代方案。
+
+---
+
+## DeepSeek 与美国服务商：成本对比
+
+| 服务商 | 每百万 tokens（输入） | 每百万 tokens（输出） | 是否需要手机号？ |
+|----------|:-----------------:|:------------------:|:---------------:|
+| OpenAI GPT-4o | $2.50 | $10.00 | ❌ 否 |
+| Anthropic Claude 3.5 Sonnet | $3.00 | $15.00 | ❌ 否 |
+| **DeepSeek V3（直连）** | $0.27 | $1.10 | ✅ 是（+86） |
+| **DeepSeek V3（经中转）** | ~$0.35 | ~$1.30 | ❌ **否** ✅ |
+| Google Gemini 1.5 Pro | $1.25 | $5.00 | ❌ 否 |
+
+> **关键要点**：通过中转服务商访问 DeepSeek API，可在没有注册烦恼的情况下获得**相比 OpenAI 90%+ 的成本节省**。
+
+---
+
+## 如何在你的美国应用中集成 DeepSeek API
+
+一旦你获得 API 访问权限（通过中转或直连），使用兼容 OpenAI 的端点集成就很简单：
+
+```python
+# DeepSeek via relay (OpenAI-compatible)
+client = OpenAI(
+    api_key="your-relay-api-key",
+    base_url="https://api.tokenpapa.ai/v1"  # Example relay endpoint
+)
+
+response = client.chat.completions.create(
+    model="deepseek-chat",
+    messages=[
+        {"role": "system", "content": "You are a helpful coding assistant."},
+        {"role": "user", "content": "Write a Python function to merge two sorted arrays."}
+    ],
+    temperature=0.7
+)
+
+print(response.choices[0].message.content)
+```
+
+**通过中转平台支持的模型：**
+- `deepseek-chat` — DeepSeek V3 对话模型
+- `deepseek-reasoner` — DeepSeek R1 推理模型
+- `deepseek-coder` — 代码生成
+- `minimax-chat` — MiniMax 文本模型
+
+---
+
+## 常见问题
+
+### 从美国使用 DeepSeek API 需要中国手机号吗？
+**如果使用 API 中转平台则不需要。** DeepSeek 平台的直接注册需要 +86 号码，但中转服务在它们那端完成注册，因此你可以用普通邮箱注册并用美国信用卡付款。
+
+### 在美国使用 DeepSeek API 合法吗？
+合法。使用 DeepSeek 的 API 或通过中转平台访问它都是合法的。DeepSeek 的模型是开放权重的，并以宽松许可证提供。API 使用不受出口管制限制。
+
+### 用 DeepSeek 替代 OpenAI 能省多少？
+DeepSeek V3 大约比 GPT-4o **便宜 10-20 倍**。对于一个每月运行 1000 万 tokens 的典型开发者来说，大致是 **GPT-4o 每月约 $300，而经中转服务商使用 DeepSeek 每月约 $15-30**。
+
+### DeepSeek 和 GPT-4o 的质量差距如何？
+DeepSeek V3 在大多数基准上与 GPT-4o 表现相当，尤其在编码和推理任务上。DeepSeek R1 在复杂推理上可与 OpenAI o1 媲美，同时便宜得多。对许多生产用例而言，质量差距可以忽略。
+
+### 我可以在 LangChain 或其他框架中使用 DeepSeek API 吗？
+可以。由于中转平台提供兼容 OpenAI 的端点，DeepSeek 可与 LangChain、LlamaIndex、Vercel AI SDK 以及任何支持 OpenAI API 格式的工具无缝配合。
+
+---
+
+## 结论
+
+**从美国访问 DeepSeek API** 一旦掌握了正确方法就会变得简单。虽然直接注册需要中国手机号，但 API 中转平台彻底消除了这一障碍 —— 提供面向美国的支付方式、英文文档，以及可与你现有代码库配合的兼容 OpenAI 的端点。
+
+对于寻找**经济实惠的 AI API tokens** 的美国开发者来说，DeepSeek 搭配中转服务商提供了无与伦比的价值：相比 GPT-4o 节省 90%+ 的成本，同时保持有竞争力的质量，尤其在编码和推理任务上。
+
+**准备好从美国试用 DeepSeek API 了吗？** 在 [tokenpapa.ai](https://tokenpapa.ai) 注册即可即时访问 DeepSeek V3、R1、Coder 和 MiniMax API —— 无需中国手机号，接受美国信用卡，5 分钟内即可开始编码。
+
+---
+
+**来源**：
+- DeepSeek 官方定价：https://platform.deepseek.com/api-docs/pricing [访问于 2025 年 6 月]
+- DeepSeek R1 技术报告：https://arxiv.org/abs/2501.12948 [访问于 2025 年 6 月]
+- OpenAI 定价：https://openai.com/api/pricing/ [访问于 2025 年 6 月]

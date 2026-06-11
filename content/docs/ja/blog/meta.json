@@ -1,0 +1,7 @@
+{
+  "title": "ブログ",
+  "description": "DeepSeek API ガイド、価格比較、開発者向けのヒント",
+  "icon": "Newspaper",
+  "root": true,
+  "pages": ["access-deepseek-from-us"]
+}

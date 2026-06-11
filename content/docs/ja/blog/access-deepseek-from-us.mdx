@@ -1,0 +1,204 @@
+---
+title: 米国から DeepSeek API にアクセスする方法（中国の電話番号は不要）
+description: 米国から DeepSeek API にアクセスするための完全ガイド。中国の電話番号なしでサインアップし、API キーを取得し、DeepSeek V3/R1 の利用を開始する方法を解説します — 米国向けの価格とドキュメント付き。
+---
+
+# 米国から DeepSeek API にアクセスする方法（中国の電話番号は不要）
+
+DeepSeek の大規模言語モデル — DeepSeek V3、DeepSeek R1、DeepSeek Coder を含む — は、AI 業界でもっとも競争力のある価格を提供しています。しかし、あなたが米国の開発者なら、おそらくいら立たしい壁にぶつかったことでしょう：*DeepSeek の公式登録には中国の電話番号が必要です。*
+
+本ガイドでは、中国の電話番号なしで**米国から DeepSeek API にアクセスする方法**を、3 つの実用的な手法、価格比較、統合のベストプラクティスとともに解説します。
+
+---
+
+## なぜ米国の開発者は DeepSeek API を求めるのか
+
+DeepSeek は、いくつかの理由で AI コミュニティから大きな注目を集めています：
+
+- **コスト**：同等の品質で、DeepSeek V3 は GPT-4o のおよそ 10〜20 分の 1 の価格
+- **性能**：DeepSeek R1 は推論ベンチマークで OpenAI o1 に匹敵
+- **オープンウェイト**：DeepSeek はモデルの重みを公開しており、セルフホスティングが可能
+- **コーディング能力**：DeepSeek Coder は常にトップクラスのコーディング LLM にランクイン
+
+主な障壁は？登録です。以下でそれを乗り越える方法を紹介します。
+
+---
+
+## 方法 1：API リレープラットフォームを使う（米国の開発者におすすめ）
+
+**米国から DeepSeek API にアクセスする**もっとも簡単な方法は、API リレープラットフォームを利用することです。これらのサービスは橋渡し役として機能し — バックエンドで中国のインフラへのアクセスを持ち、標準的な OpenAI 互換 API をあなたに提供します。
+
+### 仕組み
+
+```
+Your App → Relay API (OpenAI-compatible endpoint) → DeepSeek API (China)
+```
+
+**メリット：**
+- ✅ 中国の電話番号が不要
+- ✅ OpenAI 互換の SDK — 既存コードをそのまま置き換え可能
+- ✅ 米国ベースの請求（クレジットカード / PayPal）
+- ✅ 英語のドキュメントとサポート
+- ✅ 一括価格により、直接利用より安いことが多い
+
+**リレープロバイダー選びで確認すべき点：**
+
+| 特徴 | なぜ重要か |
+|---------|---------------|
+| OpenAI 互換 API | コード変更不要 — base URL と API キーを切り替えるだけ |
+| 英語ドキュメント | ほとんどのリレープラットフォームは中国の開発者向け；米国最適化のものは英語で記述 |
+| 米国の支払い方法 | クレジットカード、PayPal、Stripe — Alipay/WeChat ではない |
+| 安定性 SLA | 本番利用のための稼働率保証 |
+| マルチモデル | DeepSeek V3、R1、Coder、MiniMax のサポート |
+
+---
+
+## 方法 2：DeepSeek に直接登録する
+
+直接利用したい場合の公式登録手順は以下のとおりです — ただし 2025 年時点では依然として検証に中国の電話番号が必要です。
+
+### ステップ 1：DeepSeek のプラットフォームにアクセス
+[platform.deepseek.com](https://platform.deepseek.com) にアクセスし、「Sign Up」をクリックします。
+
+### ステップ 2：中国の電話番号で検証
+DeepSeek は +86 番号での SMS 検証を要求します。お持ちでない場合は、ここで行き詰まります。
+
+### ステップ 3：API キーを生成
+登録が完了したら、API Keys セクションに移動して新しいキーを作成します。
+
+### ステップ 4：リクエストの送信を開始
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-deepseek-api-key",
+    base_url="https://api.deepseek.com"
+)
+
+response = client.chat.completions.create(
+    model="deepseek-chat",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+print(response.choices[0].message.content)
+```
+
+> **注**：直接登録の支払いは中国の決済手段を通じた人民元建て — 米国の開発者にとってもう一つの障壁です。
+
+---
+
+## 方法 3：DeepSeek モデルをセルフホストする
+
+完全な制御を望む開発者は、DeepSeek のオープンウェイトモデルをセルフホストできます：
+
+```bash
+# Using Ollama (easiest)
+ollama run deepseek-r1:7b
+
+# Using llama.cpp
+./main -m DeepSeek-R1-Distill-Q4_K_M.gguf -p "Your prompt here"
+
+# Using vLLM (production-scale)
+vllm serve deepseek-ai/DeepSeek-V3
+```
+
+**必要要件：**
+- DeepSeek V3：約 700GB の VRAM（マルチ GPU 構成）
+- DeepSeek R1 Distill (7B)：約 8GB の VRAM — コンシューマ向けハードウェアで動作
+
+セルフホスティングは電話番号の問題を完全に回避しますが、本番ワークロードには相当なインフラ投資が必要です。
+
+---
+
+## DeepSeek API 価格（2025）
+
+| モデル | 入力（100万 tokens あたり） | 出力（100万 tokens あたり） |
+|-------|----------------------|-----------------------|
+| DeepSeek V3 | $0.27 | $1.10 |
+| DeepSeek R1 | $0.55 | $2.19 |
+| DeepSeek Coder | $0.14 | $0.28 |
+| GPT-4o（参考） | $2.50 | $10.00 |
+
+> *価格は DeepSeek および OpenAI の公式価格ページより（2025 年 6 月時点）。*
+
+少額の上乗せがあるリレープラットフォーム経由でも、DeepSeek API は米国ベースの代替手段より**大幅に安い**ままです。
+
+---
+
+## DeepSeek 対 米国プロバイダー：コスト比較
+
+| プロバイダー | 100万 tokens（入力） | 100万 tokens（出力） | 電話番号が必要？ |
+|----------|:-----------------:|:------------------:|:---------------:|
+| OpenAI GPT-4o | $2.50 | $10.00 | ❌ いいえ |
+| Anthropic Claude 3.5 Sonnet | $3.00 | $15.00 | ❌ いいえ |
+| **DeepSeek V3（直接）** | $0.27 | $1.10 | ✅ はい（+86） |
+| **DeepSeek V3（リレー経由）** | ~$0.35 | ~$1.30 | ❌ **いいえ** ✅ |
+| Google Gemini 1.5 Pro | $1.25 | $5.00 | ❌ いいえ |
+
+> **重要なポイント**：リレープロバイダー経由で DeepSeek API にアクセスすれば、登録の手間なしに **OpenAI と比べて 90% 以上のコスト削減**が得られます。
+
+---
+
+## 米国を拠点とするアプリで DeepSeek API を統合する方法
+
+API アクセスを得たら（リレーまたは直接）、OpenAI 互換エンドポイントによる統合は簡単です：
+
+```python
+# DeepSeek via relay (OpenAI-compatible)
+client = OpenAI(
+    api_key="your-relay-api-key",
+    base_url="https://api.tokenpapa.ai/v1"  # Example relay endpoint
+)
+
+response = client.chat.completions.create(
+    model="deepseek-chat",
+    messages=[
+        {"role": "system", "content": "You are a helpful coding assistant."},
+        {"role": "user", "content": "Write a Python function to merge two sorted arrays."}
+    ],
+    temperature=0.7
+)
+
+print(response.choices[0].message.content)
+```
+
+**リレープラットフォーム経由でサポートされるモデル：**
+- `deepseek-chat` — DeepSeek V3 会話モデル
+- `deepseek-reasoner` — DeepSeek R1 推論モデル
+- `deepseek-coder` — コード生成
+- `minimax-chat` — MiniMax テキストモデル
+
+---
+
+## よくある質問
+
+### 米国から DeepSeek API を使うには中国の電話番号が必要ですか？
+**API リレープラットフォームを使う場合は不要です。** DeepSeek プラットフォームでの直接登録には +86 番号が必要ですが、リレーサービスがその側で登録を処理するため、通常のメールでサインアップし、米国のクレジットカードで支払えます。
+
+### 米国で DeepSeek API を使うのは合法ですか？
+はい。DeepSeek の API を使うこと、またはリレープラットフォーム経由でアクセスすることは合法です。DeepSeek のモデルはオープンウェイトであり、寛容なライセンスの下で提供されています。API の利用に輸出規制は適用されません。
+
+### DeepSeek を OpenAI の代わりに使うとどれくらい節約できますか？
+DeepSeek V3 は GPT-4o のおよそ **10〜20 分の 1 の安さ**です。毎月 1000 万 tokens を処理する典型的な開発者の場合、おおよそ **GPT-4o で月約 $300 に対し、リレープロバイダー経由の DeepSeek で月約 $15〜30** です。
+
+### DeepSeek と GPT-4o の品質差はどの程度ですか？
+DeepSeek V3 は、特にコーディングと推論のタスクで、ほとんどのベンチマークにおいて GPT-4o と互角の性能を発揮します。DeepSeek R1 は複雑な推論で OpenAI o1 に匹敵しながら、はるかに安価です。多くの本番ユースケースでは、品質差は無視できる程度です。
+
+### DeepSeek API を LangChain などのフレームワークで使えますか？
+はい。リレープラットフォームは OpenAI 互換エンドポイントを提供するため、DeepSeek は LangChain、LlamaIndex、Vercel AI SDK、そして OpenAI の API 形式をサポートするあらゆるツールとシームレスに連携します。
+
+---
+
+## まとめ
+
+**米国から DeepSeek API にアクセスする**ことは、正しいアプローチを知れば簡単です。直接登録には中国の電話番号が必要ですが、API リレープラットフォームはこの障壁を完全に取り除き — 米国向けの支払い方法、英語のドキュメント、そして既存のコードベースで動作する OpenAI 互換エンドポイントを提供します。
+
+**手頃な価格の AI API tokens** を探している米国の開発者にとって、DeepSeek とリレープロバイダーの組み合わせは比類のない価値を提供します：GPT-4o と比べて 90% 以上のコスト削減を、特にコーディングと推論タスクで競争力のある品質を保ちながら実現します。
+
+**米国から DeepSeek API を試す準備はできましたか？** [tokenpapa.ai](https://tokenpapa.ai) でサインアップすれば、DeepSeek V3、R1、Coder、MiniMax API に即座にアクセスできます — 中国の電話番号は不要、米国のクレジットカード対応、5 分以内にコーディングを開始できます。
+
+---
+
+**出典**：
+- DeepSeek 公式価格：https://platform.deepseek.com/api-docs/pricing [2025 年 6 月にアクセス]
+- DeepSeek R1 技術レポート：https://arxiv.org/abs/2501.12948 [2025 年 6 月にアクセス]
+- OpenAI 価格：https://openai.com/api/pricing/ [2025 年 6 月にアクセス]

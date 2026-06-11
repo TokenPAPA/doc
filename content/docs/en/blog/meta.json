@@ -1,5 +1,7 @@
 {
   "title": "Blog",
   "description": "DeepSeek API guides, pricing comparisons, and developer tips",
+  "icon": "Newspaper",
+  "root": true,
   "pages": ["access-deepseek-from-us"]
 }

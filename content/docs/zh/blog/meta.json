@@ -1,0 +1,7 @@
+{
+  "title": "博客",
+  "description": "DeepSeek API 指南、价格对比与开发者技巧",
+  "icon": "Newspaper",
+  "root": true,
+  "pages": ["access-deepseek-from-us"]
+}
