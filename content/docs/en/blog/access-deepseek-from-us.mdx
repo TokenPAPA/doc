@@ -1,0 +1,204 @@
+---
+title: How to Access DeepSeek API from the US (No Chinese Phone Number Needed)
+description: Complete guide to accessing DeepSeek API from the US. Learn how to sign up, get API keys, and start using DeepSeek V3/R1 without a Chinese phone number — with US-friendly pricing and documentation.
+---
+
+# How to Access DeepSeek API from the US (No Chinese Phone Number Needed)
+
+DeepSeek's large language models — including DeepSeek V3, DeepSeek R1, and DeepSeek Coder — offer some of the most competitive pricing in the AI industry. But if you're a developer in the US, you've probably run into a frustrating wall: *DeepSeek's official registration requires a Chinese phone number.*
+
+This guide walks you through **how to access DeepSeek API from the US** without a Chinese phone, including three working methods, pricing comparisons, and best practices for integration.
+
+---
+
+## Why US Developers Want DeepSeek API
+
+DeepSeek has gained significant traction in the AI community for several reasons:
+
+- **Cost**: DeepSeek V3 is roughly 10-20x cheaper than GPT-4o for comparable quality
+- **Performance**: DeepSeek R1 rivals OpenAI o1 on reasoning benchmarks
+- **Open weights**: DeepSeek releases model weights, enabling self-hosting
+- **Coding ability**: DeepSeek Coder consistently ranks among top coding LLMs
+
+The main barrier? Registration. Here's how to get past it.
+
+---
+
+## Method 1: Use an API Relay Platform (Recommended for US Developers)
+
+The simplest way to **access DeepSeek API from the United States** is through an API relay platform. These services act as a bridge — they have the Chinese infrastructure access on the backend and expose a standard OpenAI-compatible API to you.
+
+### How it works
+
+```
+Your App → Relay API (OpenAI-compatible endpoint) → DeepSeek API (China)
+```
+
+**Advantages:**
+- ✅ No Chinese phone number needed
+- ✅ OpenAI-compatible SDK — drop-in replacement for your existing code
+- ✅ US-based billing (credit card / PayPal)
+- ✅ English documentation and support
+- ✅ Often cheaper than going direct due to bulk pricing
+
+**What to look for in a relay provider:**
+
+| Feature | Why it matters |
+|---------|---------------|
+| OpenAI-compatible API | No code changes — just switch the base URL and API key |
+| English docs | Most relay platforms target Chinese developers; US-optimized ones write in English |
+| US payment | Credit card, PayPal, or Stripe — not Alipay/WeChat |
+| Stability SLA | Uptime guarantee for production use |
+| Multi-model | Support for DeepSeek V3, R1, Coder, and MiniMax |
+
+---
+
+## Method 2: Register Directly with DeepSeek
+
+If you prefer going direct, here's the official registration process — though it still requires a Chinese phone number for verification as of 2025.
+
+### Step 1: Visit DeepSeek's platform
+Go to [platform.deepseek.com](https://platform.deepseek.com) and click "Sign Up."
+
+### Step 2: Verify with a Chinese phone number
+DeepSeek requires SMS verification with a +86 number. If you don't have one, this is where you'll get stuck.
+
+### Step 3: Generate an API key
+Once registered, navigate to the API Keys section and create a new key.
+
+### Step 4: Start making requests
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-deepseek-api-key",
+    base_url="https://api.deepseek.com"
+)
+
+response = client.chat.completions.create(
+    model="deepseek-chat",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+print(response.choices[0].message.content)
+```
+
+> **Note**: Payment for direct registration is in RMB via Chinese payment methods — another barrier for US developers.
+
+---
+
+## Method 3: Self-Host DeepSeek Models
+
+For developers who want full control, you can self-host DeepSeek's open-weight models:
+
+```bash
+# Using Ollama (easiest)
+ollama run deepseek-r1:7b
+
+# Using llama.cpp
+./main -m DeepSeek-R1-Distill-Q4_K_M.gguf -p "Your prompt here"
+
+# Using vLLM (production-scale)
+vllm serve deepseek-ai/DeepSeek-V3
+```
+
+**Requirements:**
+- DeepSeek V3: ~700GB VRAM (multi-GPU setup)
+- DeepSeek R1 Distill (7B): ~8GB VRAM — runs on consumer hardware
+
+Self-hosting avoids the phone number issue entirely but requires significant infrastructure investment for production workloads.
+
+---
+
+## DeepSeek API Pricing (2025)
+
+| Model | Input (per 1M tokens) | Output (per 1M tokens) |
+|-------|----------------------|-----------------------|
+| DeepSeek V3 | $0.27 | $1.10 |
+| DeepSeek R1 | $0.55 | $2.19 |
+| DeepSeek Coder | $0.14 | $0.28 |
+| GPT-4o (for reference) | $2.50 | $10.00 |
+
+> *Prices sourced from DeepSeek and OpenAI official pricing pages (as of June 2025).*
+
+Even via a relay platform with a small markup, DeepSeek API remains **significantly cheaper** than US-based alternatives.
+
+---
+
+## DeepSeek vs US Providers: Cost Comparison
+
+| Provider | 1M tokens (input) | 1M tokens (output) | Phone required? |
+|----------|:-----------------:|:------------------:|:---------------:|
+| OpenAI GPT-4o | $2.50 | $10.00 | ❌ No |
+| Anthropic Claude 3.5 Sonnet | $3.00 | $15.00 | ❌ No |
+| **DeepSeek V3 (direct)** | $0.27 | $1.10 | ✅ Yes (+86) |
+| **DeepSeek V3 (via relay)** | ~$0.35 | ~$1.30 | ❌ **No** ✅ |
+| Google Gemini 1.5 Pro | $1.25 | $5.00 | ❌ No |
+
+> **Key takeaway**: Accessing DeepSeek API through a relay provider gives you **90%+ cost savings vs OpenAI** without the registration headache.
+
+---
+
+## How to Integrate DeepSeek API in Your US-Based App
+
+Once you have API access (via relay or direct), integration is straightforward with OpenAI-compatible endpoints:
+
+```python
+# DeepSeek via relay (OpenAI-compatible)
+client = OpenAI(
+    api_key="your-relay-api-key",
+    base_url="https://api.tokenpapa.ai/v1"  # Example relay endpoint
+)
+
+response = client.chat.completions.create(
+    model="deepseek-chat",
+    messages=[
+        {"role": "system", "content": "You are a helpful coding assistant."},
+        {"role": "user", "content": "Write a Python function to merge two sorted arrays."}
+    ],
+    temperature=0.7
+)
+
+print(response.choices[0].message.content)
+```
+
+**Supported models through relay platforms:**
+- `deepseek-chat` — DeepSeek V3 conversational
+- `deepseek-reasoner` — DeepSeek R1 reasoning
+- `deepseek-coder` — Code generation
+- `minimax-chat` — MiniMax text model
+
+---
+
+## Frequently Asked Questions
+
+### Do I need a Chinese phone number to use DeepSeek API from the US?
+**Not if you use an API relay platform.** Direct registration on DeepSeek's platform requires a +86 number, but relay services handle the registration on their end, so you can sign up with your regular email and pay with a US credit card.
+
+### Is DeepSeek API legal to use in the United States?
+Yes. Using DeepSeek's API or accessing it through a relay platform is legal. DeepSeek's models are open-weight and available under permissive licenses. No export restrictions apply to API usage.
+
+### How much can I save by using DeepSeek instead of OpenAI?
+DeepSeek V3 is approximately **10-20x cheaper** than GPT-4o. For a typical developer running 10M tokens per month, that's roughly **$300/month on GPT-4o vs $15-30/month on DeepSeek** via a relay provider.
+
+### What is the quality difference between DeepSeek and GPT-4o?
+DeepSeek V3 performs competitively with GPT-4o on most benchmarks, particularly in coding and reasoning tasks. DeepSeek R1 rivals OpenAI o1 on complex reasoning while being significantly cheaper. For many production use cases, the quality difference is negligible.
+
+### Can I use DeepSeek API with LangChain or other frameworks?
+Yes. Since relay platforms provide OpenAI-compatible endpoints, DeepSeek works seamlessly with LangChain, LlamaIndex, Vercel AI SDK, and any tool that supports OpenAI's API format.
+
+---
+
+## Conclusion
+
+**Accessing DeepSeek API from the US** is straightforward once you know the right approach. While direct registration requires a Chinese phone number, API relay platforms eliminate this barrier entirely — offering US-friendly payment, English documentation, and OpenAI-compatible endpoints that work with your existing codebase.
+
+For US developers looking for **affordable AI API tokens**, DeepSeek combined with a relay provider delivers unmatched value: 90%+ cost savings over GPT-4o with competitive quality, especially for coding and reasoning tasks.
+
+**Ready to try DeepSeek API from the US?** Sign up at [tokenpapa.ai](https://tokenpapa.ai) to get instant access to DeepSeek V3, R1, Coder, and MiniMax APIs — no Chinese phone required, US credit cards accepted, and you can start coding in under 5 minutes.
+
+---
+
+**Sources**:
+- DeepSeek Official Pricing: https://platform.deepseek.com/api-docs/pricing [accessed June 2025]
+- DeepSeek R1 Technical Report: https://arxiv.org/abs/2501.12948 [accessed June 2025]
+- OpenAI Pricing: https://openai.com/api/pricing/ [accessed June 2025]
