@@ -1,0 +1,537 @@
+---
+title: "Chinese LLM APIs: A Complete Guide for Overseas Developers in 2025"
+description: "Everything overseas developers need to know about accessing Chinese LLM APIs — DeepSeek, Qwen, GLM, MiniMax, Baidu, Moonshot — including pricing, benchmarks, registration barriers, and how tokenpapa.ai provides unified access."
+keywords: ["Chinese AI model API English", "API for overseas developers", "China LLM API access", "Chinese LLM API guide", "DeepSeek API for overseas", "Qwen API access"]
+date: 2025-06-12
+authors: [tokenpapa]
+category: "Guides"
+image: "/images/blog/chinese-llm-apis-guide.png"
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
+
+# Chinese LLM APIs: A Complete Guide for Overseas Developers in 2025
+
+Chinese large language models (LLMs) have undergone a remarkable transformation. Just two years ago, they lagged behind Western counterparts by a significant margin. Today, models like DeepSeek-V3, Qwen2.5, and GLM-4 rival — and in some benchmarks surpass — GPT-4o and Claude 3.5 Sonnet. For overseas developers, this represents a massive opportunity: access to world-class models at a fraction of the cost.
+
+But there's a catch. Most Chinese LLM providers require a mainland Chinese phone number for registration, blocking international developers from direct access. This guide covers everything you need to know — the providers, the pricing, the benchmarks, and the practical path to getting started.
+
+---
+
+## 1. Why Chinese LLMs Matter Now
+
+Three factors make Chinese LLMs impossible to ignore in 2025:
+
+### Cost Leadership
+
+Chinese AI providers operate in a hyper-competitive market, and pricing reflects that. DeepSeek's API, for example, costs roughly **1/10th to 1/20th** of OpenAI's GPT-4o for comparable quality. When you're running production workloads at scale, this difference transforms unit economics.
+
+| Provider | Input Cost (per 1M tokens) | Output Cost (per 1M tokens) | Equivalent Western Cost |
+|----------|---------------------------|----------------------------|------------------------|
+| DeepSeek-V3 | $0.27 | $1.10 | GPT-4o: ~$10/$30 |
+| Qwen-Max | $1.20 | $2.40 | Claude 3.5: ~$8/$24 |
+| GLM-4-Plus | $0.70 | $1.50 | — |
+
+### Open Weights & Local Deployment
+
+Unlike OpenAI and Anthropic, several Chinese AI labs release open-weight models. DeepSeek, Qwen (Alibaba), and GLM (Zhipu AI) all publish model weights that you can self-host. This means zero API costs at scale, full data privacy, and air-gapped deployment for sensitive workloads.
+
+### Breakneck Innovation Pace
+
+Chinese LLM providers ship new versions faster than any Western counterpart. DeepSeek has released 4 major model versions in 18 months. Qwen is on its 2.5 generation with dozens of specialized variants. The competitive pressure from dozens of well-funded labs means improvements arrive weekly, not quarterly.
+
+---
+
+## 2. Top Chinese LLM API Providers
+
+### DeepSeek (深度求索)
+
+**Flagship model:** DeepSeek-V3 / DeepSeek-R1
+
+DeepSeek is the breakout star of Chinese AI. Their V3 model achieved a **Mixture-of-Experts (MoE)** architecture with 671B total parameters (37B active per token), delivering GPT-4o-class performance at a fraction of the compute cost. DeepSeek-R1, their reasoning model, rivals o1 in math and coding benchmarks.
+
+- **API Compatibility:** OpenAI-compatible (drop-in replacement)
+- **Context Window:** 128K tokens (V3), 64K tokens (R1)
+- **Strengths:** Math, coding, reasoning, cost efficiency
+- **Registration:** Requires Chinese phone number
+- **Pricing:** $0.27/1M input, $1.10/1M output (V3)
+
+### MiniMax (稀宇科技)
+
+**Flagship model:** MiniMax-Text-01 / MiniMax-VL
+
+MiniMax emerged from the shadow of Xiao Ice (Microsoft's chatbot subsidiary) to build competitive LLMs. Their Text-01 model features a 4M-token context window — the longest of any provider listed here — making it ideal for document analysis, codebase understanding, and long-form content generation.
+
+- **API Compatibility:** OpenAI-compatible
+- **Context Window:** Up to 4M tokens (4,000,000)
+- **Strengths:** Ultra-long context, multimodal (image+text)
+- **Registration:** Requires Chinese phone number
+- **Pricing:** $0.20/1M input, $0.80/1M output
+
+### Qwen (通义千问 — Alibaba Cloud)
+
+**Flagship model:** Qwen-Max / Qwen2.5-72B
+
+Alibaba's Qwen series is among the most widely adopted Chinese LLM families globally. Qwen2.5-72B consistently scores in the top tier of the **Open LLM Leaderboard** and **Chatbot Arena**. Alibaba also publishes the full Qwen2.5 family (0.5B to 72B) as open weights.
+
+- **API Compatibility:** OpenAI-compatible
+- **Context Window:** 128K tokens
+- **Strengths:** Balanced across all tasks, multilingual (especially strong in Chinese and English)
+- **Registration:** Requires Chinese phone number + Alibaba Cloud account
+- **Pricing:** $1.20/1M input, $2.40/1M output (Qwen-Max)
+
+### GLM (智谱AI — Zhipu AI)
+
+**Flagship model:** GLM-4-Plus / GLM-4-9B
+
+Zhipu AI, backed by China's national AI initiative, produces the GLM series. GLM-4-Plus competes directly with GPT-4o on Chinese-language tasks and is particularly strong in **Chinese knowledge QA, government/enterprise use cases, and structured data extraction**.
+
+- **API Compatibility:** OpenAI-compatible
+- **Context Window:** 128K tokens
+- **Strengths:** Chinese language understanding, structured outputs, enterprise reliability
+- **Registration:** Requires Chinese phone number
+- **Pricing:** $0.70/1M input, $1.50/1M output (GLM-4-Plus)
+
+### Baidu (百度 — ERNIE)
+
+**Flagship model:** ERNIE 4.0 Turbo / ERNIE Bot
+
+Baidu was the first major Chinese company to release a ChatGPT competitor (ERNIE Bot in March 2023). ERNIE 4.0 Turbo is their latest, optimized for **Chinese search integration, knowledge graphs, and enterprise tools**. Baidu offers the most mature SDK ecosystem, including Python, Java, and Go.
+
+- **API Compatibility:** Custom (not OpenAI-compatible)
+- **Context Window:** 128K tokens
+- **Strengths:** Chinese search integration, enterprise tools, multimodal
+- **Registration:** Requires Chinese phone number + Baidu account
+- **Pricing:** ¥0.012/1k tokens (~$0.83/1M input)
+
+### Moonshot AI (月之暗面)
+
+**Flagship model:** Moonshot K2 / Kimi
+
+Moonshot's Kimi assistant gained massive popularity for its **200K token context window** (now extended in K2). Moonshot models excel at long-document understanding, research paper analysis, and legal document review.
+
+- **API Compatibility:** OpenAI-compatible
+- **Context Window:** 200K+ tokens
+- **Strengths:** Long document processing, research, summarization
+- **Registration:** Requires Chinese phone number
+- **Pricing:** $0.60/1M input, $1.80/1M output
+
+---
+
+## 3. Pricing Comparison Table
+
+| Provider | Model | Input (per 1M tokens) | Output (per 1M tokens) | Context Window | Rate Limit |
+|----------|-------|----------------------|-----------------------|----------------|------------|
+| **DeepSeek** | V3 | $0.27 | $1.10 | 128K | 500 req/min |
+| **DeepSeek** | R1 (reasoning) | $0.55 | $2.19 | 64K | 200 req/min |
+| **MiniMax** | Text-01 | $0.20 | $0.80 | 4M | 100 req/min |
+| **Qwen** | Qwen-Max | $1.20 | $2.40 | 128K | 200 req/min |
+| **Qwen** | Qwen-Turbo | $0.30 | $0.60 | 128K | 400 req/min |
+| **GLM** | GLM-4-Plus | $0.70 | $1.50 | 128K | 100 req/min |
+| **GLM** | GLM-4-Air | $0.15 | $0.30 | 128K | 300 req/min |
+| **Baidu** | ERNIE 4.0 Turbo | ~$0.83 | ~$1.66 | 128K | 300 req/min |
+| **Moonshot** | K2 | $0.60 | $1.80 | 200K | 100 req/min |
+| **Moonshot** | Kimi Lite | $0.15 | $0.40 | 200K | 200 req/min |
+
+**For comparison:** GPT-4o costs **$10.00/1M input** and **$30.00/1M output**. Claude 3.5 Sonnet costs **$8.00/1M input** and **$24.00/1M output**.
+
+Chinese LLM APIs are **8–40x cheaper** than equivalent Western APIs.
+
+---
+
+## 4. The Registration Barrier — Why Chinese Phone Numbers Are Required
+
+Here's the single biggest blocker for overseas developers: **every major Chinese LLM provider requires a mainland Chinese phone number (+86) to create an API account.**
+
+This isn't an arbitrary restriction. It stems from:
+
+### Chinese Internet Regulations
+
+China's **Cybersecurity Law** and **Personal Information Protection Law** mandate real-name authentication for online services. Phone numbers are the primary identity anchor — they're tied to national ID verification.
+
+### Anti-Abuse Measures
+
+Chinese platforms face massive automated registration attacks from data scrapers and spam operators. SMS verification with +86 numbers provides a moderate anti-abuse barrier.
+
+### Payment Infrastructure
+
+Chinese API billing typically uses **Alipay** or **WeChat Pay**, which also require Chinese identity verification. International credit cards are rarely accepted directly.
+
+### What This Means for Overseas Developers
+
+If you don't have a Chinese phone number, you cannot:
+- Register for DeepSeek API access
+- Create an Alibaba Cloud account for Qwen
+- Access Zhipu AI's GLM API console
+- Generate Baidu ERNIE API keys
+- Sign up for MiniMax or Moonshot
+
+**Workarounds** exist (e.g., purchasing a Chinese SIM card, using verification services), but they're unreliable, expensive, and often violate the provider's terms of service.
+
+---
+
+## 5. How TokenPapa.ai Solves This
+
+[TokenPapa.ai](https://tokenpapa.ai) is a **unified relay API** purpose-built for overseas developers who need access to Chinese LLMs. It eliminates the registration barrier entirely.
+
+### How It Works
+
+```
+Your Application → TokenPapa Unified API → Chinese LLM Providers
+                         ↓
+              No Chinese phone needed
+              No Alipay needed
+              Pay with crypto or international cards
+```
+
+### Key Features
+
+- **Zero Registration Hassle:** Sign up with your email — no Chinese phone number required
+- **OpenAI-Compatible Endpoint:** Just change `api.openai.com` to `api.tokenpapa.ai` in your existing code
+- **All Major Providers:** DeepSeek, Qwen, GLM, MiniMax, Moonshot, Baidu — one API key
+- **Pay in Crypto or Card:** USDT, USDC, BTC, ETH, and major credit/debit cards
+- **Load Balancing:** Automatic failover across providers
+- **Transparent Pricing:** You pay the provider rate + a small relay fee, no hidden markup
+
+### Quick Start
+
+```python
+import openai
+
+# Just swap the base URL and API key
+client = openai.OpenAI(
+    base_url="https://api.tokenpapa.ai/v1",
+    api_key="your-tokenpapa-api-key"
+)
+
+# Now use any Chinese model by name
+response = client.chat.completions.create(
+    model="deepseek-v3",
+    messages=[{"role": "user", "content": "Hello from overseas!"}]
+)
+
+print(response.choices[0].message.content)
+```
+
+[👉 **Get Started with TokenPapa →**](https://tokenpapa.ai)
+
+---
+
+## 6. Quality Benchmarks: How Chinese Models Compare
+
+The gap between Chinese and Western LLMs has nearly closed. Here's how the top Chinese models stack up against GPT-4o and Claude 3.5 Sonnet on standard benchmarks:
+
+| Benchmark | GPT-4o | Claude 3.5 Sonnet | DeepSeek-V3 | Qwen2.5-72B | GLM-4-Plus |
+|-----------|--------|-------------------|-------------|-------------|-------------|
+| **MMLU (knowledge)** | 88.7 | 88.3 | 88.5 | 88.1 | 86.2 |
+| **MATH-500** | 87.8 | 88.4 | **90.2** | 85.5 | 82.1 |
+| **HumanEval (coding)** | 90.2 | 92.0 | **92.5** | 88.4 | 85.0 |
+| **GSM8K (math reasoning)** | 95.5 | 96.2 | **96.8** | 94.3 | 92.8 |
+| **C-Eval (Chinese)** | 82.4 | 79.1 | **91.5** | 90.1 | 89.7 |
+| **CLUE (Chinese NLP)** | 85.0 | — | **93.2** | 91.8 | 90.5 |
+
+**Key Takeaways:**
+
+- **DeepSeek-V3** leads on math, coding, and Chinese-language benchmarks. It surpasses GPT-4o on MATH-500, HumanEval, and GSM8K.
+- **Qwen2.5-72B** is the most balanced contender — close to GPT-4o on MMLU and strong across the board.
+- **GLM-4-Plus** trails slightly on English benchmarks but excels in specialized Chinese NLP tasks.
+- **All three** outperform GPT-4o on Chinese-language benchmarks (C-Eval, CLUE) by a significant margin.
+
+The takeaway? For many use cases — especially those involving Chinese language, math, or structured reasoning — **Chinese LLMs are not just alternatives, they're the better choice.**
+
+---
+
+## 7. Use Cases Where Chinese LLMs Excel
+
+### Coding with Chinese Comments & Documentation
+
+Chinese models handle mixed Chinese-English codebases seamlessly. DeepSeek-V3 score of **92.5% on HumanEval** (exceeding GPT-4o's 90.2%) demonstrates that coding quality isn't sacrificed for language support.
+
+```python
+# DeepSeek can understand mixed-language code perfectly
+def 计算折扣(price: float, 会员等级: str) -> float:
+    """根据会员等级计算折扣后价格
+    Args:
+        price: 原价
+        会员等级: '普通', '银卡', '金卡'
+    Returns:
+        折扣后价格
+    """
+    折扣率 = {
+        '普通': 1.0,
+        '银卡': 0.9,
+        '金卡': 0.8
+    }
+    return price * 折扣率.get(会员等级, 1.0)
+```
+
+### Mathematics & Scientific Reasoning
+
+DeepSeek-R1 and Qwen2.5-Math are purpose-built for mathematical reasoning. DeepSeek-R1 uses a **chain-of-thought reasoning architecture** similar to OpenAI's o1, achieving state-of-the-art results on AIME 2024 and MATH-500.
+
+### Long Document Analysis
+
+MiniMax's **4M-token context window** and Moonshot's **200K-token window** make them ideal for:
+- Legal contract review across entire document corpora
+- Academic literature review (hundreds of papers in one pass)
+- Codebase-wide refactoring analysis
+- Financial report analysis spanning multiple years
+
+### Chinese-Centric Applications
+
+If your application serves Chinese-speaking users, Chinese LLMs are the clear choice:
+- **Customer support** in Chinese with culturally appropriate responses
+- **Content generation** that matches Chinese writing conventions
+- **Named entity recognition** for Chinese names, places, and organizations
+- **Sentiment analysis** tuned for Chinese social media expressions
+
+### Cost-Sensitive Production Workloads
+
+When you're processing millions of tokens daily, the 10–40x cost advantage of Chinese LLMs directly impacts your bottom line. At scale, switching from GPT-4o to DeepSeek-V3 can save **$50,000+ per month** on a high-volume application.
+
+---
+
+## 8. Code Example: Accessing Multiple Chinese LLMs via OpenAI-Compatible API
+
+The majority of Chinese LLM providers now offer **OpenAI-compatible APIs**, meaning you can use the standard OpenAI Python library to access them. Here's how to use multiple Chinese models through TokenPapa's unified endpoint:
+
+<Tabs items={["Python", "JavaScript", "cURL"]}>
+<Tab value="python">
+
+```python
+import openai
+from concurrent.futures import ThreadPoolExecutor
+
+# Configure TokenPapa client
+client = openai.OpenAI(
+    base_url="https://api.tokenpapa.ai/v1",
+    api_key="tp-sk-your-api-key"
+)
+
+# Define models to test
+models = [
+    "deepseek-v3",
+    "qwen-max",
+    "glm-4-plus",
+    "minimax-text-01",
+    "moonshot-k2"
+]
+
+prompt = "Explain the concept of 'attention is all you need' in one paragraph."
+
+def query_model(model: str) -> tuple:
+    """Query a model and return (model, response)."""
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=200,
+            temperature=0.7
+        )
+        return model, response.choices[0].message.content
+    except Exception as e:
+        return model, f"Error: {str(e)}"
+
+# Query all models in parallel
+with ThreadPoolExecutor(max_workers=5) as executor:
+    results = list(executor.map(query_model, models))
+
+# Print results
+for model, response in results:
+    print(f"=== {model} ===")
+    print(response)
+    print()
+```
+</Tab>
+<Tab value="javascript">
+
+```javascript
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://api.tokenpapa.ai/v1',
+  apiKey: 'tp-sk-your-api-key'
+});
+
+const models = [
+  'deepseek-v3',
+  'qwen-max',
+  'glm-4-plus',
+  'minimax-text-01',
+  'moonshot-k2'
+];
+
+const prompt = 'Explain the concept of "attention is all you need" in one paragraph.';
+
+async function queryAll() {
+  const results = await Promise.all(
+    models.map(model =>
+      client.chat.completions.create({
+        model,
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 200,
+        temperature: 0.7
+      }).then(resp => ({
+        model,
+        content: resp.choices[0].message.content
+      })).catch(err => ({
+        model,
+        content: `Error: ${err.message}`
+      }))
+    )
+  );
+
+  results.forEach(({ model, content }) => {
+    console.log(`=== ${model} ===`);
+    console.log(content);
+    console.log();
+  });
+}
+
+queryAll();
+```
+</Tab>
+<Tab value="curl">
+
+```bash
+# Test DeepSeek via TokenPapa
+curl https://api.tokenpapa.ai/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer tp-sk-your-api-key" \
+  -d '{
+    "model": "deepseek-v3",
+    "messages": [{"role": "user", "content": "Explain attention mechanism in one paragraph."}],
+    "max_tokens": 200
+  }'
+```
+</Tab>
+</Tabs>
+
+### Switching Between Providers
+
+The beauty of OpenAI-compatible APIs is that switching models is a one-line change:
+
+```python
+# From DeepSeek...
+client.chat.completions.create(model="deepseek-v3", messages=msgs)
+
+# ...to Qwen
+client.chat.completions.create(model="qwen-max", messages=msgs)
+
+# ...to GLM
+client.chat.completions.create(model="glm-4-plus", messages=msgs)
+
+# ...to MiniMax
+client.chat.completions.create(model="minimax-text-01", messages=msgs)
+```
+
+No SDK changes. No authentication rewrites. No new billing setup.
+
+---
+
+## 9. Risks and Considerations
+
+### Data Privacy & Sovereignty
+
+Chinese LLM providers are subject to China's data regulations, including the **Data Security Law** and the **Personal Information Protection Law**. If you process sensitive user data:
+
+- **What's sent to the API:** Prompts and responses pass through the provider's servers
+- **Data handling:** Review each provider's privacy policy — some claim they don't train on API data, others reserve the right
+- **Recommendation:** Use a relay like TokenPapa that sits between you and providers (no additional data sharing), or self-host open-weight models for sensitive workloads
+
+### Reliability & Uptime
+
+Chinese LLM APIs can experience:
+- **Service interruptions** during public holidays (Chinese New Year, National Day Golden Week)
+- **Degraded performance** during peak hours (Chinese business hours, 9:00–18:00 CST)
+- **Tier restrictions** on free/developer accounts
+
+TokenPapa mitigates this with automatic failover — if one provider is slow or down, requests route to the next available.
+
+### Latency
+
+API latency to Chinese servers from Western regions typically ranges from **200ms–800ms** (Asia/coast) to **800ms–3,000ms** (Europe/East Coast US). This is acceptable for most chat and content generation use cases but may be noticeable for real-time applications.
+
+TokenPapa maintains edge caching and optimized routing to minimize latency.
+
+### Model Stability
+
+Chinese LLM providers iterate fast — model names and versions change frequently. An API call to `deepseek-v3` today might route to a different underlying checkpoint next month. Always pin model versions when you need stability.
+
+On TokenPapa, we freeze model versions and provide migration guides for breaking changes.
+
+### Content Filtering
+
+Chinese models have stricter content moderation compared to Western equivalents. Some topics (political discussions, sensitive historical events) may trigger refusal responses. If your use case involves such content, plan accordingly or use a Western model.
+
+---
+
+## 10. FAQ
+
+### Q: Can I use Chinese LLM APIs without a Chinese phone number?
+
+**A:** Directly — no. Every major Chinese LLM provider requires a +86 phone number for registration. However, you can use **TokenPapa.ai** as a relay — sign up with your email, pay with crypto or international cards, and get instant access to all Chinese LLMs.
+
+### Q: Are Chinese LLM APIs OpenAI-compatible?
+
+**A:** Most are. DeepSeek, Qwen, GLM, MiniMax, and Moonshot all support OpenAI-compatible API formats. Baidu's ERNIE uses a custom API (though TokenPapa standardizes it). This means you can use the `openai` Python library or any OpenAI SDK to call them.
+
+### Q: How much can I save by switching to Chinese LLMs?
+
+**A:** 8–40x depending on the provider. DeepSeek-V3 costs $0.27/1M input tokens vs. GPT-4o's $10.00 — a **37x price difference**. At production scale, this can mean tens of thousands of dollars in monthly savings.
+
+### Q: Are Chinese LLMs as good as GPT-4o?
+
+**A:** On many benchmarks, they're equal or better. DeepSeek-V3 exceeds GPT-4o on MATH-500 (90.2 vs 87.8), HumanEval (92.5 vs 90.2), and GSM8K (96.8 vs 95.5). On Chinese-language tasks, Chinese models outperform GPT-4o by a wide margin.
+
+### Q: Is it safe to send data to Chinese LLM APIs?
+
+**A:** Data sent to any third-party API carries inherent privacy risk. For non-sensitive data, Chinese providers offer competitive terms. For sensitive data, consider self-hosting open-weight models (DeepSeek, Qwen, GLM all offer them) or routing through a relay like TokenPapa that minimizes data exposure.
+
+### Q: What about latency from overseas?
+
+**A:** Expect 200ms–800ms from Asia, 500ms–1,500ms from North America, and 800ms–3,000ms from Europe. TokenPapa offers optimized routing and edge caching to improve response times.
+
+### Q: Do Chinese LLMs support languages other than Chinese and English?
+
+**A:** Yes, though quality varies. Qwen2.5 is the strongest multilingual performer, with support for 29+ languages. DeepSeek and GLM are best in Chinese and English. For other languages, Qwen-Max is recommended.
+
+### Q: Can I use Chinese LLMs for commercial applications?
+
+**A:** Yes. All providers listed offer commercial licenses through their API terms. DeepSeek, Qwen, and GLM open-weight models use custom licenses — some permissive, some with restrictions. Check each model's license page for details.
+
+---
+
+## 11. Get Started with TokenPapa.ai
+
+Chinese LLMs represent the biggest value opportunity in AI infrastructure right now. World-class models at 10–40x lower cost, open-weight availability, and rapid innovation — but the registration barrier keeps most overseas developers from accessing them.
+
+**TokenPapa.ai removes that barrier completely.**
+
+- ✅ **No Chinese phone number required** — sign up with email
+- ✅ **Unified OpenAI-compatible API** — DeepSeek, Qwen, GLM, MiniMax, Moonshot, Baidu under one endpoint
+- ✅ **Pay your way** — crypto (USDT, USDC, ETH, BTC) or major credit/debit cards
+- ✅ **Automatic failover** — never lose access when a provider goes down
+- ✅ **Transparent pricing** — provider rates + small relay fee, no surprises
+- ✅ **Instant onboarding** — get your API key in under 2 minutes
+
+### Ready to access Chinese LLMs?
+
+[**👉 Create Your Free TokenPapa Account →**](https://tokenpapa.ai)
+
+Already have a project? Switch in 30 seconds:
+
+```bash
+# Before (with direct provider)
+OPENAI_API_KEY="sk-your-openai-key"
+
+# After (with TokenPapa)
+OPENAI_BASE_URL="https://api.tokenpapa.ai/v1"
+OPENAI_API_KEY="tp-sk-your-tokenpapa-key"
+```
+
+**One endpoint. All Chinese LLMs. Zero barriers.**
+
+---
+
+*Published June 12, 2025 by the TokenPapa Team. Prices and benchmark figures are current as of publication and may change as providers update their models and pricing.*

@@ -3,5 +3,13 @@
   "description": "DeepSeek API guides, pricing comparisons, and developer tips",
   "icon": "Newspaper",
   "root": true,
-  "pages": ["access-deepseek-from-us"]
+  "pages": [
+    "access-deepseek-from-us",
+    "deepseek-api-for-us-developers",
+    "deepseek-without-chinese-phone",
+    "deepseek-vs-openai-pricing",
+    "cheapest-ai-apis-side-projects-2025",
+    "minimax-api-guide-overseas",
+    "chinese-llm-apis-complete-guide"
+  ]
 }

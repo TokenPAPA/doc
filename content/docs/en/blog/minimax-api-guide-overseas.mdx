@@ -1,0 +1,407 @@
+---
+title: "MiniMax API Guide — Pricing, Setup & Integration for Overseas Developers"
+description: "Complete guide to the MiniMax API for overseas developers. Learn pricing, setup, Python code examples, and how to access MiniMax without a Chinese phone number via tokenpapa.ai."
+keywords: [MiniMax API for developers, MiniMax API pricing, cheap MiniMax API, MiniMax vs GPT-4o, MiniMax text generation, MiniMax audio API, Chinese LLM API, tokenpapa]
+date: 2026-06-12
+authors: [tokenpapa]
+sidebar:
+  order: 1
+---
+
+# MiniMax API Guide — Pricing, Setup & Integration for Overseas Developers
+
+MiniMax is one of China's leading large language model (LLM) providers, offering a suite of powerful AI models for text generation, speech synthesis, and video creation. For overseas developers, accessing MiniMax has traditionally been challenging due to Chinese phone verification requirements. This guide covers everything you need to know about the MiniMax API — models, pricing, comparisons, and how to get started without friction.
+
+---
+
+## 1. What is MiniMax? Overview of Models and Capabilities
+
+Founded in 2021, MiniMax has quickly emerged as a top-tier AI lab in China, rivaling Baidu's ERNIE and Alibaba's Qwen families. Their flagship models include:
+
+| Model Series | Type | Key Capabilities |
+|---|---|---|
+| **MiniMax-Text-01** | Large Language Model | Long-context (up to 4M tokens), reasoning, code generation |
+| **MiniMax-VL** | Vision-Language Model | Image understanding, visual QA, document analysis |
+| **MiniMax-TTS** | Text-to-Speech | Ultra-realistic voice synthesis, emotion control, multiple languages |
+| **MiniMax-Video** | Video Generation | Text-to-video, image-to-video, short-form content creation |
+
+MiniMax models are known for exceptional long-context performance (up to **4 million tokens** — among the longest in the industry), competitive reasoning benchmarks, and highly expressive speech synthesis that rivals ElevenLabs.
+
+---
+
+## 2. MiniMax API Features
+
+### Text Generation (MiniMax-Text-01)
+- **Context window**: Up to 4M tokens (supports book-length inputs)
+- **Function calling**: Full tool-use support
+- **Streaming**: Server-sent events (SSE) for real-time responses
+- **System prompts**: Custom behavior steering
+- **Multi-turn chat**: Conversation memory management
+
+### Audio Generation (MiniMax-TTS)
+- **Voice cloning**: Upload a short sample to create custom voices
+- **Emotion control**: Specify happiness, sadness, excitement, calm, etc.
+- **Multi-language**: Chinese, English, Japanese, Korean, and more
+- **Speed control**: Adjust speaking rate
+- **SSML support**: Fine-grained pronunciation control
+
+### Video Generation (MiniMax-Video)
+- **Text-to-video**: Generate short videos from text prompts
+- **Image-to-video**: Animate static images
+- **Style transfer**: Apply visual styles to generated content
+- **Aspect ratios**: 16:9, 9:16, 1:1 supported
+
+### API Access Methods
+| Method | Description |
+|---|---|
+| **REST API** | Standard HTTP requests for all endpoints |
+| **Python SDK** | Official SDK for easy integration |
+| **WebSocket** | Real-time audio streaming for voice applications |
+
+---
+
+## 3. Pricing Breakdown per Model
+
+MiniMax pricing is highly competitive, especially for overseas developers routing through relay services.
+
+### MiniMax-Text-01 (as of June 2026)
+
+| Metric | Price (CNY) | Approx. USD |
+|---|---|---|
+| Input tokens | ¥0.80 / 1M tokens | ~$0.11 / 1M tokens |
+| Output tokens | ¥2.40 / 1M tokens | ~$0.33 / 1M tokens |
+
+For comparison, this is roughly **5–10x cheaper** than OpenAI's GPT-4o on comparable benchmarks.
+
+### MiniMax-TTS
+
+| Tier | Price |
+|---|---|
+| Standard voices | ¥0.10 / 1,000 characters |
+| Premium voices | ¥0.30 / 1,000 characters |
+| Voice cloning | ¥0.50 / 1,000 characters |
+
+### MiniMax-Video
+
+| Resolution | Price per second |
+|---|---|
+| 720p | ¥0.50 / second |
+| 1080p | ¥1.00 / second |
+
+### Pricing via tokenpapa.ai Relay
+
+When accessing MiniMax through [tokenpapa.ai](https://tokenpapa.ai), you get:
+- **No minimum deposit** — pay as you go
+- **USD pricing** — no currency conversion surprises
+- **No markup on base model pricing** for text and audio
+- **Prepaid top-ups** starting at $5
+
+---
+
+## 4. How MiniMax Compares to DeepSeek and GPT-4o
+
+| Feature | **MiniMax-Text-01** | **DeepSeek-V3** | **GPT-4o** |
+|---|---|---|---|
+| **Context Window** | 4M tokens | 128K tokens | 128K tokens |
+| **Input Price (per 1M tokens)** | ~$0.11 | ~$0.27 | ~$2.50 |
+| **Output Price (per 1M tokens)** | ~$0.33 | ~$1.10 | ~$10.00 |
+| **Reasoning** | Strong (Top 5 on Chatbot Arena) | Very Strong (Top 3) | Excellent (Top 1) |
+| **Code Generation** | Good | Excellent | Excellent |
+| **Long Document Tasks** | **Best in class** (4M context) | Moderate (128K) | Moderate (128K) |
+| **Audio/Video** | Native TTS + Video generation | Text only | TTS only (via Whisper + TTS) |
+| **Multilingual** | Strong (Chinese + English + more) | Strong | Excellent |
+| **Function Calling** | ✅ | ✅ | ✅ |
+| **Streaming** | ✅ | ✅ | ✅ |
+| **Chinese Phone Required** | ✅ (Direct) | ✅ (Direct) | ❌ |
+| **Access via tokenpapa.ai** | ❌ (no phone needed) | ❌ (no phone needed) | N/A |
+
+### When to Choose MiniMax
+
+- **Long-document processing** — MiniMax's 4M token context is unmatched. Analyze entire books, codebases, or legal documents in a single call.
+- **Cost-sensitive projects** — At ~$0.11/M input tokens, MiniMax is the most affordable frontier model available.
+- **Voice applications** — MiniMax-TTS offers quality comparable to ElevenLabs at a fraction of the cost.
+- **Chinese-language applications** — Native Chinese understanding with no Western model bias.
+
+---
+
+## 5. Getting Started: Sign Up via tokenpapa.ai (No Chinese Phone Needed)
+
+The biggest barrier to using MiniMax as an overseas developer is the phone verification. MiniMax's official platform requires a mainland Chinese mobile number. **tokenpapa.ai solves this** by acting as a proxy relay.
+
+### Step-by-Step
+
+1. **Visit [tokenpapa.ai](https://tokenpapa.ai)** and create an account (email + password — no phone needed).
+2. **Navigate to the API Keys** section and generate a new key.
+3. **Top up your balance** — start with as little as $5.
+4. **Use the provided endpoint** (`https://api.tokenpapa.ai/v1`) in your code.
+
+### API Endpoints via tokenpapa
+
+| Service | Endpoint | Base Model |
+|---|---|---|
+| Chat Completions | `POST /v1/chat/completions` | MiniMax-Text-01 |
+| Text-to-Speech | `POST /v1/audio/speech` | MiniMax-TTS |
+| Video Generation | `POST /v1/video/generations` | MiniMax-Video |
+
+tokenpapa.ai provides an **OpenAI-compatible API format**, meaning you can drop it into existing OpenAI SDK code by simply changing the base URL and API key.
+
+---
+
+## 6. Python Code Examples
+
+### Prerequisites
+
+```bash
+pip install openai
+```
+
+### Example 1: Text Generation (Chat Completions)
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-tokenpapa-api-key",
+    base_url="https://api.tokenpapa.ai/v1"
+)
+
+response = client.chat.completions.create(
+    model="minimax-text-01",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "Explain the advantages of using MiniMax for long-document analysis."}
+    ],
+    temperature=0.7,
+    max_tokens=2000,
+    stream=True
+)
+
+for chunk in response:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="")
+```
+
+### Example 2: Text-to-Speech (TTS)
+
+```python
+import requests
+
+response = requests.post(
+    "https://api.tokenpapa.ai/v1/audio/speech",
+    headers={
+        "Authorization": f"Bearer your-tokenpapa-api-key",
+        "Content-Type": "application/json"
+    },
+    json={
+        "model": "minimax-tts",
+        "input": "Hello! This is a MiniMax-generated voice sample. It sounds natural and expressive.",
+        "voice": "male-standard-1",
+        "response_format": "mp3",
+        "speed": 1.0
+    }
+)
+
+# Save the audio file
+with open("output.mp3", "wb") as f:
+    f.write(response.content)
+
+print("Audio saved to output.mp3")
+```
+
+### Example 3: Streaming Chat with Long Context
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-tokenpapa-api-key",
+    base_url="https://api.tokenpapa.ai/v1"
+)
+
+# Load a long document (e.g., an entire book)
+with open("long_document.txt", "r") as f:
+    document = f.read()
+
+response = client.chat.completions.create(
+    model="minimax-text-01",
+    messages=[
+        {"role": "user", "content": f"Here is a document:\n\n{document}\n\nSummarize the main arguments in bullet points."}
+    ],
+    max_tokens=4000
+)
+
+print(response.choices[0].message.content)
+```
+
+### Example 4: Function Calling (Tool Use)
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-tokenpapa-api-key",
+    base_url="https://api.tokenpapa.ai/v1"
+)
+
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_weather",
+            "description": "Get current weather for a city",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "location": {"type": "string", "description": "City name"}
+                },
+                "required": ["location"]
+            }
+        }
+    }
+]
+
+response = client.chat.completions.create(
+    model="minimax-text-01",
+    messages=[{"role": "user", "content": "What's the weather in Tokyo?"}],
+    tools=tools,
+    tool_choice="auto"
+)
+
+print(response.choices[0].message)
+```
+
+---
+
+## 7. Use Cases
+
+### Chatbots and Customer Support
+MiniMax-Text-01's massive context window makes it ideal for support chatbots that need to remember entire conversation histories. At 1/20th the cost of GPT-4o, you can deploy 24/7 support bots without breaking your budget.
+
+### Voice Applications
+Build voice assistants, audiobook narrators, or interactive voice response (IVR) systems using MiniMax-TTS. Combine with the text model for a complete voice pipeline:
+- User speaks → Speech-to-text (Whisper) → MiniMax-Text-01 processes → MiniMax-TTS responds
+
+### Content Generation
+- **Blog writing**: Generate SEO-optimized articles at scale
+- **Translation**: Process entire documents in one API call
+- **Code documentation**: Analyze and document large codebases
+- **Video creation**: Generate short-form videos for social media with MiniMax-Video
+
+### Education and Research
+- Analyze academic papers (entire PDFs in context)
+- Generate study materials
+- Create multilingual educational content
+- Voice-narrated lessons with TTS
+
+---
+
+## 8. Best Practices and Rate Limits
+
+### Best Practices
+
+| Practice | Recommendation |
+|---|---|
+| **Stream responses** | Always use `stream=True` for chat to reduce perceived latency |
+| **Context management** | Even with 4M tokens, keep conversations focused — send relevant context only |
+| **Temperature tuning** | Use 0.3–0.5 for factual tasks, 0.7–0.9 for creative generation |
+| **Retry logic** | Implement exponential backoff for 429 (rate limit) and 5xx errors |
+| **Batch requests** | For bulk processing, send non-streaming requests with higher timeouts |
+| **Monitor costs** | Track token usage per request to avoid surprises at scale |
+
+### Rate Limits (via tokenpapa.ai)
+
+| Tier | Requests per minute (RPM) | Tokens per minute (TPM) |
+|---|---|---|
+| Free | 10 RPM | 50K TPM |
+| Paid (Starter) | 60 RPM | 500K TPM |
+| Paid (Pro) | 300 RPM | 5M TPM |
+| Enterprise | Custom | Custom |
+
+### Error Handling
+
+```python
+import time
+from openai import OpenAI, RateLimitError, APIError
+
+client = OpenAI(api_key="your-key", base_url="https://api.tokenpapa.ai/v1")
+
+def chat_with_retry(messages, max_retries=3):
+    for attempt in range(max_retries):
+        try:
+            return client.chat.completions.create(
+                model="minimax-text-01",
+                messages=messages
+            )
+        except RateLimitError:
+            wait = 2 ** attempt
+            print(f"Rate limited. Retrying in {wait}s...")
+            time.sleep(wait)
+        except APIError as e:
+            if e.status_code >= 500:
+                wait = 2 ** attempt
+                print(f"Server error. Retrying in {wait}s...")
+                time.sleep(wait)
+            else:
+                raise
+    raise Exception("Max retries exceeded")
+```
+
+---
+
+## 9. FAQ
+
+### Q: Do I need a Chinese phone number to use MiniMax?
+**A:** Not if you use [tokenpapa.ai](https://tokenpapa.ai). tokenpapa acts as a relay that handles the Chinese phone verification on the backend. You only need an email to sign up.
+
+### Q: Is the MiniMax API compatible with the OpenAI SDK?
+**A:** Yes! tokenpapa.ai exposes an OpenAI-compatible API. You can use the `openai` Python SDK by changing the `base_url` and `api_key`.
+
+### Q: How does MiniMax pricing compare to GPT-4o?
+**A:** MiniMax is roughly **20–30x cheaper** than GPT-4o for text generation (~$0.11 vs $2.50 per 1M input tokens).
+
+### Q: What is MiniMax's context window?
+**A:** MiniMax-Text-01 supports up to **4 million tokens** — currently the longest context window available from any major LLM provider.
+
+### Q: Does MiniMax support streaming?
+**A:** Yes. Both text generation and TTS support streaming responses.
+
+### Q: Can I use MiniMax for commercial applications?
+**A:** Yes. MiniMax allows commercial use. Check the specific terms on tokenpapa.ai for relay-specific licensing.
+
+### Q: What languages does MiniMax-TTS support?
+**A:** Chinese (Mandarin, Cantonese), English, Japanese, Korean, French, German, Spanish, and more.
+
+### Q: How do I handle rate limits?
+**A:** Implement exponential backoff retries (see code example in Section 8). Upgrade your tokenpapa.ai plan for higher limits.
+
+### Q: Is my data secure when using tokenpapa.ai?
+**A:** tokenpapa.ai does not log or store your request content. Data is encrypted in transit and passed directly to MiniMax's servers.
+
+---
+
+## 10. Start Building with MiniMax Today
+
+MiniMax represents an incredible opportunity for overseas developers: **frontier-model quality at a fraction of the cost**, with capabilities (like 4M-token context and native TTS) that even OpenAI doesn't fully match.
+
+Until recently, accessing MiniMax required a Chinese phone number — a barrier that shut out most of the world. **tokenpapa.ai removes that barrier.**
+
+### Why Use tokenpapa.ai?
+
+- ✅ **No Chinese phone number needed** — sign up with email
+- ✅ **OpenAI-compatible API** — no SDK changes required
+- ✅ **Pay in USD** — no currency conversion fees
+- ✅ **Pay as you go** — start with $5, no minimum commitment
+- ✅ **Fast relay** — optimized routing to MiniMax's Beijing servers
+- ✅ **Active support** — we help overseas developers 24/7
+
+### Get Started in 3 Minutes
+
+1. [Create a free account on tokenpapa.ai](https://tokenpapa.ai)
+2. Generate your API key
+3. Copy the Python examples above and start building
+
+**Ready to build with the most cost-effective frontier LLM available?** [Sign up for tokenpapa.ai →](https://tokenpapa.ai)
+
+---
+
+*Last updated: June 12, 2026 | MiniMax pricing subject to change. Check [tokenpapa.ai](https://tokenpapa.ai) for current rates.*
