@@ -14,6 +14,10 @@ const config = {
         'docs.newapi.pro',
         'newapi.pro',
         'www.newapi.pro',
+        // tokenpapa.ai domains
+        'doc.tokenpapa.ai',
+        'tokenpapa.ai',
+        'www.tokenpapa.ai',
         // newapi.ai domains
         'docs.newapi.ai',
         'newapi.ai',
