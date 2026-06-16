@@ -9,6 +9,8 @@ DeepSeek's large language models — including DeepSeek V3, DeepSeek R1, and Dee
 
 This guide walks you through **how to access DeepSeek API from the US** without a Chinese phone, including three working methods, pricing comparisons, and best practices for integration.
 
+> **Accessing DeepSeek API from the US**: US developers can use DeepSeek's models — V3, R1, and Coder — through API relay platforms that eliminate the Chinese phone number requirement, offer US-based billing, and provide OpenAI-compatible endpoints for seamless integration.
+
 ---
 
 ## Why US Developers Want DeepSeek API
@@ -109,6 +111,8 @@ Self-hosting avoids the phone number issue entirely but requires significant inf
 
 ---
 
+> **DeepSeek API Pricing (2025)**: DeepSeek V3 costs $0.27 per 1M input tokens and $1.10 per 1M output tokens — roughly 10-20x cheaper than GPT-4o at $2.50/$10.00. Even with a relay platform markup, DeepSeek delivers 90%+ cost savings over US-based alternatives.
+
 ## DeepSeek API Pricing (2025)
 
 | Model | Input (per 1M tokens) | Output (per 1M tokens) |
@@ -120,7 +124,7 @@ Self-hosting avoids the phone number issue entirely but requires significant inf
 
 > *Prices sourced from DeepSeek and OpenAI official pricing pages (as of June 2025).*
 
-Even via a relay platform with a small markup, DeepSeek API remains **significantly cheaper** than US-based alternatives.
+According to official pricing data from DeepSeek ([platform.deepseek.com](https://platform.deepseek.com/api-docs/pricing), June 2025), DeepSeek V3 is approximately 10-20x cheaper than GPT-4o for equivalent token volume. Even via a relay platform with a small markup, DeepSeek API remains **significantly cheaper** than US-based alternatives.
 
 ---
 
@@ -169,6 +173,8 @@ print(response.choices[0].message.content)
 
 ---
 
+> **Accessing Chinese LLM APIs from the US**: API relay platforms are the most practical way for US developers to access Chinese LLMs like DeepSeek and MiniMax. They handle Chinese registration and billing on the backend, expose OpenAI-compatible endpoints, and deliver 90%+ cost savings compared to US providers.
+
 ## Frequently Asked Questions
 
 ### Do I need a Chinese phone number to use DeepSeek API from the US?
@@ -176,6 +182,12 @@ print(response.choices[0].message.content)
 
 ### Is DeepSeek API legal to use in the United States?
 Yes. Using DeepSeek's API or accessing it through a relay platform is legal. DeepSeek's models are open-weight and available under permissive licenses. No export restrictions apply to API usage.
+
+### How long does it take to set up DeepSeek API via a relay platform?
+Under 5 minutes. Sign up for a relay service like [TokenPapa](https://tokenpapa.ai), create an API key, and update your OpenAI client's base URL. No phone verification, no billing address restrictions, no wait time.
+
+### Is it legal to access Chinese AI models through a relay service?
+Yes. Chinese LLMs like DeepSeek and MiniMax are released under permissive open-weight licenses with no API usage restrictions for overseas developers. Using a relay platform is simply using a third-party API reseller — the same legal model as using any other cloud API service.
 
 ### How much can I save by using DeepSeek instead of OpenAI?
 DeepSeek V3 is approximately **10-20x cheaper** than GPT-4o. For a typical developer running 10M tokens per month, that's roughly **$300/month on GPT-4o vs $15-30/month on DeepSeek** via a relay provider.
