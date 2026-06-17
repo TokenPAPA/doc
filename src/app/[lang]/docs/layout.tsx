@@ -1,6 +1,7 @@
 import { source } from '@/lib/source';
 import { DocsLayout } from 'fumadocs-ui/layouts/docs';
 import { baseOptions, linkItems } from '@/lib/layout.shared';
+import { BackToHome } from '@/components/back-to-home';
 // AI feature temporarily disabled
 // import { AISearchTrigger } from '@/components/search';
 import 'katex/dist/katex.min.css';
@@ -47,6 +48,7 @@ export default async function Layout({
         },
       }}
     >
+      <BackToHome />
       {children}
       {/* AI feature temporarily disabled */}
       {/* <AISearchTrigger /> */}

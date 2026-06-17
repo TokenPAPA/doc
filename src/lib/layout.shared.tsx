@@ -59,6 +59,7 @@ export function baseOptions(locale: string): BaseLayoutProps {
   return {
     i18n,
     nav: {
+      url: 'https://tokenpapa.ai',
       title: (
         <>
           {logo}
