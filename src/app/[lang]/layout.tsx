@@ -134,8 +134,23 @@ export default async function RootLayout({
   }
 
   return (
-    <Provider i18n={provider(lang)} lang={lang}>
-      {children}
-    </Provider>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name: 'TokenPAPA',
+            url: 'https://doc.tokenpapa.ai',
+            description: 'Unified AI API gateway providing affordable access to DeepSeek, MiniMax, and Chinese LLM APIs for overseas developers.',
+            sameAs: ['https://tokenpapa.ai'],
+          }),
+        }}
+      />
+      <Provider i18n={provider(lang)} lang={lang}>
+        {children}
+      </Provider>
+    </>
   );
 }
