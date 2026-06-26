@@ -30,4 +30,4 @@ export const baseUrl =
     ? new URL(process.env.SITE_URL)
     : process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? new URL(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`)
-      : new URL('http://localhost:3000');
+      : new URL('https://doc.tokenpapa.ai');

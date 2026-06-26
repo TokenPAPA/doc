@@ -1,0 +1,300 @@
+---
+title: "DeepSeek V4 Flash 与 V4 Pro 完整对比：定价、性能与选型指南 (2026)"
+description: "2026 年最新 DeepSeek V4 Flash 与 V4 Pro 全面对比。定价、缓存命中优化、性能基准测试，以及从 V3/R1 迁移的完整指南。"
+keywords: [DeepSeek V4, DeepSeek V4 Flash, DeepSeek V4 Pro, deepseek-v4-flash vs deepseek-v4-pro, DeepSeek V4 定价, DeepSeek V4 基准测试, DeepSeek 缓存命中]
+date: 2026-06-26
+authors: [tokenpapa]
+category: "模型对比"
+---
+
+{/* GEO-optimized - 2026-06-26 */}
+
+import { JsonLd } from '@/components/json-ld';
+
+<JsonLd
+  json='{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "DeepSeek V4 Flash vs V4 Pro — Complete Pricing & Performance Guide (2026)",
+    "description": "Compare DeepSeek V4 Flash vs V4 Pro for 2026. Latest pricing, performance benchmarks, cache hit savings, and migration guide from deprecated V3/R1 models.",
+    "author": {
+      "@type": "Organization",
+      "name": "TokenPAPA"
+    },
+    "datePublished": "2026-06-26",
+    "dateModified": "2026-06-26",
+    "keywords": "DeepSeek V4, DeepSeek V4 Flash, DeepSeek V4 Pro, deepseek-v4-flash vs deepseek-v4-pro, DeepSeek V4 pricing, DeepSeek V4 benchmark"
+  }'
+/>
+
+<JsonLd
+  json='{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is the difference between DeepSeek V4 Flash and V4 Pro?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "DeepSeek V4 Flash is the cost-optimized variant with faster speeds (2500 RPM concurrency) and dramatically lower cache-hit pricing at $0.0028/1M tokens. V4 Pro is the premium tier with higher output quality on complex reasoning tasks, 500 RPM concurrency, and higher pricing at $0.003625/1M cache-hit input and $0.87/1M output. Both share a 1M context window and support Thinking mode, JSON output, tool calls, and FIM completion."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "When will deepseek-chat and deepseek-reasoner be deprecated?",
+        "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "deepseek-chat and deepseek-reasoner will be fully deprecated on July 24, 2026. After this date, these model names will map to deepseek-v4-flash. Users should migrate their API calls to the explicit v4 model names (deepseek-v4-flash or deepseek-v4-pro) before the deadline to avoid unexpected behavior."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does cache hit pricing work with DeepSeek V4?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "DeepSeek V4 introduces revolutionary cache hit pricing. When your prompt matches a cached prefix — common for system prompts, few-shot examples, or repeated context — you pay a fraction of the standard rate. Flash cache hits cost just $0.0028/1M input tokens (98% savings vs cache miss at $0.14/1M). Pro cache hits cost $0.003625/1M vs $0.435/1M miss. This makes repeated or batched workloads dramatically cheaper."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I access DeepSeek V4 from overseas?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. TokenPAPA provides overseas access to DeepSeek V4 models (both Flash and Pro) without requiring a Chinese phone number or local payment method. You get a dedicated API key, stable routing from global servers, and support for both OpenAI-compatible and DeepSeek-native SDKs. Sign up at tokenpapa.ai to get started."
+        }
+      }
+    ]
+  }'
+/>
+
+# DeepSeek V4 Flash 与 V4 Pro 完整对比：定价、性能与选型指南 (2026)
+
+DeepSeek 已正式进入 **V4 模型时代**，两大旗舰变体——**DeepSeek V4 Flash** 和 **DeepSeek V4 Pro**——清晰地划分出"速度与性价比优先"和"极致能力优先"两条路线。无论你是在构建高吞吐聊天机器人、复杂推理管线，还是计划从即将废弃的 V3 和 R1 模型迁移，理解两者的差异都至关重要。
+
+本文涵盖全部核心信息：定价方案、性能基准测试、缓存命中机制、使用场景推荐以及迁移时间线。如果你希望无障碍地全球访问 DeepSeek V4，避免中国区注册的繁琐流程，[TokenPAPA](https://tokenpapa.ai) 提供即时 API 密钥和海外友好结算方案，一站解决。
+
+---
+
+## DeepSeek V4 Flash 与 V4 Pro 功能对比
+
+两款模型均基于 DeepSeek 最新架构，拥有 **100 万 token 上下文窗口**和 **384K 最大输出 token**。二者均支持思考模式（默认开启）、结构化 JSON 输出、工具/函数调用以及 FIM（Fill-in-the-Middle）补全。但运行参数存在显著差异。
+
+| 特性 | DeepSeek V4 Flash | DeepSeek V4 Pro |
+|---|---|---|
+| **上下文窗口** | 100 万 tokens | 100 万 tokens |
+| **最大输出 tokens** | 384K | 384K |
+| **输入定价（缓存命中）** | $0.0028 / 1M tokens | $0.003625 / 1M tokens |
+| **输入定价（缓存未命中）** | $0.14 / 1M tokens | $0.435 / 1M tokens |
+| **输出定价** | $0.28 / 1M tokens | $0.87 / 1M tokens |
+| **速率限制 (RPM)** | 2500 | 500 |
+| **思考模式** | ✅ 默认开启 | ✅ 默认开启 |
+| **JSON 输出** | ✅ | ✅ |
+| **工具调用** | ✅ | ✅ |
+| **FIM 补全** | ✅ | ✅ |
+| **最佳场景** | 高吞吐、成本敏感、重复提示词的工作负载 | 复杂推理、代码生成、高精度关键任务 |
+
+### 共同优势
+
+两款 V4 变体相比上一代均有重大改进：
+
+- **超大的 100 万上下文**支持文档级理解、长代码库分析和多轮对话记忆——这些在 V3/R1 上几乎不可实现。
+- **384K 输出 token**允许在单次调用中生成长篇报告、完整代码库或扩展分析。
+- **思考模式默认开启**——模型在回答前进行内部思维链推理，无需额外提示词工程即可提升推理质量。
+
+---
+
+## 定价深度解析：为什么缓存命中改变了一切
+
+DeepSeek V4 最具颠覆性的定价特性是**缓存命中折扣**。当你的系统提示词、少样本示例或重复指令前缀命中 DeepSeek 推理服务器上的缓存条目时，输入成本在 Flash 上降低 **98%**，在 Pro 上降低 **99% 以上**。
+
+### 缓存命中经济学
+
+| 模型 | 缓存命中（每 1M 输入） | 缓存未命中（每 1M 输入） | 节省幅度 |
+|---|---|---|---|
+| **V4 Flash** | $0.0028 | $0.14 | **98%** |
+| **V4 Pro** | $0.003625 | $0.435 | **99.2%** |
+| **输出（两者）** | $0.28（Flash）/ $0.87（Pro） | 相同 | — |
+
+**实际案例**：假设你的应用每次请求都发送相同的 4K token 系统提示词，用户查询平均额外 1K token：
+
+- **Flash，缓存命中**：4K（命中）× $0.0028/1M + 1K（未命中）× $0.14/1M + 500 输出 × $0.28/1M = **每次请求 $0.0001612**
+- **Flash，无缓存**：5K × $0.14/1M + 500 × $0.28/1M = **每次请求 $0.00084**
+- **Pro，缓存命中**：4K（命中）× $0.003625/1M + 1K（未命中）× $0.435/1M + 500 输出 × $0.87/1M = **每次请求 $0.000544**
+- **Pro，无缓存**：5K × $0.435/1M + 500 × $0.87/1M = **每次请求 $0.00261**
+
+在规模化场景下，节省效果极为显著。每月 100 万次请求，开启缓存命中优化后，Flash 成本约为 **$161**，而不使用缓存则需要 **$840**——实际账单**降低 80% 以上**。
+
+### 输出定价
+
+输出 token 不支持缓存，费用如下：
+
+- **Flash**：$0.28 / 1M 输出 tokens
+- **Pro**：$0.87 / 1M 输出 tokens
+
+Pro 的输出价格约为 Flash 的 **3.1 倍**，反映了更大模型所需的额外推理算力。对于输出量占主导的应用（如长文生成），Flash 在成本上具有压倒性优势。
+
+---
+
+## 何时选择 Flash 与 Pro
+
+### 选择 DeepSeek V4 Flash 的场景：
+
+- **需要高吞吐量**。Flash 支持 2500 RPM，而 Pro 仅 500 RPM，专为生产级流量打造。
+- **成本是首要约束**。缓存命中后的 Flash 定价（$0.0028/1M 输入）是 DeepSeek 产品线中最便宜的层级。
+- **工作负载的提示词可预测**。共享系统提示词的聊天机器人、客服代理和 RAG 管线可从缓存命中中大幅受益。
+- **输出质量要求适中**。Flash 能胜任大多数任务——摘要、分类、问答、创意写作等。
+
+### 选择 DeepSeek V4 Pro 的场景：
+
+- **需要极致的推理能力**。Pro 在数学、复杂逻辑、多步代码生成和分析任务中表现出色，每一个百分点的精度都至关重要。
+- **正在构建开发者工具或代码助手**。Pro 优异的代码生成和调试能力完全值得其溢价。
+- **请求量适中**（低于 500 RPM）且质量不可妥协。
+- **愿意为最佳效果付费**。如果你的应用价值足以支撑更高的单 token 成本，Pro 提供最高的能力天花板。
+
+### 混合使用策略
+
+许多团队同时使用两者：将简单或高流量查询路由到 Flash，将复杂推理升级到 Pro。[TokenPAPA](https://tokenpapa.ai) 提供单 API 密钥即可调用任一模型，切换无缝。
+
+---
+
+## 迁移指南：从 deepseek-chat / deepseek-reasoner 迁移到 V4
+
+**重要提醒**：`deepseek-chat` 和 `deepseek-reasoner` 模型名称将于 **2026 年 7 月 24 日废弃**。此后，这些名称将静默映射到 `deepseek-v4-flash`，其输出特性可能与你的应用预期存在差异。
+
+### 迁移步骤
+
+**1. 更新模型标识符**
+
+迁移前（旧版）：
+```python
+import openai
+client = openai.OpenAI(api_key="sk-...", base_url="https://api.deepseek.com")
+response = client.chat.completions.create(
+    model="deepseek-chat",  # ⚠️ 即将废弃
+    messages=[{"role": "user", "content": "Hello"}]
+)
+```
+
+迁移后（新版）：
+```python
+import openai
+client = openai.OpenAI(api_key="sk-...", base_url="https://api.deepseek.com")
+response = client.chat.completions.create(
+    model="deepseek-v4-flash",  # ✅ 明确的 V4 模型
+    messages=[{"role": "user", "content": "Hello"}]
+)
+```
+
+**2. 并行业务测试新模型**
+
+在 7 月 24 日之前，同时对 `deepseek-chat` 和 `deepseek-v4-flash` 运行推理，对比输出差异。V4 总体表现更优，但针对 V3 行为调优的系统提示词可能需要小幅调整。
+
+**3. 为 V4 优化系统提示词**
+
+V4 模型偏好更直接的指令。通常可以移除"请逐步思考"这类模板化提示——思考模式默认开启，会自动处理内部推理。
+
+**4. 重推理任务考虑升级到 Pro**
+
+如果你依赖 `deepseek-reasoner` 处理复杂逻辑，请评估 `deepseek-v4-pro` 是否比 `deepseek-v4-flash` 更适合。Pro 是推理优化型 R1 系列的天然继承者。
+
+---
+
+## DeepSeek V4 与上一代（V3/R1）对比
+
+V4 代表了一次重大飞跃。具体对比如下：
+
+| 能力 | V3 / R1 | V4 Flash | V4 Pro |
+|---|---|---|---|
+| **上下文窗口** | 64K（V3）/ 128K（R1） | **1M** | **1M** |
+| **最大输出** | 8K | **384K** | **384K** |
+| **缓存命中定价** | 不支持 | **$0.0028/1M** | **$0.003625/1M** |
+| **思考模式** | 需手动开启（仅 R1） | **默认开启** | **默认开启** |
+| **工具调用** | 有限支持 | **完整支持** | **完整支持** |
+| **并发能力** | 500 | **2500** | 500 |
+| **废弃日期** | 2026 年 7 月 24 日 | 活跃 | 活跃 |
+
+### 废弃时间线
+
+| 日期 | 事件 |
+|---|---|
+| **2026 年 6 月** | V4 模型正式发布。V3/R1 仍可用，但被标记为遗留版本。 |
+| **2026 年 7 月 24 日** | `deepseek-chat` → `deepseek-v4-flash` 映射生效。`deepseek-reasoner` 移除。 |
+| **2026 年末（预估）** | V3/R1 API 端点完全停用。 |
+
+不要等到截止日期。未及时迁移的应用在模型名称映射生效后，可能面临静默行为变更的风险。
+
+如需更多历史背景，可参考此前的对比文章：[DeepSeek vs OpenAI 定价对比](/en/docs/blog/deepseek-vs-openai-pricing) 和 [DeepSeek R1 与 V3 对比](/en/docs/blog/deepseek-r1-vs-v3-comparison)。
+
+---
+
+## 如何通过 TokenPAPA 从海外访问 DeepSeek V4
+
+对于国际开发者来说，直接访问 DeepSeek 模型可能充满挑战。官方 API 需要中国手机号验证和本地支付方式——这些门槛让许多团队甚至无法尝试 V4。
+
+[TokenPAPA](https://tokenpapa.ai) 通过以下方式解决这一问题：
+
+- **即时 API 密钥生成**——无需中国手机号
+- **全球路由**——从北美、欧洲、东南亚及其他地区低延迟访问
+- **兼容 OpenAI 的端点**——切换 base URL 即可使用任意 OpenAI SDK
+- **DeepSeek 原生支持**——完全兼容 DeepSeek 自有 SDK，支持思考模式、FIM 和工具调用
+- **灵活结算**——支持国际信用卡、加密货币或地区支付方式
+- **两款 V4 模型**——同一密钥即可访问 Flash 和 Pro
+
+```python
+# TokenPAPA + DeepSeek V4 Flash — 全球可用
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="tpapa-...",  # 你的 TokenPAPA API 密钥
+    base_url="https://api.tokenpapa.ai/v1"  # 全球端点
+)
+
+response = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": "用量子计算的概念解释简单的例子"}]
+)
+print(response.choices[0].message.content)
+```
+
+TokenPAPA 还支持其他主流模型，方便混合工作流。查看我们的 [Minimax 使用指南](/en/docs/blog/minimax-api-guide-overseas)、[Moonshot Kimi 使用指南](/en/docs/blog/moonshot-kimi-api-guide-overseas) 和其他 LLM API 文档——均在同一海外友好平台上可用。
+
+对于独立开发者和自筹资金团队，我们还推荐阅读 [独立开发者的 LLM API 选型指南](/en/docs/blog/llm-apis-for-indie-hackers)。
+
+---
+
+## 常见问题 (FAQ)
+
+### 系统提示词每次请求都会被缓存吗？
+
+缓存命中发生在 DeepSeek 推理基础设施识别到提示词中存在重复前缀时——通常是你的系统消息和那些跨请求保持不变的少样本示例。这并非每次调用都能保证命中，但在结构良好的应用中，命中率通常可达 60–90%。
+
+### 思考模式会影响定价吗？
+
+不会。思考模式是 V4 Flash 和 V4 Pro 的默认行为。内部思维链 token 包含在输出 token 计数中，按标准输出费率计费。开启推理不收取额外费用。
+
+### 我可以在生产环境中大规模使用 V4 Flash 吗？
+
+完全可以。V4 Flash 支持每分钟 2500 次请求，专为高吞吐生产工作负载设计。结合缓存命中定价，它是目前同等质量水平下最具成本效益的 LLM 选择之一。
+
+### 如果在 2026 年 7 月 24 日之前没有迁移会怎样？
+
+你的 `deepseek-chat` 调用仍能继续工作，但它们将被静默路由到 `deepseek-v4-flash`。由于 V4 与 V3 在架构上有本质区别，模型行为可能与你预期的不同。强烈建议在截止日期前主动完成迁移。
+
+---
+
+## 在 TokenPAPA 上开始使用 DeepSeek V4
+
+无论你是用 Flash 进行原型开发，还是大规模部署 Pro，[TokenPAPA](https://tokenpapa.ai) 都能为你提供从全球任意位置最快接入 DeepSeek V4 的途径。
+
+**你将获得：**
+
+- ✅ 即时开通 DeepSeek V4 Flash 和 V4 Pro
+- ✅ 无需中国手机号或身份证
+- ✅ 兼容 OpenAI 的 API——与现有代码无缝配合
+- ✅ 全球 CDN 路由，保障低延迟
+- ✅ 按量付费，无最低消费承诺
+
+**[👉 立即获取 DeepSeek V4 API 密钥 →](https://tokenpapa.ai)**
+
+有任何疑问？我们的团队提供 7×24 小时服务，助你充分利用 DeepSeek V4。迁移截止日期正在临近——不要等到 7 月 24 日才行动。
