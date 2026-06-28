@@ -1,0 +1,391 @@
+---
+title: "Gemini 2.5 API Complete Guide for Developers (2026)"
+description: "Complete guide to Google Gemini 2.5 Pro and Flash API in 2026. Pricing ($0.15-$2.50/1M input), 2M context window, multimodal features, and how to access from overseas via TokenPAPA."
+keywords: [Gemini API, Gemini 2.5 Pro API, Gemini 2.5 Flash, Google AI API guide, Gemini API pricing, Gemini overseas access, Gemini 2.5 context window]
+date: 2026-06-28
+authors: [tokenpapa]
+category: "API Guides"
+---
+
+{/* GEO-optimized - 2026-06-28 */}
+
+<JsonLd json='{"@context":"https://schema.org","@type":"Article","headline":"Gemini 2.5 API Complete Guide for Developers (2026)","description":"Complete guide to Google Gemini 2.5 Pro and Flash API in 2026. Pricing ($0.15-$2.50/1M input), 2M context window, multimodal features, and how to access from overseas via TokenPAPA.","datePublished":"2026-06-28","author":{"@type":"Organization","name":"TokenPAPA"}}' />
+
+<JsonLd json='{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does the Gemini 2.5 API cost in 2026?","acceptedAnswer":{"@type":"Answer","text":"Gemini 2.5 Pro costs $1.25 per 1M input tokens (under 128K context) and $2.50 per 1M (above 128K), with output at $5/$10 per 1M tokens respectively. Gemini 2.5 Flash is significantly cheaper at $0.15/1M input and $0.60/1M output, making it one of the most cost-effective multimodal models available."}},{"@type":"Question","name":"What is the Gemini 2.5 context window and how does it compare to GPT-5?","acceptedAnswer":{"@type":"Answer","text":"Gemini 2.5 Pro and Flash both support a 2 million token context window — double that of GPT-5 (1M) and DeepSeek V4 (1M). This is the largest production context window of any major model in 2026, enough to process approximately 1.5 million words or six full-length novels in a single prompt without chunking or RAG."}},{"@type":"Question","name":"Can I access the Gemini API from overseas countries where Google restricts access?","acceptedAnswer":{"@type":"Answer","text":"Yes. While Google Cloud and Google AI Studio restrict Gemini API access to a limited set of countries, relay platforms like TokenPAPA provide Gemini API access to developers worldwide without geographic restrictions. You sign up with any email, pay via international credit card or PayPal, and get an OpenAI-compatible endpoint in minutes."}}]}' />
+
+# Gemini 2.5 API Complete Guide for Developers (2026)
+
+**Published: June 28, 2026** · **12 min read**
+
+---
+
+## Introduction
+
+Google's Gemini 2.5, released in early 2026, represents the company's most ambitious AI model family to date. With an industry-leading **2 million token context window** — the largest of any production-grade model in 2026 — Gemini 2.5 Pro and Flash deliver powerful multimodal capabilities (text, image, audio, and video understanding), native grounding with Google Search, and competitive pricing that undercuts GPT-5 on most inputs.
+
+While GPT-5 (OpenAI) leads on reasoning depth and Claude 4 (Anthropic) leads on safety and steerability, Gemini 2.5 stakes its claim on **context size, multimodal breadth, and Google ecosystem integration** — making it the go-to choice for developers building applications that need to process massive amounts of data, understand multiple input modalities, or leverage Google Search grounding.
+
+For overseas developers, however, accessing Google's Gemini API directly can be complicated. Google Cloud and AI Studio have regional availability restrictions that exclude developers in many countries across Asia, Africa, South America, and parts of Europe. This guide covers everything you need to know about the Gemini 2.5 API in 2026 — model lineup, pricing, features, comparisons, and how to access Gemini from anywhere in the world via [TokenPAPA](https://tokenpapa.ai).
+
+> **Key insight:** Gemini 2.5's 2 million token context window is its killer feature. No other major model offers this capacity. Combined with multimodal input and Google Search grounding, it is uniquely suited for long-document analysis, multimodal data pipelines, and applications that require factual grounding with real-time web data.
+
+---
+
+## Gemini 2.5 Model Lineup
+
+Google maintains a focused model family in 2026:
+
+| Model | Tier | Context Window | Best For |
+|-------|:----:|:--------------:|----------|
+| **Gemini 2.5 Pro** | Premium | 2M tokens | Complex reasoning, multimodal analysis, long-context, Google Search grounding |
+| **Gemini 2.5 Flash** | Fast/lightweight | 2M tokens | High-throughput, cost-sensitive apps, fast multimodal inference |
+| **Gemini 2.5 Ultra** (Expected) | Frontier | — | Next-gen reasoning, research, scientific computing (late 2026) |
+
+**Gemini 2.5 Pro** is Google's flagship, delivering strong performance across coding, reasoning, and multimodal understanding. In LMSYS Chatbot Arena, it holds an ELO score of 1,380–1,420, placing it alongside GPT-5. Its killer differentiator is the **native multimodal pipeline** — accepting interleaved text, images, audio, and video in a single request, unlike GPT-5 and Claude 4 which are limited to vision-only or text-only workflows.
+
+**Gemini 2.5 Flash** is Google's cost-optimized model. At $0.15/1M input tokens, it is among the most affordable high-capability models available, retaining the same 2M context window and full multimodal capabilities as Pro. The trade-off is approximately 10–15% lower reasoning depth, but for high-volume applications like content classification, data extraction, and customer-facing chat, Flash offers exceptional value.
+
+> **Key insight:** Unlike OpenAI (which offers GPT-5, GPT-4o, GPT-4o-mini, and multiple reasoning tiers) or DeepSeek (V3, V4-flash, V4-pro, R1, Coder), Gemini 2.5 keeps things simple: Pro for premium quality, Flash for cost efficiency. Both share the same 2M context window and multimodal capabilities.
+
+---
+
+## Gemini 2.5 API Pricing
+
+Google's official pricing uses a **context-dependent model** — different rates apply depending on whether your input exceeds 128K tokens:
+
+### Gemini 2.5 Pro Pricing
+
+| Context Length | Input (per 1M tokens) | Output (per 1M tokens) |
+|:--------------|:---------------------:|:----------------------:|
+| **Up to 128K tokens** | **$1.25** | **$5.00** |
+| **Above 128K tokens** | **$2.50** | **$10.00** |
+| Cached input (≤128K) | $0.3125 | — |
+| Cached input (>128K) | $0.625 | — |
+
+### Gemini 2.5 Flash Pricing
+
+| Metric | Cost |
+|--------|:----:|
+| **Input tokens** | **$0.15 per 1M tokens** |
+| **Output tokens** | **$0.60 per 1M tokens** |
+| Context window | 2M tokens |
+| Cached input | $0.0375 per 1M tokens |
+
+### Pricing Comparison with Competitors
+
+| Model | Input (per 1M) | Output (per 1M) | Context |
+|-------|:-------------:|:---------------:|:------:|
+| **Gemini 2.5 Pro** (≤128K) | $1.25 | $5.00 | 2M |
+| **Gemini 2.5 Pro** (>128K) | $2.50 | $10.00 | 2M |
+| **Gemini 2.5 Flash** | $0.15 | $0.60 | 2M |
+| **GPT-5** (reasoning) | $2.00 | $10.00 | 1M |
+| **DeepSeek V4 Pro** | $0.435 | $0.87 | 1M |
+| **DeepSeek V4 Flash** | $0.14 | $0.14 | 1M |
+| **Claude Sonnet 4** | $3.00 | $15.00 | 200K |
+
+**The bottom line:** Gemini 2.5 Pro at $1.25/1M input (≤128K) is roughly **37% cheaper than GPT-5** on input and **50% cheaper** on output. Gemini 2.5 Flash at $0.15/1M input is virtually tied with DeepSeek V4 Flash ($0.14) on price but offers multimodal capabilities and a 2M context window that DeepSeek Flash lacks.
+
+For a complete pricing breakdown across all major providers, consult our [LLM API Pricing Comparison 2026](/en/docs/blog/llm-api-pricing-comparison-2026).
+
+---
+
+## Key Features of Gemini 2.5
+
+### 2 Million Token Context Window
+
+The headline feature. Gemini 2.5 Pro and Flash both support a **2,097,152 token context window** — enough to process approximately 1.5 million words, six full-length novels, or 30+ hours of transcribed audio in a single prompt.
+
+| Model | Context Window | Equivalent Text |
+|-------|:-------------:|:--------------:|
+| **Gemini 2.5 Pro / Flash** | **2,097,152 tokens** | ~1.5M words (6 novels) |
+| GPT-5 | 1,048,576 tokens | ~750K words (3 novels) |
+| DeepSeek V4 | 1,048,576 tokens | ~750K words (3 novels) |
+| Claude Sonnet 4 | 200,000 tokens | ~150K words |
+
+This 2M context window is the largest available from any major provider in 2026, eliminating the need for chunking or RAG in long-context applications like codebase analysis, book-length document review, or multi-hour audio transcription.
+
+### Multimodal Understanding (Text + Image + Audio + Video)
+
+Gemini 2.5 is the most multimodal model available in 2026. Unlike GPT-5 (text + images + audio output) or Claude 4 (text + images), Gemini 2.5 natively accepts **text, images, audio, and video** — all interleaved in a single request.
+
+### Google Search Grounding
+
+Gemini 2.5 Pro supports **Google Search grounding** — retrieving and citing real-time information from Google Search to ground responses in factual, up-to-date data. Grounded responses include citations and links to source material, making Gemini uniquely capable for news, current events, dynamic data queries (stock prices, weather, sports scores), and any application where factual accuracy is critical.
+
+### Function Calling and Tool Use
+
+Gemini 2.5 supports function calling with parallel tool execution, similar to OpenAI's API. It can invoke multiple tools simultaneously and handle complex multi-step workflows. Unique advantages include **batched tool calls** (multiple independent tools in parallel), **recursive execution** (tool outputs triggering additional calls), and native integration with Google Search and Maps APIs.
+
+### Code Execution (Sandboxed)
+
+Gemini 2.5 Pro can **write and execute Python code** inside a sandboxed environment, enabling it to solve mathematical problems by running calculations, generate and verify code output before responding, create data visualizations, and run statistical analysis — all server-side in Google's sandbox.
+
+### Structured Outputs
+
+Gemini 2.5 supports JSON-structured outputs through the `response_schema` parameter. You define a JSON Schema, and Gemini guarantees valid structured output matching that schema — ideal for data extraction, form filling, and API integration workflows.
+
+---
+
+## Gemini 2.5 vs Competitors
+
+### vs DeepSeek V4 Flash and Pro
+
+| Dimension | Gemini 2.5 Pro | Gemini 2.5 Flash | DeepSeek V4 Flash | DeepSeek V4 Pro |
+|-----------|:--------------:|:-----------------:|:-----------------:|:---------------:|
+| **Input /1M** | $1.25–2.50 | $0.15 | $0.14 | $0.435 |
+| **Output /1M** | $5–10 | $0.60 | $0.14 | $0.87 |
+| **Context** | 2M | 2M | 1M | 1M |
+| **Multimodal** | Text+image+audio+video | Text+image+audio+video | Text only | Text only |
+| **Extended thinking** | ✅ Yes (Pro) | ❌ No | ❌ No | ✅ Yes |
+| **Coding** | ★★★★☆ | ★★★☆☆ | ★★★★★ | ★★★★★ |
+| **Cost efficiency** | ★★★★☆ | ★★★★★ | ★★★★★ | ★★★★☆ |
+
+**Choose Gemini when:** You need multimodal inputs, the largest context window, or Google Search grounding. Gemini 2.5 Flash at $0.15/1M input is exceptional value for high-volume multimodal applications.
+
+**Choose DeepSeek when:** Your primary concern is raw cost for text-only coding tasks. DeepSeek V4 Flash at $0.14/1M input is slightly cheaper, and V4 Pro offers strong reasoning at less than half the price of Gemini 2.5 Pro.
+
+### vs GPT-5
+
+| Dimension | Gemini 2.5 Pro | GPT-5 (reasoning) |
+|-----------|:--------------:|:-----------------:|
+| **Input /1M** | $1.25 | $2.00 |
+| **Output /1M** | $5.00 | $10.00 |
+| **Context** | **2M** | 1M |
+| **Reasoning** | ★★★★☆ | ★★★★★ |
+| **Multimodal** | Text+image+audio+video | Text+image+audio output |
+
+GPT-5 leads on reasoning depth, particularly in complex multi-step logic and mathematics. However, Gemini 2.5 Pro is significantly cheaper (37% cheaper on input, 50% cheaper on output when ≤128K) and offers a 2x larger context window. For most practical applications, Gemini 2.5 Pro offers the better price-performance ratio.
+
+### vs Claude 4 (Sonnet 4)
+
+At $1.25/1M input, Gemini 2.5 Pro is approximately **2.4x cheaper** than Claude Sonnet 4 ($3.00/1M) on inputs and **3x cheaper** on outputs ($5 vs $15). Claude's advantages lie in safety, steerability, and instruction following — important in regulated industries. For general-purpose and multimodal applications, Gemini 2.5 Pro offers better value.
+
+For a broader comparison of all leading models, see our [Flagship LLM Comparison 2026](/en/docs/blog/flagship-llm-comparison-2026).
+
+---
+
+## How to Access Gemini API from Overseas
+
+Google's Gemini API is available through two primary channels, both with regional restrictions:
+
+### Google AI Studio (Gemini API)
+
+Google AI Studio provides direct API access but is **limited to approximately 60 countries** — primarily North America, Western Europe, Japan, South Korea, Australia, and select others. Developers in much of Asia (excluding Japan/Korea), Africa, South America, the Middle East, and Eastern Europe cannot directly access the Gemini API.
+
+### Google Cloud Vertex AI
+
+Vertex AI provides enterprise-grade Gemini access but requires a Google Cloud account with a billing address in a supported region. Many overseas developers face payment method or address verification issues when setting up Google Cloud billing from unsupported countries.
+
+### The Solution: API Relay Platforms
+
+The most practical way to access the Gemini API from overseas is through an API relay platform. These platforms maintain upstream Gemini API access and expose it through a standard **OpenAI-compatible API endpoint**, eliminating geographic restrictions entirely.
+
+[TokenPAPA](https://tokenpapa.ai) provides Gemini API proxy access to developers worldwide with no geographic restrictions. The platform includes a dedicated Gemini handler in its relay infrastructure, ensuring reliable routing for all supported Gemini models.
+
+| Requirement | Direct Google AI Studio | Via TokenPAPA |
+|-------------|:----------------------:|:-------------:|
+| Supported country | ✅ ~60 countries | 🌍 **All countries** |
+| Google Cloud billing | ✅ Required | ❌ **Not needed** |
+| Phone verification | ✅ May be required | ❌ **No phone required** |
+| OpenAI-compatible endpoint | ❌ Google SDK only | ✅ **Fully compatible** |
+| Multi-model access | ❌ Gemini only | ✅ **30+ providers** |
+| Setup time | 15–30 min | **Under 3 minutes** |
+
+---
+
+## Getting Started with Gemini API via TokenPAPA
+
+Here is a step-by-step guide to using Gemini 2.5 API from anywhere in the world using [TokenPAPA](https://tokenpapa.ai).
+
+### Step 1: Create an Account
+
+Visit [tokenpapa.ai](https://tokenpapa.ai) and sign up with your email. No phone verification is required.
+
+### Step 2: Add Funds
+
+Navigate to billing and add funds via US/international credit card, PayPal, or cryptocurrency. Minimum top-up is typically $5.
+
+### Step 3: Generate an API Key
+
+Go to API Keys in your dashboard and click "Create New Key." Your key starts with `tp-sk-`.
+
+### Step 4: Start Using Gemini 2.5
+
+TokenPAPA provides an OpenAI-compatible endpoint at `https://api.tokenpapa.ai/v1`. Use any OpenAI SDK by changing the `base_url` and `api_key`.
+
+**Basic Chat:**
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="tp-sk-your-api-key-here",
+    base_url="https://api.tokenpapa.ai/v1"
+)
+
+response = client.chat.completions.create(
+    model="gemini-2.5-pro",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant specialized in data analysis."},
+        {"role": "user", "content": "Explain the advantages of Gemini 2.5's 2M context window for enterprise document processing."}
+    ],
+    temperature=0.7,
+    max_tokens=1000
+)
+
+print(response.choices[0].message.content)
+```
+
+**Multimodal (Image + Text):**
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="tp-sk-your-api-key-here",
+    base_url="https://api.tokenpapa.ai/v1"
+)
+
+response = client.chat.completions.create(
+    model="gemini-2.5-pro",
+    messages=[
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "What's shown in this diagram and how does it work?"},
+                {"type": "image_url", "image_url": {"url": "https://example.com/diagram.png"}}
+            ]
+        }
+    ],
+    max_tokens=500
+)
+
+print(response.choices[0].message.content)
+```
+
+**Streaming with Flash:**
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="tp-sk-your-api-key-here",
+    base_url="https://api.tokenpapa.ai/v1"
+)
+
+stream = client.chat.completions.create(
+    model="gemini-2.5-flash",
+    messages=[{"role": "user", "content": "Summarize the latest quantum computing developments."}],
+    stream=True,
+    max_tokens=2000
+)
+
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="")
+```
+
+### Available Gemini Models via TokenPAPA
+
+| Model ID | Model | Description |
+|----------|-------|-------------|
+| `gemini-2.5-pro` | Gemini 2.5 Pro | Premium model with full reasoning, 2M context, multimodal |
+| `gemini-2.5-flash` | Gemini 2.5 Flash | Fast, cost-efficient, 2M context, multimodal |
+
+TokenPAPA also provides access to GPT-5, DeepSeek V4 Flash and Pro, Claude Sonnet 4, MiniMax, Moonshot, and 30+ other providers — all through a single API key and endpoint.
+
+---
+
+## Best Practices for Gemini API
+
+### 1. Leverage the 2M Context Window Strategically
+
+Use the 2M context window where it matters, but keep prompts under 128K tokens for most requests to stay at the lower $1.25/1M input rate. Reserve the full 2M for genuinely long-context use cases like codebase analysis, book-length document review, or multi-hour audio transcription.
+
+### 2. Use Gemini 2.5 Flash for High-Volume Tasks
+
+At $0.15/1M input, Flash is ideal for content classification, customer-facing chat, data extraction, and batch image processing. You keep the 2M context window and multimodal inputs while paying a fraction of the Pro price.
+
+### 3. Implement Prompt Caching
+
+Google offers prompt caching with up to **75% savings** on cached input tokens. Cache system prompts, document context, and few-shot examples that repeat across requests.
+
+### 4. Use Structured Outputs in Production
+
+Always use `response_schema` to define structured JSON output for production applications. This eliminates parsing errors and ensures valid output matching your schema.
+
+### 5. Combine Models in a Multi-Model Strategy
+
+Route different workloads through a single gateway like [TokenPAPA](https://tokenpapa.ai):
+
+- **Gemini 2.5 Pro** for multimodal analysis, long-context reasoning, and Google Search grounding
+- **Gemini 2.5 Flash** for high-volume text processing and customer chat
+- **GPT-5** for complex multi-step reasoning and deep tool-use workflows
+- **DeepSeek V4 Flash** for cost-sensitive coding at scale
+
+This strategy typically achieves 50–80% cost savings compared to using Gemini 2.5 Pro for every request.
+
+### 6. Compress Multimodal Inputs
+
+Resize and compress images before sending, downsample audio to 16kHz mono for speech-only tasks, and use video keyframes instead of full video where possible. Each modality increases token consumption linearly.
+
+### 7. Monitor Token Usage
+
+With up to 2M tokens, a single request can incur significant costs. Monitor `usage.prompt_tokens` and `usage.completion_tokens` in every response:
+
+```python
+response = client.chat.completions.create(model="gemini-2.5-pro", messages=[...])
+pt = response.usage.prompt_tokens
+ct = response.usage.completion_tokens
+cost = (pt / 1_000_000) * 1.25 + (ct / 1_000_000) * 5.0
+print(f"Est. cost: ${cost:.4f}")
+```
+
+---
+
+## Frequently Asked Questions
+
+### 1. How much does Gemini 2.5 API cost in 2026?
+
+Gemini 2.5 Pro costs **$1.25 per 1 million input tokens** for prompts under 128K tokens and **$2.50 per 1 million** for longer contexts. Output costs are $5/1M (≤128K) and $10/1M (>128K). Gemini 2.5 Flash costs **$0.15 per 1 million input tokens** and **$0.60 per 1 million output tokens** — among the most cost-effective multimodal models available. For detailed pricing across all providers, see our [LLM API Pricing Comparison 2026](/en/docs/blog/llm-api-pricing-comparison-2026).
+
+### 2. What is the Gemini 2.5 context window and how does it compare?
+
+Gemini 2.5 Pro and Flash both support a **2 million token context window** — double that of GPT-5 (1M) and DeepSeek V4 (1M), and 10x that of Claude Sonnet 4 (200K). This is the largest production context window of any major model, capable of processing approximately 1.5 million words in a single prompt without chunking. For applications that genuinely need this capacity — codebase analysis, book-length document review, multi-hour transcription — Gemini 2.5 is the only option in 2026.
+
+### 3. Can I use the Gemini API from outside Google's supported countries?
+
+**Yes.** Google restricts direct Gemini API access to approximately 60 countries. Relay platforms like [TokenPAPA](https://tokenpapa.ai) provide Gemini API access to developers worldwide without geographic restrictions. You sign up with any email, fund your account via international credit card or PayPal, and get an OpenAI-compatible endpoint in under 3 minutes. No phone verification, Google Cloud billing, or supported-country address required.
+
+### 4. What is the difference between Gemini 2.5 Pro and Flash?
+
+Gemini 2.5 Pro is the premium tier with full reasoning, deeper analytical ability, and highest output quality — best for complex multimodal analysis and long-context reasoning. Gemini 2.5 Flash is approximately **8x cheaper** ($0.15 vs $1.25 per 1M input) while retaining the same 2M context window and multimodal input support. Flash trades some reasoning depth for speed and cost efficiency. Switching between them requires only changing the `model` parameter in your API call.
+
+---
+
+## Getting Started with Gemini 2.5
+
+Gemini 2.5 Pro and Flash represent Google's strongest offering in the 2026 AI landscape. With the industry's largest 2 million token context window, native multimodal support across text, image, audio, and video, Google Search grounding, and competitive pricing that undercuts GPT-5 and Claude, Gemini 2.5 is the go-to choice for long-context and multimodal applications.
+
+For overseas developers facing Google's regional restrictions, [TokenPAPA](https://tokenpapa.ai) provides the simplest path to Gemini API access — no geographic limits, no phone verification, no Google Cloud billing setup. Just an email, a payment method, and a working API key in under 3 minutes.
+
+**Here is the summary:**
+
+- **Gemini 2.5 Pro** ($1.25–2.50/1M input, $5–10/1M output) — Premium model with 2M context, multimodal (text + image + audio + video), Google Search grounding, and structured outputs
+- **Gemini 2.5 Flash** ($0.15/1M input, $0.60/1M output) — Cost-efficient model with the same 2M context and multimodal capabilities
+- **Key advantages:** Largest context window (2M), most multimodal, Google Search grounding, competitive pricing
+- **Access from overseas:** Use [TokenPAPA](https://tokenpapa.ai) to bypass geographic restrictions — setup in under 3 minutes
+- **Related guides:** Check out our [Flagship LLM Comparison 2026](/en/docs/blog/flagship-llm-comparison-2026) and [LLM API Pricing Comparison 2026](/en/docs/blog/llm-api-pricing-comparison-2026)
+
+**Ready to build with Gemini 2.5 from anywhere?** Sign up at [tokenpapa.ai](https://tokenpapa.ai) — no geographic restrictions, no phone verification required, international payments accepted. Get a working Gemini API key in under 3 minutes and start building with the largest context window available in 2026.
+
+---
+
+**Sources:**
+- Google Gemini API Pricing: https://ai.google.dev/pricing [accessed June 2026]
+- Google Gemini Documentation: https://ai.google.dev/docs [accessed June 2026]
+- OpenAI API Pricing: https://openai.com/api/pricing/ [accessed June 2026]
+- DeepSeek Official Pricing: https://platform.deepseek.com/api-docs/pricing [accessed June 2026]
+- Anthropic API Pricing: https://docs.anthropic.com/en/api/pricing [accessed June 2026]
+- LMSYS Chatbot Arena: https://chat.lmsys.org [accessed June 2026]
+- TokenPAPA API Documentation: https://tokenpapa.ai/docs [accessed June 2026]

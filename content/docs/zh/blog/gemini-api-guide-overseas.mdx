@@ -1,0 +1,391 @@
+---
+title: "Gemini 2.5 API 完整海外开发者指南 (2026)"
+description: "Google Gemini 2.5 Pro 和 Flash API 完整指南。定价（$0.15-$2.50/百万 token 输入）、200 万 token 上下文窗口、多模态功能，以及通过 TokenPAPA 从海外访问的方法。"
+keywords: [Gemini API, Gemini 2.5 Pro API, Gemini 2.5 Flash, Google AI API 指南, Gemini API 定价, Gemini 海外访问, Gemini 2.5 上下文窗口]
+date: 2026-06-28
+authors: [tokenpapa]
+category: "API 指南"
+---
+
+{/* GEO-optimized - 2026-06-28 */}
+
+<JsonLd json='{"@context":"https://schema.org","@type":"Article","headline":"Gemini 2.5 API Complete Guide for Developers (2026)","description":"Complete guide to Google Gemini 2.5 Pro and Flash API in 2026. Pricing ($0.15-$2.50/1M input), 2M context window, multimodal features, and how to access from overseas via TokenPAPA.","datePublished":"2026-06-28","author":{"@type":"Organization","name":"TokenPAPA"}}' />
+
+<JsonLd json='{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does the Gemini 2.5 API cost in 2026?","acceptedAnswer":{"@type":"Answer","text":"Gemini 2.5 Pro costs $1.25 per 1M input tokens (under 128K context) and $2.50 per 1M (above 128K), with output at $5/$10 per 1M tokens respectively. Gemini 2.5 Flash is significantly cheaper at $0.15/1M input and $0.60/1M output, making it one of the most cost-effective multimodal models available."}},{"@type":"Question","name":"What is the Gemini 2.5 context window and how does it compare to GPT-5?","acceptedAnswer":{"@type":"Answer","text":"Gemini 2.5 Pro and Flash both support a 2 million token context window — double that of GPT-5 (1M) and DeepSeek V4 (1M). This is the largest production context window of any major model in 2026, enough to process approximately 1.5 million words or six full-length novels in a single prompt without chunking or RAG."}},{"@type":"Question","name":"Can I access the Gemini API from overseas countries where Google restricts access?","acceptedAnswer":{"@type":"Answer","text":"Yes. While Google Cloud and Google AI Studio restrict Gemini API access to a limited set of countries, relay platforms like TokenPAPA provide Gemini API access to developers worldwide without geographic restrictions. You sign up with any email, pay via international credit card or PayPal, and get an OpenAI-compatible endpoint in minutes."}}]}' />
+
+# Gemini 2.5 API 完整海外开发者指南 (2026)
+
+**发布时间：2026 年 6 月 28 日** · **阅读时间：12 分钟**
+
+---
+
+## 引言
+
+Google Gemini 2.5 于 2026 年初发布，是该公司迄今为止最具雄心的 AI 模型系列。凭借业界领先的 **200 万 token 上下文窗口**——2026 年所有生产级模型中最大的——Gemini 2.5 Pro 和 Flash 提供了强大的多模态能力（文本、图像、音频和视频理解）、Google 搜索原生接地功能，以及比 GPT-5 更具竞争力的定价，在大多数输入场景下价格更低。
+
+如果说 GPT-5（OpenAI）在推理深度上领先、Claude 4（Anthropic）在安全性和可控性上占优，那么 Gemini 2.5 的竞争优势则在于**上下文大小、多模态广度以及 Google 生态集成**——使其成为构建需要处理海量数据、理解多种输入模态或利用 Google 搜索接地功能的应用的开发者的首选。
+
+然而，对于海外开发者而言，直接访问 Google Gemini API 可能存在障碍。Google Cloud 和 AI Studio 存在区域可用性限制，排除了亚洲、非洲、南美洲以及部分欧洲地区许多国家的开发者。本指南涵盖了您在 2026 年使用 Gemini 2.5 API 所需了解的一切——模型阵容、定价、功能、对比，以及如何通过 [TokenPAPA](https://tokenpapa.ai) 从世界任何地方访问 Gemini。
+
+> **核心观点：** Gemini 2.5 200 万 token 的上下文窗口是其杀手级功能。没有其他主流模型提供如此大的容量。结合多模态输入和 Google 搜索接地功能，它特别适合长文档分析、多模态数据处理管道，以及需要基于实时网络数据进行事实核查的应用。
+
+---
+
+## Gemini 2.5 模型阵容
+
+Google 在 2026 年维持了一个精简的模型系列：
+
+| 模型 | 层级 | 上下文窗口 | 最适合场景 |
+|-------|:----:|:--------------:|----------|
+| **Gemini 2.5 Pro** | 高级 | 200 万 tokens | 复杂推理、多模态分析、长上下文、Google 搜索接地 |
+| **Gemini 2.5 Flash** | 快速/轻量 | 200 万 tokens | 高吞吐量、对成本敏感的应用、快速多模态推理 |
+| **Gemini 2.5 Ultra**（预计） | 前沿 | — | 下一代推理、研究、科学计算（2026 年底） |
+
+**Gemini 2.5 Pro** 是 Google 的旗舰模型，在编码、推理和多模态理解方面表现出色。在 LMSYS Chatbot Arena 中，其 ELO 分数达到 1,380–1,420，与 GPT-5 不相上下。其杀手级差异化优势在于**原生多模态管道**——在单次请求中接受交叉混合的文本、图像、音频和视频，而 GPT-5 和 Claude 4 仅限于纯视觉或纯文本工作流。
+
+**Gemini 2.5 Flash** 是 Google 的成本优化模型。价格为 $0.15/百万输入 tokens，是当前性价比最高的高性能模型之一，同时保留了与 Pro 相同的 200 万上下文窗口和完整多模态能力。代价是推理深度约降低 10–15%，但对于内容分类、数据提取和面向客户的聊天等高吞吐量应用来说，Flash 提供了卓越的价值。
+
+> **核心观点：** 与 OpenAI（提供 GPT-5、GPT-4o、GPT-4o-mini 及多个推理层级）或 DeepSeek（V3、V4-flash、V4-pro、R1、Coder）不同，Gemini 2.5 保持简洁：Pro 为顶级质量，Flash 为成本效益。两者共享相同的 200 万上下文窗口和多模态能力。
+
+---
+
+## Gemini 2.5 API 定价
+
+Google 官方定价采用**上下文依赖模型**——根据输入是否超过 128K tokens 适用不同的费率：
+
+### Gemini 2.5 Pro 定价
+
+| 上下文长度 | 输入（每百万 tokens） | 输出（每百万 tokens） |
+|:--------------|:---------------------:|:----------------------:|
+| **≤ 128K tokens** | **$1.25** | **$5.00** |
+| **> 128K tokens** | **$2.50** | **$10.00** |
+| 缓存输入（≤128K） | $0.3125 | — |
+| 缓存输入（>128K） | $0.625 | — |
+
+### Gemini 2.5 Flash 定价
+
+| 指标 | 价格 |
+|--------|:----:|
+| **输入 tokens** | **每百万 $0.15** |
+| **输出 tokens** | **每百万 $0.60** |
+| 上下文窗口 | 200 万 tokens |
+| 缓存输入 | 每百万 $0.0375 |
+
+### 竞品价格对比
+
+| 模型 | 输入（每百万） | 输出（每百万） | 上下文 |
+|-------|:-------------:|:---------------:|:------:|
+| **Gemini 2.5 Pro**（≤128K） | $1.25 | $5.00 | 200 万 |
+| **Gemini 2.5 Pro**（>128K） | $2.50 | $10.00 | 200 万 |
+| **Gemini 2.5 Flash** | $0.15 | $0.60 | 200 万 |
+| **GPT-5**（推理模式） | $2.00 | $10.00 | 100 万 |
+| **DeepSeek V4 Pro** | $0.435 | $0.87 | 100 万 |
+| **DeepSeek V4 Flash** | $0.14 | $0.14 | 100 万 |
+| **Claude Sonnet 4** | $3.00 | $15.00 | 20 万 |
+
+**核心结论：** Gemini 2.5 Pro 输入价格 $1.25/百万（≤128K），比 GPT-5 便宜约 **37%**，输出价格便宜 **50%**。Gemini 2.5 Flash 输入 $0.15/百万，与 DeepSeek V4 Flash（$0.14）价格几乎持平，但提供了 DeepSeek Flash 所不具备的多模态能力和 200 万上下文窗口。
+
+如需查看所有主要提供商的完整定价对比，请参阅我们的 [2026 年 LLM API 定价对比](/en/docs/blog/llm-api-pricing-comparison-2026)。
+
+---
+
+## Gemini 2.5 核心功能
+
+### 200 万 Token 上下文窗口
+
+这是 Gemini 最引人注目的功能。Gemini 2.5 Pro 和 Flash 均支持 **2,097,152 token 的上下文窗口**——足够在单次提示中处理约 150 万词、六部长篇小说或 30 多小时转录音频。
+
+| 模型 | 上下文窗口 | 等效文本量 |
+|-------|:-------------:|:--------------:|
+| **Gemini 2.5 Pro / Flash** | **2,097,152 tokens** | ~150 万字（6 部小说） |
+| GPT-5 | 1,048,576 tokens | ~75 万字（3 部小说） |
+| DeepSeek V4 | 1,048,576 tokens | ~75 万字（3 部小说） |
+| Claude Sonnet 4 | 200,000 tokens | ~15 万字 |
+
+这个 200 万上下文窗口是 2026 年所有主要提供商中最大的，消除了在长上下文应用中分块或使用 RAG 的必要性，例如代码库分析、整书级文档审阅或多小时音频转录。
+
+### 多模态理解（文本 + 图像 + 音频 + 视频）
+
+Gemini 2.5 是 2026 年功能最全面的多模态模型。与 GPT-5（文本 + 图像 + 音频输出）或 Claude 4（文本 + 图像）不同，Gemini 2.5 原生支持**文本、图像、音频和视频**——全部可以在单次请求中交错混合。
+
+### Google 搜索接地
+
+Gemini 2.5 Pro 支持 **Google 搜索接地**——从 Google 搜索检索并引用实时信息，使回答基于真实、最新的数据。接地回复包含来源引用和链接，使 Gemini 在新闻、时事、动态数据查询（股价、天气、体育比分）以及任何对事实准确性要求严格的应用中具有独特优势。
+
+### 函数调用与工具使用
+
+Gemini 2.5 支持带有并行工具执行的函数调用，与 OpenAI 的 API 类似。它可以同时调用多个工具并处理复杂的多步骤工作流。独特优势包括**批量工具调用**（并行执行多个独立工具）、**递归执行**（工具输出触发额外调用），以及与 Google 搜索和地图 API 的原生集成。
+
+### 代码执行（沙箱）
+
+Gemini 2.5 Pro 可以在沙箱环境中**编写和执行 Python 代码**，使其能够通过运行计算来解决数学问题、生成并验证代码输出、创建数据可视化以及执行统计分析——所有这些都在 Google 的沙箱中服务器端完成。
+
+### 结构化输出
+
+Gemini 2.5 通过 `response_schema` 参数支持 JSON 结构化输出。您定义 JSON Schema，Gemini 保证生成符合该模式的有效结构化输出——非常适合数据提取、表单填写和 API 集成工作流。
+
+---
+
+## Gemini 2.5 与竞品对比
+
+### 对比 DeepSeek V4 Flash 和 Pro
+
+| 维度 | Gemini 2.5 Pro | Gemini 2.5 Flash | DeepSeek V4 Flash | DeepSeek V4 Pro |
+|-----------|:--------------:|:-----------------:|:-----------------:|:---------------:|
+| **输入 /百万** | $1.25–2.50 | $0.15 | $0.14 | $0.435 |
+| **输出 /百万** | $5–10 | $0.60 | $0.14 | $0.87 |
+| **上下文** | 200 万 | 200 万 | 100 万 | 100 万 |
+| **多模态** | 文本+图像+音频+视频 | 文本+图像+音频+视频 | 仅文本 | 仅文本 |
+| **扩展思考** | ✅ 支持（Pro） | ❌ 不支持 | ❌ 不支持 | ✅ 支持 |
+| **编码能力** | ★★★★☆ | ★★★☆☆ | ★★★★★ | ★★★★★ |
+| **性价比** | ★★★★☆ | ★★★★★ | ★★★★★ | ★★★★☆ |
+
+**选择 Gemini 当：** 您需要多模态输入、最大的上下文窗口，或 Google 搜索接地。Gemini 2.5 Flash 以 $0.15/百万输入的价格，是高容量多模态应用的卓越之选。
+
+**选择 DeepSeek 当：** 您主要关心纯文本编码任务的原始成本。DeepSeek V4 Flash 输入 $0.14/百万，价格略低；V4 Pro 提供强大的推理能力，价格不到 Gemini 2.5 Pro 的一半。
+
+### 对比 GPT-5
+
+| 维度 | Gemini 2.5 Pro | GPT-5（推理模式） |
+|-----------|:--------------:|:-----------------:|
+| **输入 /百万** | $1.25 | $2.00 |
+| **输出 /百万** | $5.00 | $10.00 |
+| **上下文** | **200 万** | 100 万 |
+| **推理能力** | ★★★★☆ | ★★★★★ |
+| **多模态** | 文本+图像+音频+视频 | 文本+图像+音频输出 |
+
+GPT-5 在推理深度上领先，特别是在复杂多步骤逻辑和数学方面。然而，Gemini 2.5 Pro 价格显著更低（≤128K 时输入便宜 37%，输出便宜 50%），并且提供 2 倍的上下文窗口。对于大多数实际应用而言，Gemini 2.5 Pro 具有更好的性价比。
+
+### 对比 Claude 4（Sonnet 4）
+
+以 $1.25/百万输入计算，Gemini 2.5 Pro 在输入上比 Claude Sonnet 4（$3.00/百万）便宜约 **2.4 倍**，在输出上便宜 **3 倍**（$5 vs $15）。Claude 的优势在于安全性、可控性和指令遵循能力——在受监管行业中很重要。对于通用和多模态应用，Gemini 2.5 Pro 提供更好的价值。
+
+如需对所有领先模型进行更广泛的比较，请参阅我们的 [2026 年旗舰 LLM 对比](/en/docs/blog/flagship-llm-comparison-2026)。
+
+---
+
+## 如何从海外访问 Gemini API
+
+Google Gemini API 通过两个主要渠道提供，两者均存在区域限制：
+
+### Google AI Studio（Gemini API）
+
+Google AI Studio 提供直接 API 访问，但仅限于**约 60 个国家/地区**——主要是北美、西欧、日本、韩国、澳大利亚及其他部分国家。亚洲（除日韩外）、非洲、南美洲、中东和东欧的大部分地区开发者无法直接访问 Gemini API。
+
+### Google Cloud Vertex AI
+
+Vertex AI 提供企业级 Gemini 访问，但要求拥有支持区域账单地址的 Google Cloud 账户。许多海外开发者在从未支持国家设置 Google Cloud 账单时，会遇到支付方式或地址验证问题。
+
+### 解决方案：API 中继平台
+
+从海外访问 Gemini API 最实用的方式是通过 API 中继平台。这些平台维护上游 Gemini API 访问，并通过标准的 **OpenAI 兼容 API 端点**对外暴露，完全消除了地域限制。
+
+[TokenPAPA](https://tokenpapa.ai) 为全球开发者提供 Gemini API 代理访问，无任何地域限制。该平台在其中继基础设施中设有专用的 Gemini 处理器，确保所有支持的 Gemini 模型可靠路由。
+
+| 要求 | 直接使用 Google AI Studio | 通过 TokenPAPA |
+|-------------|:----------------------:|:-------------:|
+| 支持国家/地区 | ✅ 约 60 个 | 🌍 **所有国家/地区** |
+| Google Cloud 计费 | ✅ 需要 | ❌ **无需** |
+| 电话验证 | ✅ 可能需要 | ❌ **无需电话** |
+| OpenAI 兼容端点 | ❌ 仅 Google SDK | ✅ **完全兼容** |
+| 多模型访问 | ❌ 仅 Gemini | ✅ **30+ 家提供商** |
+| 设置时间 | 15–30 分钟 | **3 分钟内完成** |
+
+---
+
+## 通过 TokenPAPA 开始使用 Gemini API
+
+以下是使用 [TokenPAPA](https://tokenpapa.ai) 从世界任何地方使用 Gemini 2.5 API 的分步指南。
+
+### 第 1 步：创建账户
+
+访问 [tokenpapa.ai](https://tokenpapa.ai)，使用您的邮箱注册。无需电话验证。
+
+### 第 2 步：充值
+
+进入账单页面，通过美国/国际信用卡、PayPal 或加密货币充值。最低充值金额通常为 $5。
+
+### 第 3 步：生成 API 密钥
+
+在控制面板中进入 API Keys，点击"Create New Key"。您的密钥将以 `tp-sk-` 开头。
+
+### 第 4 步：开始使用 Gemini 2.5
+
+TokenPAPA 提供 OpenAI 兼容端点：`https://api.tokenpapa.ai/v1`。使用任何 OpenAI SDK，只需修改 `base_url` 和 `api_key` 即可。
+
+**基础聊天：**
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="tp-sk-your-api-key-here",
+    base_url="https://api.tokenpapa.ai/v1"
+)
+
+response = client.chat.completions.create(
+    model="gemini-2.5-pro",
+    messages=[
+        {"role": "system", "content": "你是一个专注于数据分析的助手。"},
+        {"role": "user", "content": "请解释 Gemini 2.5 的 200 万上下文窗口在企业文档处理中的优势。"}
+    ],
+    temperature=0.7,
+    max_tokens=1000
+)
+
+print(response.choices[0].message.content)
+```
+
+**多模态（图像 + 文本）：**
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="tp-sk-your-api-key-here",
+    base_url="https://api.tokenpapa.ai/v1"
+)
+
+response = client.chat.completions.create(
+    model="gemini-2.5-pro",
+    messages=[
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "这张图表展示了什么？它是如何工作的？"},
+                {"type": "image_url", "image_url": {"url": "https://example.com/diagram.png"}}
+            ]
+        }
+    ],
+    max_tokens=500
+)
+
+print(response.choices[0].message.content)
+```
+
+**流式输出（Flash）：**
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="tp-sk-your-api-key-here",
+    base_url="https://api.tokenpapa.ai/v1"
+)
+
+stream = client.chat.completions.create(
+    model="gemini-2.5-flash",
+    messages=[{"role": "user", "content": "总结一下最新的量子计算进展。"}],
+    stream=True,
+    max_tokens=2000
+)
+
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="")
+```
+
+### 通过 TokenPAPA 可用的 Gemini 模型
+
+| 模型 ID | 模型 | 描述 |
+|----------|-------|-------------|
+| `gemini-2.5-pro` | Gemini 2.5 Pro | 高级模型，完整推理能力，200 万上下文，多模态 |
+| `gemini-2.5-flash` | Gemini 2.5 Flash | 快速、高性价比，200 万上下文，多模态 |
+
+TokenPAPA 还提供 GPT-5、DeepSeek V4 Flash 和 Pro、Claude Sonnet 4、MiniMax、Moonshot 等 30 多家提供商的访问——全部通过同一 API 密钥和端点。
+
+---
+
+## Gemini API 最佳实践
+
+### 1. 策略性利用 200 万上下文窗口
+
+在真正需要的地方使用 200 万上下文窗口，但对于大多数请求，将提示控制在 128K tokens 以下，以享受较低的 $1.25/百万输入费率。将完整的 200 万上下文保留给真正的长上下文用例，如代码库分析、整书级文档审阅或多小时音频转录。
+
+### 2. 高容量任务使用 Gemini 2.5 Flash
+
+Flash 输入价格 $0.15/百万，非常适合内容分类、面向客户的聊天、数据提取和批量图像处理。您保留了 200 万上下文窗口和多模态输入能力，而支付的费用仅为 Pro 的一小部分。
+
+### 3. 实施提示缓存
+
+Google 提供提示缓存，缓存输入 token 可节省高达 **75%** 的费用。缓存跨请求重复的系统提示、文档上下文和少样本示例。
+
+### 4. 在生产环境中使用结构化输出
+
+在生产应用中始终使用 `response_schema` 来定义结构化 JSON 输出。这消除了解析错误，并确保生成符合您模式的合法输出。
+
+### 5. 采用多模型策略
+
+通过 [TokenPAPA](https://tokenpapa.ai) 这样的单一网关路由不同的工作负载：
+
+- **Gemini 2.5 Pro** 用于多模态分析、长上下文推理和 Google 搜索接地
+- **Gemini 2.5 Flash** 用于高容量文本处理和客户聊天
+- **GPT-5** 用于复杂多步骤推理和深度工具使用工作流
+- **DeepSeek V4 Flash** 用于对成本敏感的大规模编码
+
+相比对每个请求都使用 Gemini 2.5 Pro，这种策略通常可节省 50–80% 的成本。
+
+### 6. 压缩多模态输入
+
+发送前调整大小并压缩图像，将音频下采样为 16kHz 单声道（仅语音任务），在可能的情况下使用视频关键帧而非完整视频。每种模态都会线性增加 token 消耗。
+
+### 7. 监控 Token 使用量
+
+最多 200 万 tokens，单个请求可能产生相当可观的成本。在每个响应中监控 `usage.prompt_tokens` 和 `usage.completion_tokens`：
+
+```python
+response = client.chat.completions.create(model="gemini-2.5-pro", messages=[...])
+pt = response.usage.prompt_tokens
+ct = response.usage.completion_tokens
+cost = (pt / 1_000_000) * 1.25 + (ct / 1_000_000) * 5.0
+print(f"预计费用: ${cost:.4f}")
+```
+
+---
+
+## 常见问题
+
+### 1. Gemini 2.5 API 在 2026 年的价格是多少？
+
+Gemini 2.5 Pro 对于 128K tokens 以下的提示，费用为**每百万输入 tokens $1.25**，对于更长上下文为**每百万 $2.50**。输出价格为 $5/百万（≤128K）和 $10/百万（>128K）。Gemini 2.5 Flash 费用为**每百万输入 tokens $0.15**，**每百万输出 tokens $0.60**——是目前性价比最高的多模态模型之一。有关所有提供商的详细定价，请参阅我们的 [2026 年 LLM API 定价对比](/en/docs/blog/llm-api-pricing-comparison-2026)。
+
+### 2. Gemini 2.5 的上下文窗口是多少？与其他模型相比如何？
+
+Gemini 2.5 Pro 和 Flash 都支持 **200 万 token 的上下文窗口**——是 GPT-5（100 万）和 DeepSeek V4（100 万）的两倍，是 Claude Sonnet 4（20 万）的 10 倍。这是所有主流模型中最大的生产环境上下文窗口，无需分块即可在单次提示中处理约 150 万字。对于真正需要此容量的应用——代码库分析、整书级文档审阅、多小时转录——Gemini 2.5 是 2026 年唯一的选择。
+
+### 3. 我可以在 Google 支持的国家/地区之外使用 Gemini API 吗？
+
+**可以。** Google 将直接 Gemini API 访问限制在约 60 个国家/地区。像 [TokenPAPA](https://tokenpapa.ai) 这样的中继平台为全球开发者提供 Gemini API 访问，无任何地域限制。您使用任意邮箱注册，通过国际信用卡或 PayPal 充值，在 3 分钟内即可获得 OpenAI 兼容端点。无需电话验证、Google Cloud 计费或支持国家/地区的地址。
+
+### 4. Gemini 2.5 Pro 和 Flash 有什么区别？
+
+Gemini 2.5 Pro 是高级层级，具备完整推理能力、更深入的分析能力和最高的输出质量——最适合复杂的多模态分析和长上下文推理。Gemini 2.5 Flash 便宜约 **8 倍**（$0.15 vs $1.25 每百万输入），同时保留相同的 200 万上下文窗口和多模态输入支持。Flash 以部分推理深度换取速度和成本效率。在两者之间切换只需更改 API 调用中的 `model` 参数。
+
+---
+
+## 开始使用 Gemini 2.5
+
+Gemini 2.5 Pro 和 Flash 代表了 Google 在 2026 年 AI 格局中最强的产品。凭借业界最大的 200 万 token 上下文窗口、跨文本、图像、音频和视频的原生多模态支持、Google 搜索接地，以及低于 GPT-5 和 Claude 的竞争性定价，Gemini 2.5 是长上下文和多模态应用的首选。
+
+对于面临 Google 区域限制的海外开发者，[TokenPAPA](https://tokenpapa.ai) 提供了最简单的 Gemini API 访问途径——无地域限制、无需电话验证、无需设置 Google Cloud 计费。仅需一个邮箱、一种支付方式，3 分钟内即可获得一个可用的 API 密钥。
+
+**总结：**
+
+- **Gemini 2.5 Pro**（输入 $1.25–2.50/百万，输出 $5–10/百万）——高级模型，具备 200 万上下文、多模态（文本 + 图像 + 音频 + 视频）、Google 搜索接地和结构化输出
+- **Gemini 2.5 Flash**（输入 $0.15/百万，输出 $0.60/百万）——高性价比模型，具备相同的 200 万上下文和多模态能力
+- **核心优势：** 最大的上下文窗口（200 万）、最全面的多模态、Google 搜索接地、有竞争力的定价
+- **从海外访问：** 使用 [TokenPAPA](https://tokenpapa.ai) 绕过地域限制——3 分钟内完成设置
+- **相关指南：** 请参阅我们的 [2026 年旗舰 LLM 对比](/en/docs/blog/flagship-llm-comparison-2026) 和 [2026 年 LLM API 定价对比](/en/docs/blog/llm-api-pricing-comparison-2026)
+
+**准备好在任何地方使用 Gemini 2.5 构建应用了吗？** 在 [tokenpapa.ai](https://tokenpapa.ai) 注册——无地域限制、无需电话验证、接受国际支付。3 分钟内获得可用的 Gemini API 密钥，立即开始使用 2026 年最大的上下文窗口构建应用。
+
+---
+
+**来源：**
+- Google Gemini API 定价：https://ai.google.dev/pricing [2026 年 6 月访问]
+- Google Gemini 文档：https://ai.google.dev/docs [2026 年 6 月访问]
+- OpenAI API 定价：https://openai.com/api/pricing/ [2026 年 6 月访问]
+- DeepSeek 官方定价：https://platform.deepseek.com/api-docs/pricing [2026 年 6 月访问]
+- Anthropic API 定价：https://docs.anthropic.com/en/api/pricing [2026 年 6 月访问]
+- LMSYS Chatbot Arena：https://chat.lmsys.org [2026 年 6 月访问]
+- TokenPAPA API 文档：https://tokenpapa.ai/docs [2026 年 6 月访问]
