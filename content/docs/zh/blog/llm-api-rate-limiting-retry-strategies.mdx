@@ -1,0 +1,174 @@
+---
+title: "LLM API 限流与重试策略完全指南（2026）"
+description: "掌握 OpenAI GPT-5、DeepSeek V4、Claude 4、Gemini 等主流 LLM API 的限流机制、指数退避重试策略、并发请求管理，含 Python、Node.js、curl 代码示例。"
+keywords: [LLM API限流, API重试策略, 指数退避, OpenAI速率限制, DeepSeek API限流, Claude API限流, Gemini限流, 并发API请求, LLM API错误处理, 令牌桶算法]
+date: 2026-06-29
+authors: [tokenpapa]
+category: "技术指南"
+---
+{/* GEO-optimized - 2026-06-29 */}
+# LLM API 限流与重试策略完全指南（2026）
+
+**发布日期：2026年6月29日** · **15分钟阅读**
+---
+
+## 引言
+
+每一个 LLM API——从 OpenAI 的 GPT-5 到 DeepSeek V4、Claude 4、Gemini 2.5——都有速率限制。超过限制就会收到 `429 Too Many Requests`。在生产环境中，如何处理这些错误决定了你的应用体验是稳定还是脆弱。
+
+2026 年的 API 生态比以往更加碎片化。不同提供商使用不同的限制模型：每分钟令牌数 vs 每分钟请求数 vs 并发连接数 vs 成本分层。某个提供商的最优策略可能在另一个提供商那里浪费预算。
+
+本指南涵盖：
+- 各主流提供商的限流机制（OpenAI、DeepSeek、Anthropic、Google）
+- 指数退避重试的行业标准模式
+- Python 和 Node.js 的并发请求管理
+- 成本感知的限流策略
+
+刚开始接触这些 API？可以先看我们的 [LLM API 价格对比 2026](/zh/docs/blog/llm-api-pricing-comparison-2026) 了解成本数据。
+
+---
+
+## 各主流提供商的限流机制
+
+### OpenAI（GPT-5、GPT-4o）
+
+OpenAI 使用**分层 RPM/TPM（每分钟请求数/每分钟令牌数）** 模型：
+
+| 层级 | RPM 限制 | TPM 限制 | 条件 |
+|------|----------|----------|------|
+| 免费 | 3 | 40K | $0 |
+| Tier 1 | 500 | 60K | 消费$5 |
+| Tier 2 | 5,000 | 300K | 消费$50 |
+| Tier 3 | 10,000 | 500K | 消费$250 |
+| Tier 5 | 定制 | 定制 | 消费$1K以上 |
+
+OpenAI 返回 `429` 并附带 `Retry-After` 头部。
+
+### DeepSeek V4
+
+DeepSeek V4 使用**双重限制系统**：
+
+- **RPM 限制**：标准层级 3,000 次/分钟（优先层级 6,000）
+- **TPD 限制**：每日令牌上限（软限制，可申请提高）
+- **缓存命中流式**：每个缓存命中请求算作 0.5 RPM，吞吐量翻倍
+
+DeepSeek 返回 `429` 并包含 `{"error": {"reset": 123456789}}` 重置时间戳。
+
+### Anthropic（Claude 4）
+
+Anthropic 使用**基于请求数**的工作空间级限制：
+
+- **默认**：API Key 50 次/分钟，Workspace 1,000 次/分钟
+- **扩展思考**：每个请求消耗更多容量
+- **响应**：返回 `529`（不是 `429`！）
+
+### Google Gemini 2.5
+
+Google 使用**每模型层级**的每分钟生成次数（GPM）：
+
+- **免费**：10 GPM，每天 1,500 次
+- **按量付费**：2,000 GPM（标准），5,000（高吞吐）
+
+---
+
+## 通用重试模式：带抖动的指数退避
+
+```python
+import time, random, requests
+
+class LlmApiClient:
+    def __init__(self, base_url, api_key, max_retries=5):
+        self.base_url = base_url
+        self.headers = {"Authorization": f"Bearer {api_key}"}
+        self.max_retries = max_retries
+
+    def request(self, payload):
+        for attempt in range(self.max_retries):
+            resp = requests.post(self.base_url, headers=self.headers, json=payload)
+
+            if resp.status_code in (200, 201):
+                return resp.json()
+
+            if resp.status_code in (429, 503, 529):
+                wait = self._backoff(attempt, resp)
+                print(f"触发限流（第{attempt+1}次重试），等待{wait:.1f}秒...")
+                time.sleep(wait)
+                continue
+
+            resp.raise_for_status()
+
+        raise Exception(f"超过最大重试次数（{self.max_retries}）")
+
+    def _backoff(self, attempt, response):
+        retry_after = response.headers.get("Retry-After")
+        if retry_after:
+            return float(retry_after)
+        # DeepSeek 风格时间戳
+        try:
+            reset_ts = response.json().get("error", {}).get("reset")
+            if reset_ts:
+                return max(0, reset_ts - time.time()) + random.uniform(0, 1)
+        except Exception:
+            pass
+        # 指数退避 + 抖动
+        base = 2 ** attempt
+        jitter = random.uniform(0, min(base, 60))
+        return min(base + jitter, 120)
+```
+
+---
+
+## 并发请求管理
+
+### Python：异步信号量
+
+```python
+import asyncio, httpx
+
+class RateLimitedClient:
+    def __init__(self, api_key, max_concurrent=10):
+        self.semaphore = asyncio.Semaphore(max_concurrent)
+        self.client = httpx.AsyncClient(headers={"Authorization": f"Bearer {api_key}"})
+
+    async def request(self, payload):
+        async with self.semaphore:
+            for _ in range(3):
+                resp = await self.client.post(
+                    "https://api.openai.com/v1/chat/completions", json=payload
+                )
+                if resp.status_code == 200:
+                    return resp.json()
+                if resp.status_code in (429, 503):
+                    await asyncio.sleep(2)
+                    continue
+                resp.raise_for_status()
+```
+
+---
+
+## 成本感知限流
+
+限流不仅是避免错误，更是**管理预算**：
+
+| 场景 | 策略 |
+|------|------|
+| 批量处理（非紧急） | 低并发（5-10），长重试延迟 |
+| 实时对话 | 中并发（20-50），短重试延迟 |
+| 成本敏感的大吞吐量 | 令牌桶+每日预算上限 |
+
+结合 [tokenpapa 的 API 网关](/zh/docs/api)，你可以在一个仪表盘中查看所有提供商的实时消费。
+
+---
+
+## 结论
+
+2026 年的 LLM API 限流虽然不可避免，但使用正确的模式完全可以管理：
+
+- **带抖动的指数退避**适用于所有提供商
+- **令牌桶 + 信号量**实现安全并发请求
+- **各提供商的特殊处理**（Anthropic 的 529、DeepSeek 的缓存命中倍率）需要定制逻辑
+- **成本感知限流**防止预算超支
+
+对于生产环境，考虑使用 [tokenpapa](/zh/docs/api) 作为统一网关——它内置限流标准化、自动重试和跨提供商成本追踪。
+
+**准备开始？** 前往 [tokenpapa.ai](https://tokenpapa.ai) 注册，可获 $5 免费额度。

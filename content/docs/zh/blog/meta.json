@@ -28,6 +28,8 @@
     "ai-api-key-management-security",
     "ai-api-for-content-creation",
     "streaming-websocket-llm-guide",
-    "mistral-api-guide"
+    "mistral-api-guide",
+    "llm-api-rate-limiting-retry-strategies",
+    "fine-tune-llm-api-guide"
   ]
 }
