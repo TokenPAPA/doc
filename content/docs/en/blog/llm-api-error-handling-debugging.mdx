@@ -1,0 +1,286 @@
+---
+title: "LLM API Error Handling & Debugging Guide (2026): Common Errors & Fixes"
+description: "Complete guide to LLM API error handling in 2026. Covers 401, 403, 429, 500, 503, 529 errors for OpenAI GPT-5, DeepSeek V4, Claude 4, Gemini 2.5. Debugging tips, logging strategies, and production troubleshooting."
+keywords: [LLM API error handling, API debugging guide, OpenAI error codes, DeepSeek API errors, Claude API 529 error, Gemini API errors, API troubleshooting, LLM API 401, LLM API 429, rate limit error, API authentication error, LLM production debugging]
+date: 2026-06-30
+authors: [tokenpapa]
+category: "Technical Guides"
+---
+<br />
+
+# LLM API Error Handling & Debugging Guide (2026): Common Errors & Fixes
+
+**Published: June 30, 2026** · **14 min read**
+
+---
+
+## Introduction
+
+Every LLM API call will eventually fail. Authentication expires, rate limits hit, models overload, and networks degrade. The difference between a robust application and a brittle one is how gracefully it handles failure.
+
+In 2026, with five major providers (OpenAI, DeepSeek, Anthropic, Google, and dozens more via API gateways), the error surface area is larger than ever. Each provider has unique error codes, retry semantics, and failure modes.
+
+This guide catalogs every common LLM API error — what it means, why it happens, and exactly how to fix it. Whether you're debugging a production incident or building error handling from scratch, this is your reference.
+
+New to LLM APIs? Start with our [Best LLM APIs 2026](/en/docs/blog/best-llm-api-2026-comparison) for model selection, and [LLM API Pricing Comparison 2026](/en/docs/blog/llm-api-pricing-comparison-2026) for cost data.
+
+---
+
+## Error Reference by Status Code
+
+### Status 400: Bad Request
+
+**Meaning:** The request payload is malformed or contains invalid parameters.
+
+| Symptom | Likely Cause | Fix |
+|---------|-------------|-----|
+| `"model" field required` | Missing model parameter | Add `model: "gpt-5"` or `"deepseek-v4"` |
+| `"messages" must be an array` | Messages field not a list | Wrap in `[]` |
+| `"role" must be one of system/user/assistant` | Invalid role string | Use exactly `"system"`, `"user"`, or `"assistant"` |
+| `max_tokens exceeds limit` | Token cap exceeded | Reduce `max_tokens` (GPT-5: 128K, DeepSeek V4: 128K) |
+| `Invalid JSON in request body` | Malformed JSON | Validate with `jq .` before sending |
+
+**Example fix:**
+```python
+# Wrong: missing model
+resp = requests.post(url, json={"messages": [...]})  # 400
+
+# Correct
+resp = requests.post(url, json={
+    "model": "gpt-5",
+    "messages": [{"role": "user", "content": "Hello"}]
+})
+```
+
+### Status 401: Unauthorized
+
+**Meaning:** API key is missing, invalid, or expired.
+
+**Provider-specific messages:**
+
+| Provider | Error Body | Common Cause |
+|----------|-----------|--------------|
+| OpenAI | `"Incorrect API key provided"` | Wrong key or revoked |
+| DeepSeek | `"Authentication Fails"` | Key expired or region blocked |
+| Anthropic | `"x-api-key header is required"` | Missing header |
+| Gemini | `"API_KEY_INVALID"` | Key not activated for model |
+
+**Debugging checklist:**
+1. Check `export | grep API_KEY` — is the environment variable set?
+2. Verify key length (OpenAI: `sk-proj-...`, DeepSeek: `sk-...`)
+3. Check billing status — expired payment causes immediate deactivation
+4. Test with curl: `curl -H "Authorization: Bearer https://api.openai.com/v1/models`
+
+**Pro tip:** Rotate keys regularly. Use [tokenpapa's API gateway](/en/docs/api) to manage multiple provider keys from a single endpoint with automatic failover.
+
+### Status 403: Forbidden
+
+**Meaning:** Key is valid but lacks permission for the requested resource.
+
+**Common scenarios:**
+- Free-tier key trying to access `gpt-5` (requires paid tier)
+- Organization-level restrictions (OpenAI org limits)
+- Country/region blocks (some providers restrict by IP geolocation)
+- Model access not granted (Claude 4 custom models)
+
+**Fix:** Upgrade your account tier, or use a proxy/gateway that handles region routing.
+
+### Status 429: Too Many Requests
+
+**Meaning:** Rate limit exceeded. See our dedicated [LLM API Rate Limiting & Retry Strategies Guide](/en/docs/blog/llm-api-rate-limiting-retry-strategies) for deep coverage.
+
+**Quick fix:**
+```python
+import time
+time.sleep(float(resp.headers.get("Retry-After", 5)))
+# Then retry
+```
+
+### Status 500: Internal Server Error
+
+**Meaning:** The provider's server encountered an error. Usually transient.
+
+**Providers that return 500:**
+
+| Provider | Frequency | Best Response |
+|----------|-----------|---------------|
+| OpenAI | Rare (under 0.1%) | Retry after 1-2s |
+| DeepSeek | Occasional (cache miss storms) | Retry after 3-5s |
+| Anthropic | Rare | Retry after 1s |
+| Gemini | Very rare (under 0.01%) | Retry after 1s |
+
+**Important:** Do NOT retry 500 errors more than 3 times. If persistent, switch to a fallback provider or model.
+
+### Status 503: Service Unavailable
+
+**Meaning:** The service is temporarily overloaded or under maintenance.
+
+**Provider behavior:**
+- **OpenAI:** Usually resolves within 30-60 seconds. Check status.openai.com
+- **DeepSeek:** Can lag during peak China hours (9-11 PM CST). Use [tokenpapa's load-balanced endpoint](/en/docs/api)
+- **Anthropic:** Typically maintenance windows (announced via status page)
+- **Gemini:** Very rare — auto-resolves
+
+### Status 529: Too Many Requests (Anthropic-specific)
+
+**Meaning:** Claude-specific overload error. Anthropic uses `529` instead of `429`.
+
+**This is unique to Anthropic — your generic HTTP client must handle it:**
+```python
+retryable_codes = {429, 500, 503, 529}  # Note: 529 included!
+```
+
+Anthropic's 529 includes a `retry_after_ms` field in the response body:
+
+```json
+{
+  "error": {
+    "type": "overloaded_error",
+    "message": "Overloaded, resubmit your request"
+  }
+}
+```
+
+**Fix:** Exponential backoff. If 529 persists for more than 30 seconds, consider routing to Claude 4 Sonnet instead of Opus.
+
+---
+
+## Debugging Toolkit
+
+### Step 1: Log All Requests and Responses
+
+```python
+import logging, json
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("llm_client")
+
+def log_request(method, url, headers, body):
+    logger.info(f"Request {method} {url}")
+    logger.info(f"  Headers: { {k:v for k,v in headers.items() if k.lower() != 'authorization'} }")
+    logger.info(f"  Body: {json.dumps(body)[:500]}")
+
+def log_response(resp):
+    logger.info(f"Response {resp.status_code} ({len(resp.content)} bytes)")
+    if resp.status_code >= 400:
+        logger.error(f"  Error: {resp.text[:500]}")
+```
+
+### Step 2: Structured Error Logging
+
+Use structured logs for production monitoring:
+
+```python
+import structlog
+
+log = structlog.get_logger()
+
+def on_error(provider, model, status_code, error_body, latency_ms):
+    log.error("llm_api_error",
+        provider=provider,
+        model=model,
+        status_code=status_code,
+        error=error_body.get("error", {}).get("message", "unknown"),
+        latency_ms=latency_ms
+    )
+```
+
+### Step 3: Health Check Endpoint
+
+Probe each provider before routing traffic:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}" \
+  -H "Authorization: Bearer " \
+  https://api.openai.com/v1/models
+```
+
+### Step 4: Request Tracing
+
+Add a unique request_id to every outgoing request for correlation:
+
+```python
+import uuid
+
+request_id = str(uuid.uuid4())
+headers = {
+    "Authorization": f"Bearer {api_key}",
+    "X-Request-Id": request_id  # OpenAI supports this for debugging
+}
+```
+
+---
+
+## Common Error Patterns and Solutions
+
+### Pattern 1: Intermittent 429s Under Load
+
+**Symptom:** Works fine at low volume, starts getting 429s at higher concurrency.
+
+**Root cause:** You are exceeding RPM or TPM limits.
+
+**Solution:** Use a token bucket limiter (see our [rate limiting guide](/en/docs/blog/llm-api-rate-limiting-retry-strategies)) and reduce max_concurrent by 50%.
+
+### Pattern 2: 401 After Key Rotation
+
+**Symptom:** Previously working code suddenly returns 401.
+
+**Root cause:** Environment variable not updated after key rotation, or multiple services using cached keys.
+
+**Solution:**
+```bash
+grep -r "sk-" /etc/environment /home/*/.env /etc/profile.d/ 2>/dev/null
+# Update all occurrences
+```
+
+### Pattern 3: Timeout on Long Contexts
+
+**Symptom:** Requests with large contexts (50K+ tokens) time out.
+
+**Root cause:** Timeout value is too low for long generations.
+
+**Solution:**
+```python
+resp = requests.post(url, json=payload, timeout=(10, 300))
+#                  connect timeout, read timeout
+```
+
+### Pattern 4: DeepSeek V4 Returns Empty Response
+
+**Symptom:** DeepSeek V4 returns HTTP 200 with empty choices array.
+
+**Root cause:** Common during cache miss storms; the stream starts but produces zero tokens.
+
+**Fix:**
+```python
+if not resp.json().get("choices") or not resp.json()["choices"][0].get("message", {}).get("content"):
+    return await fallback_to_deepseek_v4_direct()
+```
+
+---
+
+## Production Error Response Strategy
+
+| Error Type | Action | Time Threshold | Escalation |
+|-----------|--------|----------------|------------|
+| 401/403 | Stop and alert | Immediate | Developer on-call |
+| 429 | Retry with backoff | 30 seconds | Switch provider |
+| 500 | Retry 3x | 10 seconds | Switch model |
+| 503 | Wait and retry | 60 seconds | Check provider status |
+| 529 | Backoff | 30 seconds | Route to Sonnet |
+| Timeout | Retry with longer timeout | 60 seconds | Reduce context size |
+
+For production systems, using [tokenpapa.ai](https://tokenpapa.ai) as your API gateway gives you built-in error normalization, automatic fallback across providers, and unified logging.
+
+---
+
+## Conclusion
+
+LLM API errors are inevitable, but they don't have to cause downtime:
+
+- **Every status code has a specific cause and fix:** 400 (payload), 401 (auth), 403 (permissions), 429 (rate), 500 (server), 503 (overload), 529 (Anthropic)
+- **Structured logging and tracing** turn errors into actionable data
+- **Provider-specific quirks** (Anthropic 529, DeepSeek empty responses) need custom handling
+- **Fallback chains** protect against single-provider outages
+
+**Build confidently.** Sign up at [tokenpapa.ai](https://tokenpapa.ai) for unified API access across all major providers with built-in error handling and $5 free credits to start.

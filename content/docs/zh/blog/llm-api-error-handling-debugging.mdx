@@ -1,0 +1,187 @@
+---
+title: "LLM API 错误处理与调试完全指南（2026）：常见错误与修复"
+description: "2026 年 LLM API 错误处理完全指南，涵盖 OpenAI GPT-5、DeepSeek V4、Claude 4、Gemini 2.5 的 401、403、429、500、503、529 错误。包含调试技巧、日志策略和生产环境排错方法。"
+keywords: [LLM API错误处理, API调试指南, OpenAI错误码, DeepSeek API错误, Claude API 529错误, Gemini API错误, API排错, LLM API 401, LLM API 429, 速率限制错误, API认证错误, LLM生产调试]
+date: 2026-06-30
+authors: [tokenpapa]
+category: "技术指南"
+---
+<br />
+
+# LLM API 错误处理与调试完全指南（2026）：常见错误与修复
+
+**发布日期：2026年6月30日** · **14分钟阅读**
+
+---
+
+## 引言
+
+每个 LLM API 调用最终都会失败。认证过期、速率限制、模型过载、网络抖动——一个健壮的应用和一个脆弱的应用之间的区别就在于如何处理失败。
+
+2026 年，五个主流提供商（OpenAI、DeepSeek、Anthropic、Google 以及通过 API 网关接入的数十个模型）带来的错误面比以往更大。
+
+本指南收录了每个常见的 LLM API 错误——含义、原因、以及精确的修复方法。
+
+刚接触 LLM API？先看我们的 [最佳 LLM API 2026 对比](/zh/docs/blog/best-llm-api-2026-comparison) 和 [LLM API 价格对比](/zh/docs/blog/llm-api-pricing-comparison-2026)。
+
+---
+
+## 按状态码分类的错误参考
+
+### 状态 400：错误请求
+
+**含义：** 请求体格式错误或包含无效参数。
+
+| 症状 | 可能原因 | 修复 |
+|------|---------|------|
+| `"model" field required` | 缺少模型参数 | 添加 `model: "gpt-5"` |
+| `"messages" must be an array` | messages 不是数组 | 包裹在 `[]` 中 |
+| `"role" must be one of...` | 角色字符串无效 | 使用 `"system"`、`"user"` 或 `"assistant"` |
+| `max_tokens exceeds limit` | 令牌上限超限 | 减少 `max_tokens` |
+
+### 状态 401：未授权
+
+**含义：** API Key 缺失、无效或已过期。
+
+**各提供商错误信息：**
+- **OpenAI：** `"Incorrect API key provided"`
+- **DeepSeek：** `"Authentication Fails"`
+- **Anthropic：** `"x-api-key header is required"`
+- **Gemini：** `"API_KEY_INVALID"`
+
+**调试清单：**
+1. 检查环境变量——是否设置了 `API_KEY`？
+2. 验证 Key 长度（OpenAI: `sk-proj-...`）
+3. 检查账单状态——欠费会立即停用
+4. 用 curl 测试
+
+### 状态 403：禁止访问
+
+**含义：** Key 有效但无权限访问请求的资源。
+
+**常见场景：**
+- 免费 Key 试图访问 `gpt-5`
+- 组织级限制
+- 地区/IP 限制
+- 模型访问未授权
+
+### 状态 429：请求过多
+
+**含义：** 超过速率限制。详细处理见 [LLM API 限流与重试策略完全指南](/zh/docs/blog/llm-api-rate-limiting-retry-strategies)。
+
+**快速修复：**
+```python
+import time
+time.sleep(float(resp.headers.get("Retry-After", 5)))
+```
+
+### 状态 500：内部服务器错误
+
+**含义：** 提供商服务器出错。通常是瞬时的。
+
+**重要：** 不要重试超过 3 次。如果持续出现，切换到备用提供商。
+
+### 状态 503：服务不可用
+
+**含义：** 服务暂时过载或维护中。
+
+各提供商的行为不同，通常 30-60 秒内自动恢复。
+
+### 状态 529：请求过多（Anthropic 特有）
+
+**含义：** Claude 特有的过载错误。Anthropic 使用 `529` 而非 `429`。
+
+**这是唯一使用 529 的提供商——你的 HTTP 客户端必须处理这个状态码：**
+```python
+retryable_codes = {429, 500, 503, 529}  # 注意 529！
+```
+
+如果 529 持续超过 30 秒，考虑切换到 Claude 4 Sonnet 而不是 Opus。
+
+---
+
+## 调试工具包
+
+### 结构化日志记录
+
+```python
+import structlog
+log = structlog.get_logger()
+
+def on_error(provider, model, status_code, error_body, latency_ms):
+    log.error("llm_api_error",
+        provider=provider, model=model,
+        status_code=status_code,
+        error=error_body.get("error", {}).get("message", "unknown"),
+        latency_ms=latency_ms
+    )
+```
+
+### 请求追踪
+
+为每个发出请求添加唯一的 request_id：
+
+```python
+import uuid
+request_id = str(uuid.uuid4())
+headers = {
+    "Authorization": f"Bearer {api_key}",
+    "X-Request-Id": request_id
+}
+```
+
+---
+
+## 常见错误模式与解决方案
+
+**模式 1：负载下间歇性 429**
+
+症状：低流量正常，高并发时出现 429。
+
+解决方案：使用令牌桶限流器（见[限流指南](/zh/docs/blog/llm-api-rate-limiting-retry-strategies)），减少 50% 的并发数。
+
+**模式 2：密钥轮换后 401**
+
+症状：之前正常的代码突然返回 401。
+
+解决方案：检查并更新所有环境变量。
+
+**模式 3：长上下文超时**
+
+症状：大上下文（50K+ 令牌）请求超时。
+
+解决方案：增加读取超时：`timeout=(10, 300)`
+
+**模式 4：DeepSeek V4 返回空响应**
+
+症状：HTTP 200 但 choices 数组为空。
+
+解决方案：检测并回退到备用提供商。
+
+---
+
+## 生产环境错误响应策略
+
+| 错误类型 | 操作 | 时限 | 升级路径 |
+|---------|------|------|---------|
+| 401/403 | 停止并告警 | 立即 | 开发人员 |
+| 429 | 退避重试 | 30秒 | 切换提供商 |
+| 500 | 重试3次 | 10秒 | 切换模型 |
+| 503 | 等待重试 | 60秒 | 检查提供商状态 |
+| 529 | 退避 | 30秒 | 切换至Sonnet |
+| 超时 | 延长超时重试 | 60秒 | 减小上下文 |
+
+对于生产系统，使用 [tokenpapa.ai](https://tokenpapa.ai) 作为 API 网关可以内置错误标准化、自动跨提供商回退和统一日志。
+
+---
+
+## 结论
+
+LLM API 错误不可避免，但不一定会导致停机：
+
+- **每种状态码都有特定的原因和修复方法**
+- **结构化日志和追踪**将错误转化为可操作的数据
+- **提供商特有的问题**需要定制处理
+- **回退链**可防止单提供商故障
+
+使用 [tokenpapa.ai](https://tokenpapa.ai) 的统一 API 访问所有主流提供商，内置错误处理，$5 免费额度开始使用。

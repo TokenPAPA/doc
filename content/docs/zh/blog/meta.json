@@ -30,6 +30,8 @@
     "streaming-websocket-llm-guide",
     "mistral-api-guide",
     "llm-api-rate-limiting-retry-strategies",
-    "fine-tune-llm-api-guide"
+    "fine-tune-llm-api-guide",
+    "llm-api-error-handling-debugging",
+    "multi-provider-llm-strategy"
   ]
 }
