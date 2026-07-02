@@ -32,6 +32,8 @@
     "llm-api-rate-limiting-retry-strategies",
     "fine-tune-llm-api-guide",
     "llm-api-error-handling-debugging",
-    "multi-provider-llm-strategy"
+    "multi-provider-llm-strategy",
+    "openai-to-deepseek-migration-guide",
+    "llm-api-latency-comparison-2026"
   ]
 }
