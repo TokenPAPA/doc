@@ -4,6 +4,8 @@
   "icon": "Newspaper",
   "root": true,
   "pages": [
+    "tokenpapa-referral-free-api-credits",
+    "multi-provider-llm-api-aggregator",
     "access-deepseek-from-us",
     "deepseek-api-for-us-developers",
     "deepseek-without-chinese-phone",
