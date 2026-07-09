@@ -2,7 +2,7 @@
 title: "LLM API Latency & Speed Comparison 2026 — Which Provider Is Fastest?"
 description: "Real-world LLM API latency comparison: DeepSeek vs GPT-5 vs Claude vs Gemini. Time-to-first-token, tokens per second, and geographic latency benchmarks."
 keywords: ["LLM API latency comparison", "fastest LLM API 2026", "DeepSeek speed", "API response time", "AI inference speed benchmark", "time to first token", "tokens per second"]
-image: "/img/blog/llm-api-latency-comparison-2026.png"
+image: "/assets/og/llm-api-latency-comparison-2026.png"
 date: 2026-07-01
 author: "TokenPAPA Team"
 category: "Performance"
@@ -82,8 +82,8 @@ This is the most overlooked factor. The round-trip time from different regions t
 | Provider | US West User | EU User | Asia User |
 |---|---|---|---|
 | OpenAI (US West) | **~205ms TTFT total** | ~360ms | ~360ms |
-| DeepSeek via TokenPAPA (US West) | ~320ms | ~460ms | ~400ms |
-| DeepSeek via TokenPAPA (Asia relay) | ~440ms | ~480ms | **~320ms** |
+| DeepSeek via [TokenPAPA](https://tokenpapa.ai) (US West) | ~320ms | ~460ms | ~400ms |
+| DeepSeek via [TokenPAPA](https://tokenpapa.ai) (Asia relay) | ~440ms | ~480ms | **~320ms** |
 | Gemini (US West / global) | ~355ms | ~355ms | ~370ms |
 
 > **Key insight**: For Asian users, DeepSeek via an Asian relay (like TokenPAPA's Hong Kong relay) delivers the lowest total latency — even beating OpenAI in some cases. For US users, OpenAI's domestic infrastructure still wins on raw speed.
