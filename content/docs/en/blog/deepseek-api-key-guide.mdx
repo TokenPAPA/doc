@@ -1,0 +1,145 @@
+---
+title: "How to Get a DeepSeek API Key — Complete Guide for Overseas Users (2026)"
+description: "Step-by-step guide to getting a DeepSeek API key from overseas without a Chinese phone number. Covers official signup, TokenPAPA alternative, pricing, and first API call."
+date: 2026-07-10
+authors: [tokenpapa]
+category: "Guides"
+keywords: ["DeepSeek API key", "get DeepSeek API key", "DeepSeek API key overseas", "DeepSeek API key without Chinese phone", "DeepSeek API access US", "DeepSeek API key signup", "DeepSeek developer access", "DeepSeek API key guide"]
+image: "/assets/og/deepseek-api-key-guide.png"
+---
+
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-07-10 */}
+
+<JsonLd json='{"@context":"https://schema.org","@type":"Article","headline":"How to Get a DeepSeek API Key — Complete Guide for Overseas Users (2026)","description":"Step-by-step guide to getting a DeepSeek API key from overseas without a Chinese phone number. Covers official signup, TokenPAPA alternative, pricing, and first API call.","datePublished":"2026-07-10","author":{"@type":"Organization","name":"TokenPAPA"},"publisher":{"@type":"Organization","name":"TokenPAPA"}}' />
+
+<JsonLd json='{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Do I need a Chinese phone number to get a DeepSeek API key?","acceptedAnswer":{"@type":"Answer","text":"Officially yes — DeepSeek requires a Chinese phone for SMS verification during signup. However, overseas developers can use TokenPAPA to access DeepSeek models immediately without a Chinese phone number."}},{"@type":"Question","name":"Is the DeepSeek API free?","acceptedAnswer":{"@type":"Answer","text":"DeepSeek is not free but offers competitive pricing: V4 Flash at $0.14/M input tokens and V4 Pro at $0.58/M input tokens. TokenPAPA provides free credits on signup so you can try before paying."}},{"@type":"Question","name":"Can I use my DeepSeek API key from the US?","acceptedAnswer":{"@type":"Answer","text":"DeepSeek blocks API requests from certain overseas regions. TokenPAPA relays DeepSeek traffic without any geo-restrictions, so you can access it from the US, Europe, or anywhere in the world."}}]}' />
+
+# How to Get a DeepSeek API Key — Complete Guide for Overseas Users (2026)
+
+DeepSeek has become one of the most popular LLM providers in 2026 — and for good reason. Their V4 Flash model delivers GPT-5-class performance at a fraction of the cost. But if you are a developer outside China, getting a DeepSeek API key comes with a frustrating hurdle: **the official signup requires a Chinese phone number.**
+
+This guide covers **every working method** to get a DeepSeek API key from overseas, from the official route (with a Chinese number) to the easiest alternative.
+
+---
+
+## Method 1: Official DeepSeek Signup (Requires Chinese Phone)
+
+If you have access to a Chinese phone number, the official path is straightforward:
+
+1. **Go to** [platform.deepseek.com](https://platform.deepseek.com)
+2. Click **"Sign Up"** — enter your email and set a password
+3. **SMS verification** — you receive a verification code via SMS to your Chinese phone number
+4. **Log in to the dashboard** — once verified, you land on the DeepSeek console
+5. **Create an API key** — navigate to "API Keys" tab and click "Create API Key"
+6. **Copy the key** — the key starts with `sk-`. Save it immediately
+
+**Pricing (after free credits run out):**
+
+| Model | Input (per 1M tokens) | Output (per 1M tokens) |
+|-------|----------------------|-----------------------|
+| DeepSeek V4 Flash | $0.14 | $0.42 |
+| DeepSeek V4 Pro | $0.58 | $1.74 |
+| DeepSeek V3 | $0.27 | $1.10 |
+| DeepSeek R1 | $0.55 | $2.19 |
+
+The official API also offers **cache hit pricing** — if your prompt matches a cached prefix, you pay only **$0.014/M input tokens**, a 90% discount.
+
+**Limitations for overseas users:**
+- ❌ Signup requires a Chinese phone number
+- ⚠️ API may be slow or blocked from certain regions
+- ⚠️ Customer support is in Chinese
+
+---
+
+## Method 2: Via TokenPAPA (No Chinese Phone, Works Anywhere) ✅ Recommended
+
+TokenPAPA is the easiest way for overseas developers to access DeepSeek models. No Chinese phone number, no VPN, no geo-restrictions.
+
+### Step 1: Sign Up
+
+Go to [tokenpapa.ai](https://tokenpapa.ai) and create an account with your email. Verification takes about 30 seconds. **Free credits are added immediately** — no credit card needed.
+
+### Step 2: Get Your API Key
+
+From the dashboard, click **"Create API Key"**. Copy the key — this single key works with DeepSeek, Qwen, GPT-5, Claude, and every other model on the platform.
+
+### Step 3: Make Your First API Call
+
+TokenPAPA uses the OpenAI-compatible format, so your existing OpenAI SDK code works with a simple `base_url` change:
+
+```python
+import openai
+
+client = openai.OpenAI(
+    base_url="https://api.tokenpapa.ai/v1",
+    api_key="your-tokenpapa-key"
+)
+
+# Call DeepSeek V4 Flash
+response = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "What models do you support?"}
+    ]
+)
+print(response.choices[0].message.content)
+```
+
+Or with curl:
+
+```bash
+curl https://api.tokenpapa.ai/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer your-tokenpapa-key" \
+  -d '{
+    "model": "deepseek-v4-flash",
+    "messages": [{"role": "user", "content": "Hello, DeepSeek!"}]
+  }'
+```
+
+### TokenPAPA Pricing
+
+| Model | Input (per 1M tokens) | Output (per 1M tokens) |
+|-------|----------------------|-----------------------|
+| DeepSeek V4 Flash | $0.14 | $0.42 |
+| DeepSeek V4 Pro | $0.59 | $1.77 |
+| DeepSeek V3 | $0.27 | $1.10 |
+| DeepSeek R1 | $0.55 | $2.19 |
+
+Same prices as official DeepSeek — **no markup on the models themselves.** You pay the same rate but get:
+- ✅ No Chinese phone number required
+- ✅ Accessible from the US, Europe, Japan, anywhere
+- ✅ No VPN needed
+- ✅ English-language support
+- ✅ One API key for 10+ model providers
+
+---
+
+## Which Method Should You Choose?
+
+| Factor | Official DeepSeek | TokenPAPA |
+|--------|------------------|-----------|
+| Chinese phone needed | ✅ Yes | ❌ No |
+| Works from US/EU | ⚠️ May be blocked | ✅ Always |
+| Signup time | 2-3 minutes | 30 seconds |
+| Pricing | Same | Same (no markup) |
+| Multi-provider | ❌ DeepSeek only | ✅ 10+ providers |
+| Free trial | Limited free credits | Free credits on signup |
+
+If you already have a Chinese phone number and only need DeepSeek, the official route works fine. For everyone else — especially overseas developers — **TokenPAPA is the fastest and most reliable option.**
+
+## Make Your First Call Now
+
+```bash
+# 30-second test with curl
+curl https://api.tokenpapa.ai/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer your-key-here" \
+  -d '{"model": "deepseek-v4-flash", "messages": [{"role": "user", "content": "Say hello!"}]}'
+```
+
+[Get your DeepSeek API key →](https://tokenpapa.ai)
