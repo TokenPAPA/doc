@@ -143,8 +143,23 @@ export default async function RootLayout({
             '@type': 'Organization',
             name: 'TokenPAPA',
             url: 'https://doc.tokenpapa.ai',
-            description: 'Unified AI API gateway providing affordable access to DeepSeek, MiniMax, and Chinese LLM APIs for overseas developers.',
-            sameAs: ['https://tokenpapa.ai'],
+            logo: 'https://doc.tokenpapa.ai/assets/tokenpapa.png',
+            description:
+              'Unified AI API gateway providing affordable access to DeepSeek, MiniMax, and Chinese LLM APIs for overseas developers.',
+            sameAs: [
+              'https://tokenpapa.ai',
+              'https://github.com/QuantumNous/new-api',
+              'https://atomgit.com/QuantumNous/new-api',
+            ],
+            contactPoint: {
+              '@type': 'ContactPoint',
+              url: 'https://tokenpapa.ai',
+              contactType: 'sales',
+            },
+            address: {
+              '@type': 'PostalAddress',
+              addressCountry: 'US',
+            },
           }),
         }}
       />

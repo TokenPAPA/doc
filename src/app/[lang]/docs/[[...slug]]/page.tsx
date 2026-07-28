@@ -32,8 +32,46 @@ export default async function Page(props: {
   const MDX = page.data.body as any;
   const lastModified = page.data.lastModified;
 
+  // Build BreadcrumbList JSON-LD
+  const breadcrumbItems = [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: lang === 'zh' ? '首页' : lang === 'ja' ? 'ホーム' : 'Home',
+      item: `https://doc.tokenpapa.ai/${lang}`,
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Docs',
+      item: `https://doc.tokenpapa.ai/${lang}/docs`,
+    },
+    ...slug.map((seg, i) => ({
+      '@type': 'ListItem',
+      position: i + 3,
+      name: seg
+        .split('-')
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' '),
+      item: `https://doc.tokenpapa.ai/${lang}/docs/${slug.slice(0, i + 1).join('/')}`,
+    })),
+  ];
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: breadcrumbItems,
+  };
+
   return (
-    <DocsPage
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbSchema),
+        }}
+      />
+      <DocsPage
       toc={page.data.toc}
       full={page.data.full}
       lastUpdate={lastModified ? new Date(lastModified) : undefined}
@@ -67,6 +105,7 @@ export default async function Page(props: {
       </DocsBody>
       <Feedback lang={lang} onRateAction={onRateAction} />
     </DocsPage>
+    </>
   );
 }
 

@@ -1,0 +1,55 @@
+# TokenPAPA — Unified AI API Documentation Center
+
+> TokenPAPA is a unified AI API aggregator that provides overseas developers with fast access to Chinese LLM APIs (DeepSeek, Qwen, MiniMax, GLM-4, Moonshot) without phone verification, plus multi-model routing for GPT-5, Claude 4, Gemini 2.5 and more.
+
+## 核心导航链接
+- [首页](https://doc.tokenpapa.ai/)
+- [English](https://doc.tokenpapa.ai/en)
+- [简体中文](https://doc.tokenpapa.ai/zh)
+- [日本語](https://doc.tokenpapa.ai/ja)
+- [TokenPAPA 官网](https://tokenpapa.ai/)
+- [GitHub](https://github.com/QuantumNous/new-api)
+
+## API Reference
+- [Chat Completions API](https://doc.tokenpapa.ai/en/docs/api/ai-model/chat/openai)
+- [Chat Completions (Gemini)](https://doc.tokenpapa.ai/en/docs/api/ai-model/chat/gemini)
+- [Audio API (OpenAI-compatible)](https://doc.tokenpapa.ai/en/docs/api/ai-model/audio/openai)
+- [Embeddings API](https://doc.tokenpapa.ai/en/docs/api/ai-model/embeddings)
+- [Images API (DALL-E)](https://doc.tokenpapa.ai/en/docs/api/ai-model/images/openai)
+- [Images API (Qwen)](https://doc.tokenpapa.ai/en/docs/api/ai-model/images/qwen)
+- [Models List API](https://doc.tokenpapa.ai/en/docs/api/ai-model/models/list)
+- [Moderations API](https://doc.tokenpapa.ai/en/docs/api/ai-model/moderations)
+- [Realtime API](https://doc.tokenpapa.ai/en/docs/api/ai-model/realtime)
+- [Rerank API](https://doc.tokenpapa.ai/en/docs/api/ai-model/rerank)
+- [Video Generation (Sora)](https://doc.tokenpapa.ai/en/docs/api/ai-model/videos/sora)
+- [Video Generation (Kling)](https://doc.tokenpapa.ai/en/docs/api/ai-model/videos/kling)
+- [Video Generation (Jimeng)](https://doc.tokenpapa.ai/en/docs/api/ai-model/videos/jimeng)
+
+## User Guide
+- [Quick Start](https://doc.tokenpapa.ai/en/docs/guide/feature-guide/user/auth)
+- [Supported AI Apps (Clients)](https://doc.tokenpapa.ai/en/docs/apps)
+- [Chat App Configuration Guide](https://doc.tokenpapa.ai/en/docs/guide/feature-guide/user/chat-apps)
+- [Personal Settings](https://doc.tokenpapa.ai/en/docs/guide/feature-guide/user/personal-setting)
+
+## Blog Highlights
+- [LLM API Benchmark Results 2026: DeepSeek V4 vs GPT-5 vs Claude 4 vs Gemini 2.5](https://doc.tokenpapa.ai/en/docs/blog/llm-api-benchmarks-2026)
+- [Best LLM API Comparison 2026: DeepSeek V4 vs GPT-4o vs Claude vs Gemini](https://doc.tokenpapa.ai/en/docs/blog/best-llm-api-2026-comparison)
+- [DeepSeek vs OpenAI Pricing 2026](https://doc.tokenpapa.ai/en/docs/blog/deepseek-vs-openai-pricing)
+- [Multi-Provider LLM Strategy 2026: Fallback Chains & Cost Optimization](https://doc.tokenpapa.ai/en/docs/blog/multi-provider-llm-strategy)
+- [Cheapest LLM APIs in 2026](https://doc.tokenpapa.ai/en/docs/blog/cheapest-llm-api-2026)
+- [LLM API Error Handling & Debugging Guide](https://doc.tokenpapa.ai/en/docs/blog/llm-api-error-handling-debugging)
+- [Access DeepSeek API from the US — No Chinese Phone Needed](https://doc.tokenpapa.ai/en/docs/blog/access-deepseek-from-us)
+- [GPT-5 API Complete Guide for Developers](https://doc.tokenpapa.ai/en/docs/blog/gpt-5-api-guide)
+- [OpenAI to DeepSeek API Migration Guide](https://doc.tokenpapa.ai/en/docs/blog/openai-to-deepseek-migration-guide)
+- [Real-Time LLM APIs: SSE Streaming vs WebSocket vs WebRTC](https://doc.tokenpapa.ai/en/docs/blog/streaming-websocket-llm-guide)
+- [AI API Key Management & Security Best Practices](https://doc.tokenpapa.ai/en/docs/blog/ai-api-key-management-security)
+- [Best LLM APIs for Indie Hackers (2026)](https://doc.tokenpapa.ai/en/docs/blog/llm-apis-for-indie-hackers)
+
+## Supported AI Apps
+- [Claude Code](https://doc.tokenpapa.ai/en/docs/apps/claude-code)
+- [Codex CLI](https://doc.tokenpapa.ai/en/docs/apps/codex-cli)
+- [OpenCode](https://doc.tokenpapa.ai/en/docs/apps/opencode)
+- [Cherry Studio](https://doc.tokenpapa.ai/en/docs/apps/cherry-studio)
+- [AstrBot](https://doc.tokenpapa.ai/en/docs/apps/astrbot)
+- [Luna Translator](https://doc.tokenpapa.ai/en/docs/apps/luna-translator)
+- [Factory Droid CLI](https://doc.tokenpapa.ai/en/docs/apps/factory-droid-cli)

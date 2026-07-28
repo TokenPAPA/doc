@@ -18,6 +18,24 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'TokenPAPA',
+  url: 'https://doc.tokenpapa.ai',
+  description:
+    'Unified AI API gateway providing affordable access to DeepSeek, MiniMax, and Chinese LLM APIs for overseas developers.',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate:
+        'https://doc.tokenpapa.ai/en/docs?search={search_term_string}',
+    },
+    'query-input': 'required name=search_term_string',
+  },
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -27,6 +45,12 @@ export default function RootLayout({
     <html suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(websiteSchema),
+          }}
+        />
       </head>
       <body>
         {children}
