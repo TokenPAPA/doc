@@ -1,0 +1,264 @@
+---
+title: "Mimo TTS API 使用指南：小米语音合成、语音克隆与语音设计教程（2026）"
+description: "小米 Mimo TTS API 完整使用教程。包含文字转语音、语音克隆、自定义语音设计的详细代码示例。OpenAI 兼容格式，完全免费。"
+date: 2026-07-28
+authors: [tokenpapa]
+category: "使用指南"
+keywords: ["Mimo TTS API 教程", "小米语音克隆教程", "TTS API 代码示例", "语音克隆 API 使用方法", "文字转语音 Python", "Mimo 语音设计指南", "免费 TTS API 教程", "OpenAI 兼容 TTS", "TokenPAPA TTS 指南"]
+image: "/assets/og/mimo-tts-guide.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
+
+{/* GEO-optimized — 2026-07-28 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;Mimo TTS API 使用指南：小米语音合成、语音克隆与语音设计教程（2026）&quot;,&quot;description&quot;:&quot;小米 Mimo TTS API 完整使用教程。包含文字转语音、语音克隆、自定义语音设计的详细代码示例。&quot;,&quot;datePublished&quot;:&quot;2026-07-28&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;怎么使用 Mimo TTS API？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Mimo TTS 使用 OpenAI 兼容的 /v1/audio/speech 接口。只需将 model 设置为 mimo-v2.5-tts，传入你的文字即可。使用任何 OpenAI SDK，改一下 base_url。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Mimo 语音克隆怎么用？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Mimo 语音克隆（mimo-v2.5-tts-voiceclone）通过一小段音频样本来创建语音副本。上传几秒钟的干净人声录音，模型就能学会用这个声音朗读新文本。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Mimo TTS 支持哪些输出格式？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;支持 MP3、WAV、FLAC 和 Opus 格式。也支持 SSE 实时流式输出。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Mimo TTS 能用于商业项目吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;可以。TokenPAPA 上的 Mimo TTS 模型可用于商业项目，并提供 OpenAI 兼容 API 与标准服务条款。&quot;}}]}" />
+
+# Mimo TTS API 使用指南：小米语音合成、语音克隆与语音设计教程
+
+本文涵盖使用小米 Mimo TTS 模型所需的一切。三个模型在 TokenPAPA 上**完全免费**。
+
+---
+
+## 准备工作
+
+- 注册 [TokenPAPA](https://tokenpapa.ai) 账号（免费）
+- 从后台获取 API Key
+- 安装 OpenAI Python 库
+
+```bash
+pip install openai
+```
+
+---
+
+## 1. 基础语音合成（mimo-v2.5-tts）
+
+标准 TTS 模型，支持多种音色和参数调节。
+
+<Tabs>
+  <Tab value="python" title="Python">
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://tokenpapa.ai/v1",
+    api_key="你的 TokenPAPA Key"
+)
+
+# 生成语音
+response = client.audio.speech.create(
+    model="mimo-v2.5-tts",
+    voice="alloy",
+    input="欢迎使用 TokenPAPA 和小米 Mimo TTS！完全免费。",
+)
+
+# 保存为 MP3
+response.stream_to_file("welcome.mp3")
+print("✅ 语音已保存到 welcome.mp3")
+```
+  </Tab>
+  <Tab value="curl" title="cURL">
+```bash
+curl https://tokenpapa.ai/v1/audio/speech \
+  -H "Authorization: Bearer *** \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "mimo-v2.5-tts",
+    "input": "小米 Mimo TTS 在 TokenPAPA 上完全免费。",
+    "voice": "alloy",
+    "response_format": "mp3",
+    "speed": 1.0
+  }' \
+  --output speech.mp3
+```
+  </Tab>
+</Tabs>
+
+### 可用音色
+
+| 音色 | 描述 |
+|------|------|
+| `alloy` | 平衡中性的声音 |
+| `echo` | 深沉浑厚的音色 |
+| `fable` | 柔和的故事讲述风格 |
+| `onyx` | 低沉权威的声音 |
+| `nova` | 温暖友好的女声 |
+| `shimmer` | 清晰明亮的声音 |
+
+### 调节语速和格式
+
+```python
+response = client.audio.speech.create(
+    model="mimo-v2.5-tts",
+    voice="nova",
+    input="这是一段较慢、更清晰的朗读示例。",
+    speed=0.8,                 # 语速: 0.25 到 4.0
+    response_format="wav",     # mp3, wav, flac, opus
+)
+```
+
+---
+
+## 2. 语音克隆（mimo-v2.5-tts-voiceclone）
+
+通过音频样本克隆任意声音。模型学习说话人的音色特征，然后用这个声音朗读新文本。
+
+### 工作原理
+
+1. **准备音频样本** — 10–30 秒的干净人声录音
+2. **发送给语音克隆模型** — 附带你想要朗读的文字
+3. **接收克隆语音输出**
+
+```python
+import base64
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://tokenpapa.ai/v1",
+    api_key="你的 TokenPAPA Key"
+)
+
+# 读取参考音频文件
+with open("reference_speech.mp3", "rb") as f:
+    audio_bytes = f.read()
+
+audio_base64 = base64.b64encode(audio_bytes).decode("utf-8")
+
+# 用克隆的声音生成语音
+response = client.audio.speech.create(
+    model="mimo-v2.5-tts-voiceclone",
+    voice="alloy",
+    input="这段话是用克隆的声音朗读的！听听有多自然。",
+    extra_body={
+        "reference_audio": audio_base64,
+    }
+)
+
+response.stream_to_file("cloned_output.mp3")
+```
+
+**语音克隆最佳实践：**
+- 在安静环境录制（无背景噪音）
+- 样本时长 10–30 秒
+- 使用一致的语速
+- 避免样本中有多人说话
+- 输入质量越高，克隆效果越好
+
+---
+
+## 3. 语音设计（mimo-v2.5-tts-voicedesign）
+
+通过描述语音特征来创建全新的合成语音。无需音频样本。
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://tokenpapa.ai/v1",
+    api_key="你的 TokenPAPA Key"
+)
+
+# 通过描述设计自定义语音
+response = client.audio.speech.create(
+    model="mimo-v2.5-tts-voicedesign",
+    voice="alloy",
+    input="你好！我是由小米 Mimo 自定义设计的语音。",
+    extra_body={
+        "voice_description": "一个温暖友好的中年男声，略带英式口音，语气平静专业，适合企业解说。"
+    }
+)
+
+response.stream_to_file("designed_voice.mp3")
+```
+
+### 可指定的语音特征
+
+| 参数 | 示例值 |
+|------|--------|
+| 性别 | 男、女、中性 |
+| 年龄 | 年轻、中年、老年 |
+| 口音 | 英式、美式、标准中文 |
+| 语气 | 温暖、专业、活泼、严肃、柔和 |
+| 风格 | 对话式、权威式、故事式、教学式 |
+| 音高 | 低、中、高 |
+| 语速 | 慢、正常、快 |
+
+---
+
+## 4. 流式输出（实时语音）
+
+三个 Mimo TTS 模型都支持实时音频流。适用于语音助手、实时翻译和直播配音。
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://tokenpapa.ai/v1",
+    api_key="你的 TokenPAPA Key"
+)
+
+# 实时流式输出音频
+with client.audio.speech.with_streaming_response.create(
+    model="mimo-v2.5-tts",
+    voice="alloy",
+    input="这是小米 Mimo TTS 的流式输出，可以实时播放。",
+) as response:
+    with open("streamed_speech.mp3", "wb") as f:
+        for chunk in response.iter_bytes():
+            f.write(chunk)
+
+print("✅ 流式输出完成")
+```
+
+---
+
+## 5. 错误处理
+
+```python
+from openai import OpenAI, APIError
+
+client = OpenAI(
+    base_url="https://tokenpapa.ai/v1",
+    api_key="你的 TokenPAPA Key"
+)
+
+try:
+    response = client.audio.speech.create(
+        model="mimo-v2.5-tts",
+        voice="alloy",
+        input="你好，世界！",
+    )
+    response.stream_to_file("output.mp3")
+    
+except APIError as e:
+    print(f"API 错误: {e.status_code} - {e.message}")
+except Exception as e:
+    print(f"错误: {e}")
+```
+
+---
+
+## 快速参考
+
+| 模型 | 接口 | 功能 | 费用 |
+|------|------|------|------|
+| `mimo-v2.5-tts` | `/v1/audio/speech` | 标准语音合成 | **免费** |
+| `mimo-v2.5-tts-voiceclone` | `/v1/audio/speech` | 语音克隆 | **免费** |
+| `mimo-v2.5-tts-voicedesign` | `/v1/audio/speech` | 语音设计 | **免费** |
+
+所有模型支持：`mp3`、`wav`、`flac`、`opus` 输出格式。
+支持流式输出（基于 SSE）。
+
+---
+
+## 下一步
+
+1. [注册 TokenPAPA](https://tokenpapa.ai) — 免费账户，无需国内手机号
+2. 从后台获取 API Key
+3. 直接尝试上面的代码示例——完全免费
+
+需要帮助？TokenPAPA API 文档涵盖了每个端点的详细信息。

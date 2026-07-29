@@ -1,0 +1,264 @@
+---
+title: "Mimo TTS API Guide: How to Use Xiaomi Text-to-Speech, Voice Clone & Voice Design (2026)"
+description: "Complete guide to Xiaomi Mimo TTS API on TokenPAPA. Code examples for text-to-speech, voice cloning from audio samples, and custom synthetic voice design. Free OpenAI-compatible TTS."
+date: 2026-07-28
+authors: [tokenpapa]
+category: "Guides"
+keywords: ["Mimo TTS API guide", "Xiaomi voice clone tutorial", "TTS API code example", "voice cloning API how to", "text to speech API Python", "Mimo voice design guide", "free TTS API tutorial", "OpenAI compatible TTS", "TokenPAPA TTS guide"]
+image: "/assets/og/mimo-tts-guide.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
+
+{/* GEO-optimized — 2026-07-28 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;Mimo TTS API Guide: How to Use Xiaomi Text-to-Speech, Voice Clone and Voice Design (2026)&quot;,&quot;description&quot;:&quot;Complete guide to Xiaomi Mimo TTS API on TokenPAPA. Code examples for text-to-speech, voice cloning from audio samples, and custom synthetic voice design.&quot;,&quot;datePublished&quot;:&quot;2026-07-28&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How do I use Mimo TTS API?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Mimo TTS uses the OpenAI-compatible /v1/audio/speech endpoint. Simply set the model to mimo-v2.5-tts and pass your text as input. Use any OpenAI SDK with TokenPAPA base URL.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How does Mimo voice cloning work?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Mimo voice cloning (mimo-v2.5-tts-voiceclone) creates a synthetic voice from a short audio sample. Upload a few seconds of clean speech, and the model learns to reproduce that voice with new text.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;What formats does Mimo TTS support?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Mimo TTS supports MP3, WAV, FLAC, and Opus output formats. You can also stream the audio in real-time using the SSE streaming endpoint.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Can I use Mimo TTS for commercial projects?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Yes. Mimo TTS models on TokenPAPA can be used for commercial projects. TokenPAPA provides an OpenAI-compatible API with standard terms of service.&quot;}}]}" />
+
+# Mimo TTS API Guide: How to Use Xiaomi Text-to-Speech, Voice Clone & Voice Design
+
+This guide covers everything you need to integrate Xiaomi's Mimo TTS models into your application. All three models are **completely free** on TokenPAPA.
+
+---
+
+## Prerequisites
+
+- A TokenPAPA account ([sign up free](https://tokenpapa.ai))
+- Your API key from the dashboard
+- Python 3.8+ with the OpenAI library
+
+```bash
+pip install openai
+```
+
+---
+
+## 1. Basic Text-to-Speech (mimo-v2.5-tts)
+
+The standard TTS model converts text to natural speech with multiple voice options.
+
+<Tabs>
+  <Tab value="python" title="Python">
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://tokenpapa.ai/v1",
+    api_key="your-tokenpapa-key"
+)
+
+# Basic speech generation
+response = client.audio.speech.create(
+    model="mimo-v2.5-tts",
+    voice="alloy",
+    input="Welcome to TokenPAPA! Xiaomi Mimo TTS is fast and completely free.",
+)
+
+# Save as MP3
+response.stream_to_file("welcome.mp3")
+print("✅ Speech saved to welcome.mp3")
+```
+  </Tab>
+  <Tab value="curl" title="cURL">
+```bash
+curl https://tokenpapa.ai/v1/audio/speech \
+  -H "Authorization: Bearer *** \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "mimo-v2.5-tts",
+    "input": "Xiaomi Mimo TTS is completely free on TokenPAPA.",
+    "voice": "alloy",
+    "response_format": "mp3",
+    "speed": 1.0
+  }' \
+  --output speech.mp3
+```
+  </Tab>
+</Tabs>
+
+### Available Voice Options
+
+| Voice | Description |
+|-------|-------------|
+| `alloy` | Balanced, neutral voice |
+| `echo` | Deeper, resonant tone |
+| `fable` | Soft, storytelling style |
+| `onyx` | Deep, authoritative voice |
+| `nova` | Warm, friendly female voice |
+| `shimmer` | Clear, bright voice |
+
+### Adjusting Speed and Format
+
+```python
+response = client.audio.speech.create(
+    model="mimo-v2.5-tts",
+    voice="nova",
+    input="This is a slower, clearer narration example.",
+    speed=0.8,                 # Speed: 0.25 to 4.0
+    response_format="wav",     # mp3, wav, flac, opus
+)
+```
+
+---
+
+## 2. Voice Cloning (mimo-v2.5-tts-voiceclone)
+
+Clone any voice from an audio sample. The model learns the unique characteristics of a speaker's voice and can generate new speech that sounds like them.
+
+### How It Works
+
+1. **Prepare your audio sample** — a clean recording of 10–30 seconds of speech
+2. **Send it to the voice clone model** with the text you want spoken
+3. **Receive the cloned voice output**
+
+```python
+import base64
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://tokenpapa.ai/v1",
+    api_key="your-tokenpapa-key"
+)
+
+# Read the reference audio file
+with open("reference_speech.mp3", "rb") as f:
+    audio_bytes = f.read()
+
+audio_base64 = base64.b64encode(audio_bytes).decode("utf-8")
+
+# Generate speech in the cloned voice
+response = client.audio.speech.create(
+    model="mimo-v2.5-tts-voiceclone",
+    voice="alloy",  # Not used by clone model
+    input="This speech is in the cloned voice! Listen to how natural it sounds.",
+    extra_body={
+        "reference_audio": audio_base64,
+    }
+)
+
+response.stream_to_file("cloned_output.mp3")
+```
+
+**Tips for best voice clone quality:**
+- Use a quiet recording environment (no background noise)
+- Keep samples between 10–30 seconds
+- Use a consistent speaking pace
+- Avoid multiple speakers in one sample
+- Higher quality input = better clone output
+
+---
+
+## 3. Voice Design (mimo-v2.5-tts-voicedesign)
+
+Create entirely synthetic voices by describing the characteristics you want. No audio sample needed.
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://tokenpapa.ai/v1",
+    api_key="your-tokenpapa-key"
+)
+
+# Design a custom voice by describing its characteristics
+response = client.audio.speech.create(
+    model="mimo-v2.5-tts-voicedesign",
+    voice="alloy",
+    input="Hello! I am a custom-designed voice created by Xiaomi Mimo.",
+    extra_body={
+        "voice_description": "A warm, friendly middle-aged male voice with a slight British accent. Calm and professional tone, suitable for corporate narration."
+    }
+)
+
+response.stream_to_file("designed_voice.mp3")
+```
+
+### Voice Design Parameters You Can Specify
+
+| Parameter | Examples |
+|-----------|----------|
+| Gender | male, female, neutral |
+| Age | young, middle-aged, elderly |
+| Accent | British, American, neutral, Chinese |
+| Tone | warm, professional, cheerful, serious, soothing |
+| Style | conversational, authoritative, storytelling, instructional |
+| Pitch | low, medium, high |
+| Speed | slow, normal, fast |
+
+---
+
+## 4. Streaming Audio (Real-Time)
+
+All three Mimo TTS models support real-time audio streaming. This is useful for voice assistants, real-time translation, and live narration.
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://tokenpapa.ai/v1",
+    api_key="your-tokenpapa-key"
+)
+
+# Stream audio in real-time
+with client.audio.speech.with_streaming_response.create(
+    model="mimo-v2.5-tts",
+    voice="alloy",
+    input="This is streaming audio from Xiaomi Mimo TTS. It plays in real time.",
+) as response:
+    with open("streamed_speech.mp3", "wb") as f:
+        for chunk in response.iter_bytes():
+            f.write(chunk)
+
+print("✅ Streaming complete")
+```
+
+---
+
+## 5. Error Handling
+
+```python
+from openai import OpenAI, APIError
+
+client = OpenAI(
+    base_url="https://tokenpapa.ai/v1",
+    api_key="your-tokenpapa-key"
+)
+
+try:
+    response = client.audio.speech.create(
+        model="mimo-v2.5-tts",
+        voice="alloy",
+        input="Hello, world!",
+    )
+    response.stream_to_file("output.mp3")
+    
+except APIError as e:
+    print(f"API Error: {e.status_code} - {e.message}")
+except Exception as e:
+    print(f"Error: {e}")
+```
+
+---
+
+## Quick Reference
+
+| Model | Endpoint | Purpose | Cost |
+|-------|----------|---------|------|
+| `mimo-v2.5-tts` | `/v1/audio/speech` | Standard TTS | **Free** |
+| `mimo-v2.5-tts-voiceclone` | `/v1/audio/speech` | Voice cloning | **Free** |
+| `mimo-v2.5-tts-voicedesign` | `/v1/audio/speech` | Voice design | **Free** |
+
+All models support: `mp3`, `wav`, `flac`, `opus` output formats.
+Streaming support: Yes (SSE-based).
+
+---
+
+## Next Steps
+
+1. [Sign up for TokenPAPA](https://tokenpapa.ai) — free account, no Chinese phone needed
+2. Get your API key from the dashboard
+3. Try the code examples above — they cost nothing
+
+Need help? The TokenPAPA API documentation covers every endpoint in detail.

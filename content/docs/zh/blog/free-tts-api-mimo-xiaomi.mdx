@@ -1,0 +1,150 @@
+---
+title: "免费 TTS API 2026：小米 Mimo 语音合成、语音克隆与语音设计（完全免费）"
+description: "小米 Mimo TTS 系列模型已在 TokenPAPA 上线，完全免费使用！支持文字转语音、语音克隆、自定义语音设计。OpenAI 兼容，无需国内手机号，全球开发者可用。"
+date: 2026-07-28
+authors: [tokenpapa]
+category: "免费工具"
+keywords: ["免费 TTS API", "免费文字转语音 API", "Mimo TTS", "小米语音合成", "免费语音克隆 API", "语音克隆免费", "免费 TTS 接口 2026", "Mimo 语音设计", "小米 AI 语音", "TokenPAPA 免费 API"]
+image: "/assets/og/free-tts-mimo.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-07-28 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;免费 TTS API 2026：小米 Mimo 语音合成、语音克隆与语音设计（完全免费）&quot;,&quot;description&quot;:&quot;小米 Mimo TTS 系列模型已在 TokenPAPA 上线，完全免费使用。&quot;,&quot;datePublished&quot;:&quot;2026-07-28&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+# 免费 TTS API 2026：小米 Mimo 语音合成、语音克隆与语音设计
+
+> **语音 AI 开发者们注意了：** 小米 Mimo TTS 系列模型已在 TokenPAPA 上线，而且 **完全免费使用**！
+
+没有 Token 消耗。没有使用限制。没有隐藏费用。三个强大的语音 AI 模型，零成本使用。
+
+---
+
+## 可用模型
+
+| 模型 | 用途 | 价格 |
+|------|------|------|
+| **mimo-v2.5-tts** | 标准文字转语音 | **免费** |
+| **mimo-v2.5-tts-voiceclone** | 从音频样本克隆声音 | **免费** |
+| **mimo-v2.5-tts-voicedesign** | 自定义合成语音设计 | **免费** |
+
+---
+
+## 模型详解
+
+### 1. mimo-v2.5-tts — 标准语音合成
+
+将文字转换为自然流畅的语音。支持多种音色、可调节语速、多种输出格式。
+
+**适用场景：**
+- 语音助手和聊天机器人
+- 有声书生成
+- 无障碍工具
+- 内容创作（视频配音、播客）
+- 语言学习应用
+
+### 2. mimo-v2.5-tts-voiceclone — 语音克隆
+
+上传一小段音频样本（几秒钟的人声），模型就能用这个声音生成语音。这是 2026 年我们知道的**唯一免费语音克隆 API**。
+
+**适用场景：**
+- 个性化语音助手
+- 配音和本地化
+- 语音无障碍保护
+- 游戏角色配音
+
+### 3. mimo-v2.5-tts-voicedesign — 自定义语音设计
+
+通过描述你想要的语音特征（性别、年龄、口音、语调等）来创建全新的合成语音。无需音频样本。
+
+**适用场景：**
+- 品牌语音设计
+- 合成解说员
+- 媒体自定义配音
+- 语音界面原型
+
+---
+
+## 快速上手：30 秒调用 Mimo TTS
+
+Mimo TTS 模型完全 **兼容 OpenAI API 格式**，直接用 OpenAI SDK 即可，只需改 `base_url` 和模型名。
+
+### Python
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://tokenpapa.ai/v1",
+    api_key="你的 TokenPAPA Key"
+)
+
+# 生成语音
+response = client.audio.speech.create(
+    model="mimo-v2.5-tts",
+    voice="alloy",
+    input="你好！这段语音由小米 Mimo TTS 模型生成，完全免费。",
+)
+
+# 保存为文件
+response.stream_to_file("output.mp3")
+```
+
+### cURL
+
+```bash
+curl https://tokenpapa.ai/v1/audio/speech \
+  -H "Authorization: Bearer *** \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "mimo-v2.5-tts",
+    "input": "小米 Mimo 语音合成，完全免费。",
+    "voice": "alloy",
+    "response_format": "mp3",
+    "speed": 1.0
+  }' \
+  --output speech.mp3
+```
+
+---
+
+## 与其他 TTS 供应商对比
+
+| 功能 | Mimo TTS（免费） | OpenAI TTS | Google TTS | ElevenLabs |
+|------|----------------|------------|------------|------------|
+| **价格** | **$0** | $0.015/分钟 | $0.000004/字符 | $5/月起 |
+| **语音克隆** | 有（免费） | 无 | 无 | 有（$11/月） |
+| **语音设计** | 有（免费） | 无 | 无 | 无 |
+| **OpenAI 兼容** | 是 | 是 | 否 | 否 |
+| **需要国内手机** | 否 | 否 | 否 | 否 |
+| **多语言支持** | 是 | 是 | 是 | 是 |
+
+**一句话总结：** TokenPAPA 上的 Mimo TTS 是 2026 年唯一提供免费语音克隆和语音设计的 API。
+
+---
+
+## 注册即用
+
+1. **注册** [tokenpapa.ai](https://tokenpapa.ai) — 海外用户无需国内手机号
+2. **获得** $2 免费额度（用于非 TTS 模型）
+3. **使用** Mimo TTS 模型 **零成本** — 不消耗你的额度
+
+```python
+from openai import OpenAI
+client = OpenAI(base_url="https://tokenpapa.ai/v1", api_key="your-key")
+
+# 快速测试
+response = client.audio.speech.create(
+    model="mimo-v2.5-tts",
+    voice="alloy",
+    input="Mimo TTS 在 TokenPAPA 上完全免费！",
+)
+response.stream_to_file("test.mp3")
+print("✅ 语音已生成！检查 test.mp3")
+```
+
+---
+
+*三个 Mimo TTS 模型于 2026 年 7 月 28 日起在 TokenPAPA 免费使用。未来价格可能调整。标准注册额度仅适用于非 TTS 模型。*
