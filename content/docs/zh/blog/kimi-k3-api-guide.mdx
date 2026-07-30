@@ -1,0 +1,169 @@
+---
+title: "Kimi K3 API 使用指南：调用月之暗面 2.8T 开源大模型（2026）"
+description: "Kimi K3 API 完整使用教程。TokenPAPA 集成步骤、Python 代码示例、流式输出、长文档分析、中英双语模式，比官方价格便宜 10%。"
+date: 2026-07-28
+authors: [tokenpapa]
+category: "使用指南"
+keywords: ["Kimi K3 API", "Kimi K3 接口教程", "月之暗面 K3 API", "Kimi K3 Python", "Kimi K3 流式输出", "Kimi K3 对话", "Kimi K3 设置", "Moonshot K3 API 接入", "TokenPAPA Kimi K3"]
+image: "/assets/og/kimi-k3-api-guide.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
+
+{/* GEO-optimized — 2026-07-28 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;Kimi K3 API 使用指南：调用月之暗面 2.8T 开源大模型（2026）&quot;,&quot;description&quot;:&quot;Kimi K3 API 完整教程。TokenPAPA 集成、Python 代码、流式输出、比官方价格便宜 10%。&quot;,&quot;datePublished&quot;:&quot;2026-07-28&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+# Kimi K3 API 使用指南：调用月之暗面 2.8T 开源大模型
+
+Kimi K3 是月之暗面（Moonshot AI）的旗舰 2.8 万亿参数模型。本文教你如何通过 TokenPAPA 快速接入。
+
+---
+
+## 准备工作
+
+- 注册 [TokenPAPA](https://tokenpapa.ai) 账号
+- 从后台获取 API Key
+- 安装 OpenAI Python 库
+
+```bash
+pip install openai
+```
+
+---
+
+## 基础对话
+
+<Tabs>
+  <Tab value="python" title="Python">
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://tokenpapa.ai/v1",
+    api_key="你的 TokenPAPA Key"
+)
+
+completion = client.chat.completions.create(
+    model="kimi-k3",
+    messages=[
+        {"role": "system", "content": "你是 Kimi K3 驱动的 AI 助手。"},
+        {"role": "user", "content": "用简单的话解释一下 MoE（混合专家）架构。"}
+    ],
+    temperature=0.7,
+    max_tokens=2048
+)
+
+print(completion.choices[0].message.content)
+```
+  </Tab>
+  <Tab value="curl" title="cURL">
+```bash
+curl https://tokenpapa.ai/v1/chat/completions \
+  -H "Authorization: Bearer *** \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "kimi-k3",
+    "messages": [
+      {"role": "system", "content": "你是 Kimi K3 助手的。"},
+      {"role": "user", "content": "Kimi K3 有什么特别之处？"}
+    ],
+    "temperature": 0.7
+  }'
+```
+  </Tab>
+</Tabs>
+
+---
+
+## 流式输出
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://tokenpapa.ai/v1", api_key="你的 TokenPAPA Key")
+
+stream = client.chat.completions.create(
+    model="kimi-k3",
+    messages=[{"role": "user", "content": "写一首关于人工智能的五言诗。"}],
+    stream=True
+)
+
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="", flush=True)
+```
+
+---
+
+## 多轮对话
+
+```python
+client = OpenAI(base_url="https://tokenpapa.ai/v1", api_key="你的 TokenPAPA Key")
+
+messages = [
+    {"role": "system", "content": "你是一个编程助手。"},
+    {"role": "user", "content": "用 Python 写一个计算斐波那契数列的函数。"},
+]
+
+resp1 = client.chat.completions.create(model="kimi-k3", messages=messages)
+answer = resp1.choices[0].message.content
+print("K3:", answer[:100])
+
+messages.append({"role": "assistant", "content": answer})
+messages.append({"role": "user", "content": "用记忆化优化性能。"})
+
+resp2 = client.chat.completions.create(model="kimi-k3", messages=messages)
+print("优化版:", resp2.choices[0].message.content[:100])
+```
+
+---
+
+## 长文档分析
+
+```python
+with open("report.txt", "r") as f:
+    doc = f.read()
+
+client = OpenAI(base_url="https://tokenpapa.ai/v1", api_key="你的 TokenPAPA Key")
+
+resp = client.chat.completions.create(
+    model="kimi-k3",
+    messages=[
+        {"role": "system", "content": "用 3 个要点总结以下文档。"},
+        {"role": "user", "content": doc}
+    ]
+)
+print(resp.choices[0].message.content)
+```
+
+---
+
+## 价格
+
+| 渠道 | 输入价格（每百万 token） | 输出价格（每百万 token） |
+|------|------------------------|-------------------------|
+| **TokenPAPA** | **官方价再打 9 折** ✅ | **官方价再打 9 折** ✅ |
+| 月之暗面（官方） | 更高 | 更高 |
+
+通过 TokenPAPA 使用 Kimi K3，**比直接对接月之暗面便宜 10%**，还能同时管理 30+ 个模型的 API Key。
+
+---
+
+## 快速上手
+
+1. **注册** [tokenpapa.ai](https://tokenpapa.ai) — 送 $2 免费额度，无需国内手机号
+2. **获取 API Key**
+3. **开始使用** — 比官方便宜 10%
+
+```python
+from openai import OpenAI
+client = OpenAI(base_url="https://tokenpapa.ai/v1", api_key="your-key")
+
+resp = client.chat.completions.create(
+    model="kimi-k3",
+    messages=[{"role": "user", "content": "你能做什么？"}]
+)
+print(resp.choices[0].message.content)
+```

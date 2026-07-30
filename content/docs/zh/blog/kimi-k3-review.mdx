@@ -1,0 +1,154 @@
+---
+title: "Kimi K3 评测：2.8 万亿参数开源大模型——对比 GPT-5.5 与 Claude Opus 4"
+description: "月之暗面 Kimi K3 完整评测（2.8T MoE）。基准测试对比 GPT-5.5 和 Claude Opus 4，HuggingFace 开源权重，TokenPAPA 官方价格再打 9 折，真实使用场景分析。"
+date: 2026-07-28
+authors: [tokenpapa]
+category: "模型评测"
+keywords: ["Kimi K3 评测", "Kimi K3 vs GPT-5.5", "Kimi K3 vs Claude Opus 4", "月之暗面 K3", "2.8 万亿参数模型", "开源大模型", "Kimi K3 基准测试", "Kimi K3 价格", "Kimi K3 API", "TokenPAPA Kimi K3"]
+image: "/assets/og/kimi-k3-review.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-07-28 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;Kimi K3 评测：2.8 万亿参数开源大模型——对比 GPT-5.5 与 Claude Opus 4&quot;,&quot;description&quot;:&quot;月之暗面 Kimi K3 完整评测。2.8T MoE 模型，基准测试对比 GPT-5.5 和 Claude Opus 4，HuggingFace 开源权重，TokenPAPA 价格低于官方。&quot;,&quot;datePublished&quot;:&quot;2026-07-28&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+# Kimi K3 评测：2.8 万亿参数开源大模型
+
+2026年7月16日，月之暗面（Moonshot AI）发布了 **Kimi K3**——一个 **2.8 万亿参数的 MoE（混合专家）模型**，也是**全球首个开源 3T 级大模型**。
+
+11 天后（7月27日），他们兑现承诺：完整权重在 HuggingFace 上公开发布。
+
+本文带你了解 Kimi K3 是什么、表现如何、价格多少、以及如何在 TokenPAPA 上使用它。
+
+---
+
+## Kimi K3 核心参数
+
+| 规格 | Kimi K3 |
+|------|---------|
+| **参数量** | 2.8 万亿（MoE） |
+| **架构** | 混合专家（Mixture of Experts） |
+| **发布日期** | 2026年7月16日 |
+| **权重** | 开源（HuggingFace，7月27日） |
+| **上下文窗口** | 128K |
+| **OpenAI 兼容** | 是 |
+
+Kimi K3 是月之暗面从中端迈向旗舰的跨越。之前的 Kimi K2 系列在性价比方面表现出色，而 K3 的目标直指 **GPT-5.5、Claude Opus 4 和 DeepSeek V4 Pro**。
+
+---
+
+## 旗舰模型对比
+
+| 模型 | 参数量 | 开源 | 上下文 | 价格（输入/1M） |
+|------|--------|------|--------|----------------|
+| **Kimi K3** | 2.8T MoE | ✅ 是 | 128K | **最低** |
+| GPT-5.5 | ~2T（估） | ❌ 否 | 2M | $15.00 |
+| Claude Opus 4 | ~1T（估） | ❌ 否 | 200K | $15.00 |
+| DeepSeek V4 Pro | ~1T（估） | ✅ 是 | 128K | $0.28 |
+| Kimi K2.6 | ~100B（估） | ❌ 否 | 128K | $0.50 |
+
+### TokenPAPA 价格优势
+
+Kimi K3 在 **TokenPAPA 上比官方定价便宜 10%**。而且通过统一 API，你可以一行代码在 Kimi K3 和其他 30+ 模型之间自由切换。
+
+---
+
+## 基准测试定位
+
+根据社区独立基准测试，Kimi K3 的表现如下：
+
+| 测试项 | Kimi K3 | GPT-5.5 | Claude Opus 4 | DeepSeek V4 Pro |
+|--------|---------|---------|---------------|-----------------|
+| **MMLU** | 顶级 ✅ | 顶级 ✅ | 顶级 ✅ | 顶级 ✅ |
+| **推理能力** | 强 | 优秀 | 优秀 | 强 |
+| **代码能力** | 强 | 优秀 | 优秀 | 强 |
+| **长上下文** | 领先 ✅ | 良好 | 良好 | 良好 |
+| **中英双语** | 优秀 ✅ | 良好 | 中等 | 优秀 ✅ |
+
+**核心结论：** Kimi K3 在中英双语和长文档理解方面表现最强——这恰恰是月之暗面自创立以来的专长领域。在通用推理和编程方面，它与顶级模型处于同一梯队。
+
+---
+
+## 开源的意义
+
+Kimi K3 开源权重是**变革性的**：
+
+1. **自托管** — 有 GPU 集群的组织可以本地运行 K3，确保数据完全隐私
+2. **微调** — 研究人员可以为特定领域调整模型权重
+3. **透明性** — 开源社区可以审计、测试和验证模型
+4. **无供应商锁定** — 不依赖单一 API 提供商
+
+> 注意：2.8T 参数的自托管需要大量算力。对大多数开发者来说，TokenPAPA 的 API 方式是最实用的选择。
+
+---
+
+## 快速上手
+
+Kimi K3 完全兼容 OpenAI API 格式：
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://tokenpapa.ai/v1",
+    api_key="你的 TokenPAPA Key"
+)
+
+response = client.chat.completions.create(
+    model="kimi-k3",
+    messages=[{"role": "user", "content": "解释一下 2.8 万亿参数开源模型的意义。"}]
+)
+
+print(response.choices[0].message.content)
+```
+
+### 切换模型
+
+```python
+# 同一段代码，换模型名即可
+models = ["kimi-k3", "gpt-5.5", "claude-opus-4", "deepseek-v4-pro"]
+
+for model in models:
+    response = client.chat.completions.create(
+        model=model,
+        messages=[{"role": "user", "content": "有什么新功能？"}]
+    )
+    print(f"{model}: {response.choices[0].message.content[:50]}...")
+```
+
+---
+
+## 什么时候用 Kimi K3
+
+### 最适合：
+- **中英双语应用**
+- **长文档分析**（合同、论文、法律文件）
+- **追求旗舰性能但控制成本**——折扣价享受旗舰级能力
+- **开源爱好者**——API 配合自托管实验
+
+### 考虑其他选择：
+- **纯英文任务** — GPT-5.5 可能略有优势
+- **复杂多步编程** — Claude Opus 4 表现更优
+- **超长上下文（100 万+ token）** — Gemini 3 领先
+- **批量预算处理** — DeepSeek V4 Flash（$0.14/M）远更便宜
+
+---
+
+## 立即开始
+
+1. **注册** [tokenpapa.ai](https://tokenpapa.ai) — 送 $2 免费额度，无需国内手机号
+2. **获取 API Key**
+3. **使用 Kimi K3** — 比官方便宜 10%
+
+```python
+from openai import OpenAI
+client = OpenAI(base_url="https://tokenpapa.ai/v1", api_key="your-key")
+
+resp = client.chat.completions.create(
+    model="kimi-k3",
+    messages=[{"role": "user", "content": "你和 GPT-5.5 有什么不同？"}]
+)
+print(resp.choices[0].message.content)
+```
