@@ -1,0 +1,139 @@
+---
+title: "DeepSeek-V4-Flash 正式版（0731）发布：Agent 基准全面超越 V4-Pro-Preview，TokenPAPA 已同步上线"
+description: "DeepSeek V4 Flash 正式版 0731 公测上线：Terminal Bench 2.1 达 82.7、DeepSWE 54.4，原生支持 Responses API 并适配 Codex。调用方式不变，TokenPAPA 已支持最新版。"
+date: 2026-08-01
+authors: [tokenpapa]
+category: "模型更新"
+keywords: ["DeepSeek V4 Flash", "DeepSeek V4 Flash 0731", "DeepSeek V4 Flash 正式版", "DeepSeek Agent 基准", "Terminal Bench 82.7", "DeepSeek Responses API", "DeepSeek Codex", "DeepSeek API", "TokenPAPA DeepSeek"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-08-01 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;DeepSeek-V4-Flash 正式版（0731）发布：Agent 基准全面超越 V4-Pro-Preview&quot;,&quot;description&quot;:&quot;DeepSeek V4 Flash 正式版 0731 公测上线，Agent 能力大幅增强，Terminal Bench 2.1 达 82.7，原生支持 Responses API 并适配 Codex。TokenPAPA 已同步支持最新版。&quot;,&quot;datePublished&quot;:&quot;2026-08-01&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;DeepSeek V4 Flash 0731 更新了什么？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;DeepSeek V4 Flash 正式版（0731）是 Flash 模型的后训练更新，模型结构和尺寸与 Preview 版一致，但 Agent 能力大幅增强，多数基准测试超越 V4-Pro-Preview。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;DeepSeek V4 Flash 的 Terminal Bench 分数是多少？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;DeepSeek V4 Flash 0731 在 Terminal Bench 2.1 上得分 82.7，DeepSWE 54.4，Cybergym 76.7，Toolathlon verified 70.3。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;DeepSeek V4 Flash 支持 Responses API 吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;支持。正式版 V4 Flash 原生支持 OpenAI Responses API 格式，并针对性适配了 Codex。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;TokenPAPA 支持最新的 DeepSeek V4 Flash 吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;支持。TokenPAPA 已同步上线更新后的 deepseek-v4-flash 模型，调用方式和模型名不变，设置 model=deepseek-v4-flash 即可使用最新版本。&quot;}}]}" />
+
+# DeepSeek-V4-Flash 正式版（0731）发布：Agent 基准全面超越 V4-Pro-Preview
+
+2026 年 7 月 31 日，DeepSeek 正式发布 **DeepSeek-V4-Flash 正式版 API**，进入公测阶段。API 调用方式不变，模型名设置为 `deepseek-v4-flash` 即可使用最新版本。
+
+最大亮点：**Agent 能力大幅增强**，基准测试成绩全面超越 DeepSeek-V4-Pro-Preview。
+
+好消息是：**TokenPAPA 已同步支持本次更新**，无需任何代码改动。
+
+---
+
+## V4 Flash 0731 更新要点
+
+| 项目 | 说明 |
+|------|------|
+| **版本** | 正式版，公测上线 |
+| **模型名** | `deepseek-v4-flash`（不变） |
+| **架构** | 与 V4 Flash Preview 相同 |
+| **改动** | 仅重新进行后训练 |
+| **API** | Chat Completions + 原生 **Responses API** |
+| **Codex** | 已针对性适配 ✅ |
+
+> DeepSeek-V4-Flash-0731 的模型结构、尺寸与 DeepSeek-V4-Flash-Preview 保持一致，仅重新进行了后训练。本次仅升级 V4-Flash 的 API 接口，V4-Pro API 及 APP/WEB 端模型未做更改，V4-Pro 正式版即将发布。
+
+---
+
+## Agent 基准成绩：Flash 超越 Pro-Preview
+
+正式版重点强化了 **Agent 编码与工具调用**能力，官方公布的成绩如下：
+
+| 基准测试 | V4 Flash (0731) | 对比 V4 Pro Preview |
+|----------|----------------|---------------------|
+| **Terminal Bench 2.1** | **82.7** | 大幅领先 ✅ |
+| **NL2Repo** | **54.2** | 大幅领先 ✅ |
+| **Cybergym** | **76.7** | 大幅领先 ✅ |
+| **DeepSWE** | **54.4** | 大幅领先 ✅ |
+| **Toolathlon verified** | **70.3** | 大幅领先 ✅ |
+| **Agent Last Exam** | **25.2** | 大幅领先 ✅ |
+| **Automation Bench (Public)** | **25.1** | 大幅领先 ✅ |
+| **DSBench-FullStack**（内部） | **68.7** | 大幅领先 ✅ |
+| **DSBench-Hard**（内部） | **59.6** | 大幅领先 ✅ |
+
+> 注：公开基准测试集中的 Code Agent 任务，DeepSeek 使用 DeepSeek Harness 极简模式（即将发布）作为测试框架，采用 max 档位、topp=0.95、temperature=1.0。DSBench-FullStack 为内部全栈开发测试集，DSBench-Hard 为内部 Coding Agent 难题测试集。
+
+**这意味着：** 在终端自动化、代码仓库生成、网络安全任务、全栈开发等 Agent 场景下，Flash 档位现在提供了旗舰级的 Agent 能力，价格仍是 Flash 档位。
+
+---
+
+## 对开发者的意义
+
+1. **最便宜的 Agent 模型变强了** — V4 Flash 本来就是性价比主力（$0.14/1M 输入、$0.28/1M 输出、$0.0028/1M 缓存命中输入），现在 Agent 能力直逼 Pro 档。
+2. **原生支持 Responses API + Codex** — 可直接接入现代 OpenAI 工具链和 Codex 式 Agent 循环，无需转换层。
+3. **零迁移成本** — 模型名、接口都不变，现有代码直接生效。
+4. **Pro 正式版在路上** — V4 Pro 正式版即将发布；Flash 用户今天就能用上最新版。
+
+---
+
+## 立即在 TokenPAPA 使用
+
+TokenPAPA 已支持更新后的 `deepseek-v4-flash`，API 和模型名都不变：
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-tokenpapa-key",
+    base_url="https://tokenpapa.ai/v1"
+)
+
+response = client.chat.completions.create(
+    model="deepseek-v4-flash",  # 最新正式版
+    messages=[{"role": "user", "content": "写一个 Python 脚本，扫描仓库中的 TODO 注释并汇总。"}]
+)
+print(response.choices[0].message.content)
+```
+
+### 使用原生 Responses API
+
+```python
+response = client.responses.create(
+    model="deepseek-v4-flash",
+    input="列出这个 GitHub 仓库的所有 open issue 并给出修复建议。",
+)
+print(response.output_text)
+```
+
+### 接入 Codex 式 Agent
+
+```python
+# TokenPAPA 兼容 OpenAI 格式，Codex 等 Agent 可直接使用：
+# 1. 将 base_url 设为 https://tokenpapa.ai/v1
+# 2. 将 model 设为 deepseek-v4-flash
+# 3. Agent 原生处理 function/tool 调用
+```
+
+---
+
+## 为什么通过 TokenPAPA 使用 V4 Flash？
+
+- **一个 Key 调用 30+ 模型** — DeepSeek、GPT、Claude、Gemini、Kimi、Qwen、Mimo 一键切换
+- **海外开发者无需 VPN、无需中国手机号**
+- **同时支持 OpenAI、Claude、Gemini 原生格式**
+- **同步更新** — 0731 正式版已上线
+
+---
+
+## 快速开始
+
+1. **注册** [tokenpapa.ai](https://tokenpapa.ai) — 新用户有免费额度
+2. **获取 API Key**（控制台创建）
+3. **调用 `deepseek-v4-flash`** — 今天就用上最新正式版
+
+```python
+from openai import OpenAI
+client = OpenAI(base_url="https://tokenpapa.ai/v1", api_key="your-key")
+
+resp = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": "用一句话介绍你的 Agent 能力。"}]
+)
+print(resp.choices[0].message.content)
+```
