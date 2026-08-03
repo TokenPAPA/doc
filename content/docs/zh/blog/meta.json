@@ -4,6 +4,7 @@
   "icon": "Newspaper",
   "root": true,
   "pages": [
+    "tokenpapa-payment-guide",
     "deepseek-v4-flash-0731-release",
     "tokenpapa-referral-free-api-credits",
     "multi-provider-llm-api-aggregator",
