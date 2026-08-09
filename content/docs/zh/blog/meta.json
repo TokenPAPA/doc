@@ -4,6 +4,7 @@
   "icon": "Newspaper",
   "root": true,
   "pages": [
+    "deepseek-price-history-tokenpapa",
     "deepseek-price-increase-tokenpapa",
     "topup-recharge-bonus",
     "tokenpapa-payment-guide",
