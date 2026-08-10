@@ -1,0 +1,115 @@
+---
+title: "TokenPAPA Now Supports Google & GitHub One-Click Login (2026)"
+description: "TokenPAPA now supports Google and GitHub one-click OAuth login. No password, no email verification — sign in and your account is created automatically. Fast, secure, and free API access to 30+ LLMs."
+date: 2026-08-10
+authors: [tokenpapa]
+category: "Platform Update"
+keywords: ["TokenPAPA login", "Google login", "GitHub login", "one-click login", "OAuth login", "GitHub OAuth", "Google OAuth", "TokenPAPA sign up", "AI API platform"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-08-10 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;TokenPAPA Now Supports Google & GitHub One-Click Login (2026)&quot;,&quot;description&quot;:&quot;TokenPAPA now supports Google and GitHub one-click OAuth login. No password, no email verification — sign in and your account is created automatically.&quot;,&quot;datePublished&quot;:&quot;2026-08-10&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Does logging in with Google or GitHub create a new account automatically?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Yes. The first time you log in with Google or GitHub, TokenPAPA automatically creates an account for you. There is no separate registration step and no email verification code.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Can I bind Google or GitHub to an existing TokenPAPA account?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Yes. In Personal Settings you can bind Google or GitHub to an existing account, then use one-click login going forward.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Is one-click login secure?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Yes. Login uses standard OAuth authorization — TokenPAPA never receives or stores your Google or GitHub password.&quot;}}]}" />
+
+# TokenPAPA Now Supports Google & GitHub One-Click Login
+
+Logging into TokenPAPA just got a lot faster. The platform now supports **Google and GitHub one-click login** — no password, no email verification, no waiting.
+
+Sign in once and your account is created automatically. You can be calling 30+ LLM APIs within a minute.
+
+---
+
+## Login Options Compared
+
+| Feature | Email + Password | Google One-Click | GitHub One-Click |
+|---------|:---:|:---:|:---:|
+| **Registration step** | Required | Auto-created | Auto-created |
+| **Email verification** | Required | Not needed | Not needed |
+| **Password to remember** | Yes | No | No |
+| **Time to first login** | ~2-3 min | **~10 seconds** | **~10 seconds** |
+| **Security** | Password | OAuth | OAuth |
+
+---
+
+## How to Log In with Google
+
+1. Go to [https://tokenpapa.ai/login](https://tokenpapa.ai/login)
+2. Click the **Google** icon at the bottom of the login form
+3. Complete authorization on Google's page — you're logged in automatically
+
+That's it. If it's your first time, a TokenPAPA account is created for you on the spot. No separate registration, no email code.
+
+---
+
+## How to Log In with GitHub
+
+1. Go to [https://tokenpapa.ai/login](https://tokenpapa.ai/login)
+2. Click the **GitHub** icon at the bottom of the login form
+3. Complete authorization on GitHub's page — you're logged in automatically
+
+Same flow, same speed. First-time users get an account created automatically.
+
+---
+
+## Why Developers Love One-Click Login
+
+- **No password to manage** — one less credential in your password manager
+- **No email verification delay** — start using the API immediately
+- **Automatic account creation** — skip the entire registration form
+- **More secure** — uses standard OAuth: TokenPAPA never sees or stores your Google/GitHub password
+- **Perfect for CI/CD** — GitHub login integrates naturally with developer workflows
+
+---
+
+## Bind Google / GitHub to an Existing Account
+
+Already have a TokenPAPA account? You can bind Google or GitHub to it:
+
+1. Log in and go to **Personal Settings**
+2. Find the **Third-Party Account Binding** section
+3. Click **Bind** next to Google or GitHub
+4. Complete authorization — your accounts are linked
+
+After binding, you can use one-click login going forward while keeping all your existing tokens and balance.
+
+---
+
+## FAQ
+
+**Q: Does logging in with Google or GitHub create a new account automatically?**
+A: Yes. Your first one-click login creates a TokenPAPA account automatically — no separate registration step.
+
+**Q: Can I bind Google or GitHub to an existing account?**
+A: Yes. Personal Settings → Third-Party Account Binding → Bind. All your tokens and balance stay intact.
+
+**Q: Is one-click login secure?**
+A: Yes. TokenPAPA uses standard OAuth — it never receives or stores your Google/GitHub password.
+
+---
+
+## Get Started in Under a Minute
+
+1. Go to [https://tokenpapa.ai/login](https://tokenpapa.ai/login) and click **Google** or **GitHub**
+2. Your account is created automatically
+3. Create an **API key** in the console
+4. Start calling `deepseek-v4-flash`, `gpt-5.6`, `claude-opus-4` and 30+ more models
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-tokenpapa-key",
+    base_url="https://tokenpapa.ai/v1"
+)
+
+response = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": "Hello from TokenPAPA!"}]
+)
+print(response.choices[0].message.content)
+```
