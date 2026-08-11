@@ -4,6 +4,7 @@
   "icon": "Newspaper",
   "root": true,
   "pages": [
+    "chinas-best-ai-models-one-api-key",
     "tokenpapa-google-github-login",
     "deepseek-price-history-tokenpapa",
     "deepseek-price-increase-tokenpapa",
