@@ -14,8 +14,8 @@ import { LLMCopyButton, ViewOptions } from '@/components/page-actions';
 import { onRateAction } from '@/lib/github';
 
 // GitHub repository info for source links
-const owner = 'QuantumNous';
-const repo = 'new-api-docs-v1';
+const owner = 'kangqixia';
+const repo = 'tokenpapa-doc';
 const branch = 'main';
 
 export default async function Page(props: {

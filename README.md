@@ -1,6 +1,6 @@
-# new-api-docs-v1
+# tokenpapa-doc
 
-A Next.js documentation site for New API.
+A Next.js documentation site for TokenPAPA.
 
 ## Development
 
