@@ -1,0 +1,190 @@
+---
+title: "5 分钟上手 DeepSeek API(无需中国手机号)"
+description: "DeepSeek API 逐步教程:注册 → 获取 Key → Python/Node.js 代码示例,5 分钟跑通,无需中国手机号。附最佳实践、常见错误与省钱技巧。"
+date: 2026-08-14
+authors: [tokenpapa]
+category: "教程"
+keywords: ["DeepSeek API 教程", "如何使用 DeepSeek", "DeepSeek API 无需中国手机号", "DeepSeek API Key", "DeepSeek Python", "DeepSeek Node.js", "DeepSeek API 海外", "DeepSeek API 配置", "DeepSeek API 示例", "TokenPAPA DeepSeek"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-08-14 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;5 分钟上手 DeepSeek API(无需中国手机号)&quot;,&quot;description&quot;:&quot;DeepSeek API 逐步教程:注册、获取 Key、Python/Node.js 代码示例,5 分钟跑通,无需中国手机号。&quot;,&quot;datePublished&quot;:&quot;2026-08-14&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;用 DeepSeek API 需要中国手机号吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;不需要。TokenPAPA 只需邮箱即可注册——无需中国手机号或身份证验证,一分钟内拿到 OpenAI 兼容的 DeepSeek API Key。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;如何获取 DeepSeek API Key？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;在 tokenpapa.ai 注册后,控制台创建 Key 并复制即可。注册即送 $1 免费额度,马上就能开始调用。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;DeepSeek API 兼容 OpenAI SDK 吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;兼容。TokenPAPA 提供 OpenAI 兼容端点,官方 openai Python/Node.js SDK 只需改一行 base_url 即可使用。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;DeepSeek API 多少钱？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;DeepSeek V4 Flash 每 1M 输入 token $0.14、输出 $0.42——2026 年最便宜的可用模型之一。&quot;}}]}" />
+
+# 5 分钟上手 DeepSeek API(无需中国手机号)
+
+DeepSeek 是 2026 年性价比最高的 LLM——但官方平台需要中国手机号,把大多数海外开发者挡在门外。
+
+好消息:**你不需要它。** 通过 TokenPAPA,只需一个邮箱就能拿到 DeepSeek API Key,大约 5 分钟,用标准 OpenAI 兼容代码即可。下面是完整路径。
+
+---
+
+## 你需要准备
+
+- 一个邮箱
+- 5 分钟
+- (可选)$0——注册即送 **$1 免费额度**
+
+---
+
+## 第 1 步 —— 注册(1 分钟)
+
+1. 打开 [tokenpapa.ai](https://tokenpapa.ai)
+2. 用**邮箱**注册(或 Google / GitHub 一键登录)
+3. **无需中国手机号,无需身份证验证**
+
+进入控制台即拥有 **$1 免费额度**——足够数千次 DeepSeek V4 Flash 请求。
+
+---
+
+## 第 2 步 —— 获取 API Key(1 分钟)
+
+1. 控制台打开 **API Keys**
+2. 点击 **创建 Key**
+3. 复制并妥善保存(只会完整显示一次)
+
+你的端点是 `https://tokenpapa.ai/v1`——与 OpenAI 格式一致,所有现有 SDK 都能直接用。
+
+---
+
+## 第 3 步 —— Python 调用 DeepSeek(1 分钟)
+
+```python
+# pip install openai
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://tokenpapa.ai/v1",
+    api_key="your-tokenpapa-key",   # 第 2 步获取
+)
+
+resp = client.chat.completions.create(
+    model="deepseek-v4-flash",      # 或 deepseek-v4-pro
+    messages=[
+        {"role": "system", "content": "你是一个乐于助人的助手。"},
+        {"role": "user", "content": "用两句话解释什么是 DeepSeek。"},
+    ],
+)
+print(resp.choices[0].message.content)
+```
+
+运行:
+
+```bash
+python3 deepseek_demo.py
+```
+
+搞定——你的第一次 DeepSeek API 调用。✅
+
+---
+
+## 第 4 步 —— Node.js 调用 DeepSeek(1 分钟)
+
+```bash
+npm install openai
+```
+
+```javascript
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  baseURL: "https://tokenpapa.ai/v1",
+  apiKey: "your-tokenpapa-key",
+});
+
+const resp = await client.chat.completions.create({
+  model: "deepseek-v4-flash",
+  messages: [
+    { role: "system", content: "You are a helpful assistant." },
+    { role: "user", content: "Write a haiku about APIs." },
+  ],
+});
+console.log(resp.choices[0].message.content);
+```
+
+运行:
+
+```bash
+node deepseek_demo.mjs
+```
+
+---
+
+## 第 5 步 —— 流式输出(加分项,30 秒)
+
+```python
+stream = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": "从 1 数到 5。"}],
+    stream=True,
+)
+for chunk in stream:
+    print(chunk.choices[0].delta.content or "", end="")
+```
+
+流式输出让用户即时看到反馈,大幅降低感知延迟——聊天界面务必使用。
+
+---
+
+## 最佳实践
+
+1. **设置 `max_tokens`** —— 防止长输出成本失控。
+2. **默认用 `deepseek-v4-flash`** —— 输入 $0.14/1M、输出 $0.42/1M;只有任务需要时才升级 `deepseek-v4-pro`。
+3. **Key 放环境变量** —— 绝不硬编码在前端代码或提交到 git。
+4. **善用 system prompt** —— 比在每条用户消息里重复指令更稳定。
+5. **缓存重复输入** —— DeepSeek 自动上下文缓存让重复 prompt 便宜很多。
+6. **处理错误** —— 429(限流)和 5xx 用指数退避重试;发送前先校验输入。
+
+```python
+import time, openai
+
+for attempt in range(3):
+    try:
+        resp = client.chat.completions.create(...)
+        break
+    except openai.RateLimitError:
+        time.sleep(2 ** attempt)   # 指数退避
+```
+
+---
+
+## 常见问题
+
+**问:用 DeepSeek API 需要中国手机号吗?**
+答:不需要。TokenPAPA 只需邮箱注册——无需中国手机号或身份证验证,一分钟内拿到 OpenAI 兼容的 DeepSeek Key。
+
+**问:如何获取 DeepSeek API Key?**
+答:在 [tokenpapa.ai](https://tokenpapa.ai) 注册后,控制台创建 Key 并复制。注册即送 $1 免费额度。
+
+**问:DeepSeek API 兼容 OpenAI SDK 吗?**
+答:兼容。TokenPAPA 端点是 OpenAI 兼容的——官方 `openai` Python/Node.js SDK 改一行 `base_url` 即可。
+
+**问:DeepSeek API 多少钱?**
+答:DeepSeek V4 Flash:输入 $0.14/1M、输出 $0.42/1M——2026 年最便宜的可用模型之一。
+
+**问:可以调用哪些模型?**
+答:DeepSeek V4 Flash/Pro,以及 GPT-5.6、Claude、Gemini、Qwen、Kimi、Mimo 等 30+ 模型——同一个 Key 全部可用。
+
+---
+
+## 快速开始
+
+1. **注册** [tokenpapa.ai](https://tokenpapa.ai) —— **$1 免费额度**,无需中国手机号
+2. **创建 API Key** —— OpenAI 兼容,Python / Node.js 通用
+3. **发出第一次调用** —— 按上面 5 分钟路径,完成
+
+```python
+from openai import OpenAI
+client = OpenAI(base_url="https://tokenpapa.ai/v1", api_key="your-key")
+
+resp = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": "你好 DeepSeek!"}]
+)
+print(resp.choices[0].message.content)
+```
