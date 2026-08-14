@@ -4,6 +4,8 @@
   "icon": "Newspaper",
   "root": true,
   "pages": [
+    "deepseek-v4-vs-gpt-5-6",
+    "qwen-vs-claude-coding-comparison",
     "chinas-best-ai-models-one-api-key",
     "tokenpapa-google-github-login",
     "deepseek-price-history-tokenpapa",
