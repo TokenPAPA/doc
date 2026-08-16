@@ -1,0 +1,172 @@
+---
+title: "DeepSeek V4 Function Calling 实战:结构化输出"
+description: "DeepSeek V4 Function Calling 教程:定义工具、获得可靠 JSON 输出、构建 Agent 工作流。Python 代码示例、成本控制技巧、常见坑——全部基于 $0.14/1M 输入的性价比。"
+date: 2026-08-17
+authors: [tokenpapa]
+category: "教程"
+keywords: ["DeepSeek Function Calling", "DeepSeek JSON 输出", "DeepSeek 工具调用", "DeepSeek 结构化输出", "DeepSeek API 教程", "DeepSeek Agent", "LLM Function Calling", "DeepSeek V4 Flash 价格", "JSON 模式 LLM", "TokenPAPA DeepSeek"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-08-17 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;DeepSeek V4 Function Calling 实战:结构化输出&quot;,&quot;description&quot;:&quot;DeepSeek V4 Function Calling 教程:工具定义、可靠 JSON 输出、Agent 工作流、代码示例、成本控制与常见坑。&quot;,&quot;datePublished&quot;:&quot;2026-08-17&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;DeepSeek V4 支持 Function Calling 吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;支持。DeepSeek V4 支持 OpenAI 风格的工具/函数调用,Agent 可以可靠获得结构化 JSON 输出用于工具使用。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;如何让 DeepSeek V4 输出结构化 JSON？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;用 tools 参数(JSON Schema 定义,OpenAI 兼容)或 response_format json_object,通过 TokenPAPA 端点 https://tokenpapa.ai/v1——与 OpenAI 相同代码,改一行 base_url。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Function Calling 贵吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;不贵——DeepSeek V4 Flash 输入 $0.14/1M、输出 $0.42/1M。即使多轮 Agent 循环也保持低价,上下文缓存进一步降低重复工具定义成本。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;能用 DeepSeek V4 构建 Agent 吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;能。DeepSeek V4 Flash 在 Terminal Bench 2.1(Agent 编码)得 82.7,是性价比极高的 Agent 底座。&quot;}}]}" />
+
+# DeepSeek V4 Function Calling 实战:结构化输出
+
+Function Calling 让 LLM 从"聊天"变成"干活"——解析输入、调用工具、返回结构化 JSON。而用 DeepSeek V4,这件事还便宜到可以规模化。
+
+下面是用 DeepSeek V4 构建可靠工具调用流程的完整实战,带真实代码。
+
+---
+
+## 为什么需要 Function Calling
+
+裸聊天输出是一段字符串,生产系统需要的是结构。Function Calling 给你:
+
+- **结构化 JSON** —— 不再用正则解析散文
+- **工具编排** —— 模型自己决定调什么
+- **Agent 循环** —— 带状态的多步工作流
+
+DeepSeek V4 支持 **OpenAI 工具调用格式**,下面所有代码用标准 `openai` SDK 就能跑——只需把 `base_url` 指向 `https://tokenpapa.ai/v1`。
+
+---
+
+## 第 1 步 —— 定义工具
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://tokenpapa.ai/v1", api_key="your-key")
+
+tools = [{
+    "type": "function",
+    "function": {
+        "name": "get_weather",
+        "description": "查询指定城市的当前天气",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "city": {"type": "string", "description": "城市名"},
+                "unit": {"type": "string", "enum": ["celsius", "fahrenheit"]}
+            },
+            "required": ["city"]
+        }
+    }
+}]
+```
+
+---
+
+## 第 2 步 —— 调用并处理工具
+
+```python
+resp = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": "上海今天天气怎么样?"}],
+    tools=tools,
+    tool_choice="auto",
+)
+
+msg = resp.choices[0].message
+
+if msg.tool_calls:                     # 模型要调用工具
+    call = msg.tool_calls[0].function
+    print("调用:", call.name, call.arguments)   # arguments 是合法 JSON
+    result = get_weather(**json.loads(call.arguments))
+
+    # 把结果喂回去,继续对话
+    resp2 = client.chat.completions.create(
+        model="deepseek-v4-flash",
+        messages=[
+            {"role": "user", "content": "上海今天天气怎么样?"},
+            msg,
+            {"role": "tool", "tool_call_id": call.id, "content": json.dumps(result)},
+        ],
+        tools=tools,
+    )
+    print(resp2.choices[0].message.content)
+else:
+    print(msg.content)
+```
+
+---
+
+## 第 3 步 —— 不用工具也能拿 JSON(JSON 模式)
+
+简单结构化输出可以直接强制 JSON:
+
+```python
+resp = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[
+        {"role": "system", "content": "只输出合法 JSON,字段:title、summary、tags。"},
+        {"role": "user", "content": "总结这篇文章。"},
+    ],
+    response_format={"type": "json_object"},   # OpenAI 兼容
+)
+data = json.loads(resp.choices[0].message.content)
+```
+
+---
+
+## Agent 循环的成本控制
+
+| 成本杠杆 | 省多少 |
+|---------|--------|
+| **DeepSeek V4 Flash 基础价** | 输入 $0.14/1M——已比旗舰便宜 100 倍 |
+| **上下文缓存** | 重复工具定义被缓存——重复输入最高省 ~90% |
+| **精简工具描述** | 压缩 schema 文档;每轮循环都少花钱 |
+| **设置 `max_tokens`** | 一次失控的工具响应贵 20 倍 |
+| **合并工具调用** | 能一轮调多个就别拆多轮 |
+
+一次典型的 5 轮 Agent 会话,DeepSeek V4 Flash 上**远低于 $0.01**——足够支撑交互式产品。
+
+---
+
+## 常见坑
+
+1. **忘记工具结果回传** —— 模型需要 `role: "tool"` 消息,否则丢失上下文。
+2. **工具 schema 太大** —— schema 里的每个 token 每次调用都要付钱,描述保持精简。
+3. **解析失败没有兜底** —— `json.loads` 要 try/except,失败用更清晰的 prompt 重试。
+4. **忽略缓存命中** —— 重复相同的工具定义会被自动缓存,别每次请求都改。
+
+---
+
+## 常见问题
+
+**问:DeepSeek V4 支持 Function Calling 吗?**
+答:支持——OpenAI 风格工具调用,Agent 可获取可靠结构化 JSON。
+
+**问:如何让 DeepSeek V4 输出结构化 JSON?**
+答:用 `tools` 参数或 `response_format: {"type": "json_object"}`,OpenAI 兼容,TokenPAPA 端点直接用。
+
+**问:Function Calling 贵吗?**
+答:不贵——输入 $0.14/1M、输出 $0.42/1M,多轮 Agent 循环也不到 $0.01。
+
+**问:能用 DeepSeek V4 构建 Agent 吗?**
+答:能——Terminal Bench 2.1 得 82.7,是性价比极强的 Agent 底座。
+
+---
+
+## 快速开始
+
+1. **注册** [tokenpapa.ai](https://tokenpapa.ai) —— 送 **$1 免费额度**
+2. **创建 API Key** —— OpenAI 兼容
+3. **发起第一次工具调用** —— 上面代码直接可用
+
+```python
+from openai import OpenAI
+client = OpenAI(base_url="https://tokenpapa.ai/v1", api_key="your-key")
+
+resp = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": "从这句话提取城市:I live in Beijing."}],
+    tools=tools,
+)
+print(resp.choices[0].message.tool_calls[0].function.arguments)
+```

@@ -1,0 +1,172 @@
+---
+title: "DeepSeek V4 Function Calling: Structured Output Without the Pain"
+description: "DeepSeek V4 function calling tutorial: define tools, get reliable JSON output, build agent workflows. Code examples for Python, cost control tips, and common pitfalls — all at $0.14/1M input."
+date: 2026-08-17
+authors: [tokenpapa]
+category: "Tutorial"
+keywords: ["deepseek function calling", "deepseek json output", "deepseek tool use", "deepseek structured output", "deepseek api tutorial", "deepseek agent", "llm function calling", "deepseek v4 flash price", "json mode llm", "TokenPAPA deepseek"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-08-17 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;DeepSeek V4 Function Calling: Structured Output Without the Pain&quot;,&quot;description&quot;:&quot;DeepSeek V4 function calling tutorial: tools, reliable JSON output, agent workflows, code examples, cost control, and pitfalls.&quot;,&quot;datePublished&quot;:&quot;2026-08-17&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Does DeepSeek V4 support function calling?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Yes — DeepSeek V4 supports OpenAI-style tool/function calling, so agents can reliably get structured JSON output for tool use.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How do I get structured JSON from DeepSeek V4?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Use the tools parameter with JSON-schema definitions (OpenAI-compatible) via the TokenPAPA endpoint https://tokenpapa.ai/v1 — same code as OpenAI, one-line base_url change.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Is function calling expensive?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;No — DeepSeek V4 Flash is $0.14/1M input and $0.42/1M output. Even multi-turn agent loops stay cheap, and context caching cuts repeated tool definitions further.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Can I build agents with DeepSeek V4?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Yes — DeepSeek V4 Flash scores 82.7 on Terminal Bench 2.1 (agentic coding), making it a strong, budget-friendly agent backbone.&quot;}}]}" />
+
+# DeepSeek V4 Function Calling: Structured Output Without the Pain
+
+Function calling is how LLMs stop chatting and start **working** — parsing input, calling tools, returning structured JSON. And with DeepSeek V4, it's also cheap enough to run at scale.
+
+Here's how to build reliable tool-use flows with DeepSeek V4, with real code.
+
+---
+
+## Why Function Calling Matters
+
+Raw chat output is a string. Production systems need structure. Function calling gives you:
+
+- **Structured JSON** — no regex parsing of prose
+- **Tool orchestration** — the model decides what to call
+- **Agent loops** — multi-step workflows with state
+
+DeepSeek V4 supports the **OpenAI tool-calling format**, so everything below works with the standard `openai` SDK — just point `base_url` at `https://tokenpapa.ai/v1`.
+
+---
+
+## Step 1 — Define Your Tools
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://tokenpapa.ai/v1", api_key="your-key")
+
+tools = [{
+    "type": "function",
+    "function": {
+        "name": "get_weather",
+        "description": "Get current weather for a city",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "city": {"type": "string", "description": "City name"},
+                "unit": {"type": "string", "enum": ["celsius", "fahrenheit"]}
+            },
+            "required": ["city"]
+        }
+    }
+}]
+```
+
+---
+
+## Step 2 — Call and Handle the Tool
+
+```python
+resp = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": "What's the weather in Shanghai?"}],
+    tools=tools,
+    tool_choice="auto",
+)
+
+msg = resp.choices[0].message
+
+if msg.tool_calls:                     # model wants to call a tool
+    call = msg.tool_calls[0].function
+    print("calling:", call.name, call.arguments)   # arguments = valid JSON
+    result = get_weather(**json.loads(call.arguments))
+
+    # feed result back and continue
+    resp2 = client.chat.completions.create(
+        model="deepseek-v4-flash",
+        messages=[
+            {"role": "user", "content": "What's the weather in Shanghai?"},
+            msg,
+            {"role": "tool", "tool_call_id": call.id, "content": json.dumps(result)},
+        ],
+        tools=tools,
+    )
+    print(resp2.choices[0].message.content)
+else:
+    print(msg.content)
+```
+
+---
+
+## Step 3 — Reliable JSON Without Tools (JSON Mode)
+
+For simple structured output you can also force JSON with a prompt contract:
+
+```python
+resp = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[
+        {"role": "system", "content": "Output ONLY valid JSON with keys: title, summary, tags."},
+        {"role": "user", "content": "Summarize this article."},
+    ],
+    response_format={"type": "json_object"},   # OpenAI-compatible
+)
+data = json.loads(resp.choices[0].message.content)
+```
+
+---
+
+## Cost Control for Agent Loops
+
+| Cost lever | How much it saves |
+|-----------|-------------------|
+| **DeepSeek V4 Flash base price** | $0.14/1M in — already 100x cheaper than frontier |
+| **Context caching** | Repeat tool definitions cached — up to ~90% off repeat input |
+| **Shorten tool descriptions** | Trim schema docs; fewer tokens every loop |
+| **Cap `max_tokens`** | A runaway tool response costs 20x a normal one |
+| **Batch tool calls** | Ask for multiple calls in one turn where possible |
+
+A typical 5-turn agent session on DeepSeek V4 Flash costs **well under $0.01** — cheap enough for interactive products.
+
+---
+
+## Common Pitfalls
+
+1. **Forgetting the tool result round-trip** — the model needs the `role: "tool"` message or it loses context.
+2. **Huge tool schemas** — every token in the schema is paid on every call. Keep descriptions tight.
+3. **No fallback for parse failures** — wrap `json.loads` in try/except; retry with a clearer prompt.
+4. **Ignoring cache hits** — repeated identical tool definitions are cached automatically; don't vary them per request.
+
+---
+
+## FAQ
+
+**Q: Does DeepSeek V4 support function calling?**
+A: Yes — OpenAI-style tool calling, reliable structured JSON for agents.
+
+**Q: How do I get structured JSON from DeepSeek V4?**
+A: Use the `tools` parameter or `response_format: {"type": "json_object"}` — OpenAI-compatible, works via TokenPAPA's endpoint.
+
+**Q: Is function calling expensive?**
+A: No — $0.14/1M in, $0.42/1M out. Even multi-turn agent loops stay under $0.01.
+
+**Q: Can I build agents with DeepSeek V4?**
+A: Yes — 82.7 on Terminal Bench 2.1 makes it a strong budget agent backbone.
+
+---
+
+## Get Started
+
+1. **Sign up** at [tokenpapa.ai](https://tokenpapa.ai) — get **$1 free credit**
+2. **Create your API key** — OpenAI-compatible
+3. **Build your first tool call** — code above, live
+
+```python
+from openai import OpenAI
+client = OpenAI(base_url="https://tokenpapa.ai/v1", api_key="your-key")
+
+resp = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": "Extract the city from: I live in Beijing."}],
+    tools=tools,
+)
+print(resp.choices[0].message.tool_calls[0].function.arguments)
+```
