@@ -5,6 +5,10 @@
   "root": true,
   "pages": [
     "openrouter-alternatives-2026",
+    "deepseek-v4-function-calling",
+    "openrouter-vs-tokenpapa",
+    "deepseek-translation-api-guide",
+    "minimax-vs-deepseek-pricing",
     "deepseek-v4-vs-gpt-5-6",
     "qwen-vs-claude-coding-comparison",
     "chinas-best-ai-models-one-api-key",
