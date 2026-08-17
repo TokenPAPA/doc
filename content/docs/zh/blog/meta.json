@@ -4,6 +4,7 @@
   "icon": "Newspaper",
   "root": true,
   "pages": [
+    "what-is-llm-api-aggregator",
     "openrouter-alternatives-2026",
     "deepseek-v4-function-calling",
     "openrouter-vs-tokenpapa",
