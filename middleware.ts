@@ -5,7 +5,7 @@ import type { NextRequest } from 'next/server';
 
 const i18nMiddleware = createI18nMiddleware(i18n);
 
-export default function middleware(request: NextRequest) {
+export default function middleware(request: NextRequest, event: any) {
   const pathname = request.nextUrl.pathname;
 
   // Extract the language prefix from the pathname (/en/..., /zh/..., /ja/...)
@@ -23,7 +23,7 @@ export default function middleware(request: NextRequest) {
   }
 
   // No language prefix: let the i18n middleware handle redirect/rewrite
-  return i18nMiddleware(request);
+  return i18nMiddleware(request, event);
 }
 
 export const config = {
