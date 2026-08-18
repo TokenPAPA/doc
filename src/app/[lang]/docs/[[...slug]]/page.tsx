@@ -124,9 +124,20 @@ export async function generateMetadata(props: {
   const page = source.getPage(slug, lang);
   if (!page) notFound();
 
+  const slugPath = page.slugs.join('/');
+  const canonicalUrl = `https://doc.tokenpapa.ai/${lang}/docs/${slugPath}`;
+
   return {
     title: page.data.title,
     description: page.data.description,
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        en: `https://doc.tokenpapa.ai/en/docs/${slugPath}`,
+        zh: `https://doc.tokenpapa.ai/zh/docs/${slugPath}`,
+        ja: `https://doc.tokenpapa.ai/ja/docs/${slugPath}`,
+      },
+    },
     openGraph: { images: getPageImage(page).url },
   };
 }
