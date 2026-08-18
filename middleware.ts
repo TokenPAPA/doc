@@ -1,7 +1,30 @@
 import { createI18nMiddleware } from 'fumadocs-core/i18n/middleware';
 import { i18n } from '@/lib/i18n';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-export default createI18nMiddleware(i18n);
+const i18nMiddleware = createI18nMiddleware(i18n);
+
+export default function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
+  // Extract the language prefix from the pathname (/en/..., /zh/..., /ja/...)
+  const lang = i18n.languages.find(
+    (l) => pathname.startsWith(`/${l}/`) || pathname === `/${l}`,
+  );
+
+  if (lang) {
+    // Pass the detected language to the root layout via a request header
+    const headers = new Headers(request.headers);
+    headers.set('x-lang', lang);
+    return NextResponse.next({
+      request: { headers },
+    });
+  }
+
+  // No language prefix: let the i18n middleware handle redirect/rewrite
+  return i18nMiddleware(request);
+}
 
 export const config = {
   // Matcher ignoring API routes, Next.js internals, and static assets

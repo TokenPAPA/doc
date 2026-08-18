@@ -1,5 +1,6 @@
 import type { Viewport, Metadata } from 'next';
 import { GoogleAnalytics } from '@next/third-parties/google';
+import { headers } from 'next/headers';
 import './global.css';
 
 export const metadata: Metadata = {
@@ -36,13 +37,17 @@ const websiteSchema = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Detect language from the request header set by middleware
+  const headersList = await headers();
+  const lang = headersList.get('x-lang') || 'en';
+
   return (
-    <html suppressHydrationWarning>
+    <html lang={lang} suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <script
