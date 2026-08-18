@@ -4,6 +4,7 @@
   "icon": "Newspaper",
   "root": true,
   "pages": [
+    "deepseek-v4-vs-gpt-4o-mini-chatbot-cost",
     "what-is-llm-api-aggregator",
     "openrouter-alternatives-2026",
     "deepseek-v4-function-calling",
