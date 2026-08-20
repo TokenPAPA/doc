@@ -39,6 +39,18 @@ const config = {
           },
         ],
       },
+      {
+        // OG image route handlers must serve real PNGs; the generic
+        // language-scoped rule above forces text/html, so this rule
+        // must come AFTER it to override the header.
+        source: '/:lang(en|zh|ja)/og/:path*',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'image/png',
+          },
+        ],
+      },
     ];
   },
   async rewrites() {

@@ -11,10 +11,10 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(
   _req: Request,
-  { params }: { params: Promise<{ slug: string[] }> }
+  { params }: { params: Promise<{ lang: string; slug: string[] }> }
 ) {
-  const { slug } = await params;
-  const page = source.getPage(slug.slice(0, -1));
+  const { lang, slug } = await params;
+  const page = source.getPage(slug.slice(0, -1), lang);
   if (!page) notFound();
 
   const img = new ImageResponse(
@@ -32,7 +32,9 @@ export async function GET(
   );
 
   const buf = await img.arrayBuffer();
-  return new Response(buf, {
+  // Use a Uint8Array body — Next 16 rewrites the content-type of plain
+  // ArrayBuffer responses to text/html, but leaves typed-array bodies alone.
+  return new Response(new Uint8Array(buf), {
     headers: {
       'content-type': 'image/png',
       'content-length': String(buf.byteLength),

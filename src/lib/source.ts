@@ -26,7 +26,12 @@ export function getPageImage(page: InferPageType<typeof source>) {
 export async function getLLMText(page: InferPageType<typeof source>) {
   const processed = await page.data.getText('processed');
 
+  // MDX image processing leaves {__imgN} placeholders in the extracted
+  // text. Googlebot treats them as URLs (/zh/llms.mdx/apps/{__img0}),
+  // generating 404 crawl errors, so strip them out.
+  const cleaned = processed.replace(/\{__img\d+\}/g, '');
+
   return `# ${page.data.title}
 
-${processed}`;
+${cleaned}`;
 }
