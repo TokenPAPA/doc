@@ -69,6 +69,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
   for (const lang of i18n.languages) {
     const pages = source.getPages(lang);
     for (const page of pages) {
+      // Skip i18n fallback pages: when a locale lacks a translation,
+      // fumadocs injects the default-language page under that locale's
+      // URL (e.g. /ja/docs/blog/* serving English). Those duplicate the
+      // canonical EN page and get flagged by Google as "duplicate page,
+      // user-selected canonical not chosen" — dropping them from the
+      // sitemap tells Google the URL doesn't exist so it can prune them.
+      if (page.locale && page.locale !== lang) {
+        continue;
+      }
       const slugKey = page.slugs.join('/');
       if (!pagesBySlug.has(slugKey)) {
         pagesBySlug.set(slugKey, []);
