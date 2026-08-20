@@ -4,6 +4,7 @@
   "icon": "Newspaper",
   "root": true,
   "pages": [
+    "deepseek-official-vs-tokenpapa",
     "qwen-3-explained",
     "chinese-llm-ecosystem-2026",
     "deepseek-v4-vs-gpt-4o-mini-chatbot-cost",
