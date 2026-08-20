@@ -4,6 +4,7 @@
   "icon": "Newspaper",
   "root": true,
   "pages": [
+    "claude-3.7-sonnet-vs-deepseek-v4",
     "deepseek-official-vs-tokenpapa",
     "qwen-3-explained",
     "chinese-llm-ecosystem-2026",
