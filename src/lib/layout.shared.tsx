@@ -6,7 +6,7 @@ import type { LinkItemType } from 'fumadocs-ui/layouts/docs';
 export const linkItems: LinkItemType[] = [
   {
     type: 'icon',
-    url: 'https://github.com/kangqixia/tokenpapa-doc',
+    url: 'https://github.com/TokenPAPA/doc',
     label: 'GitHub',
     text: 'GitHub',
     icon: (

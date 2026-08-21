@@ -90,7 +90,7 @@ export async function generateMetadata({
       'Intelligent API Management',
     ],
     authors: [
-      { name: 'TokenPAPA Team', url: 'https://github.com/kangqixia/tokenpapa-doc' },
+      { name: 'TokenPAPA Team', url: 'https://github.com/TokenPAPA/doc' },
     ],
     creator: 'TokenPAPA Team',
     alternates: {
@@ -148,7 +148,7 @@ export default async function RootLayout({
               'Unified AI API gateway providing affordable access to DeepSeek, MiniMax, and Chinese LLM APIs for overseas developers.',
             sameAs: [
               'https://tokenpapa.ai',
-              'https://github.com/kangqixia/tokenpapa-doc',
+              'https://github.com/TokenPAPA/doc',
             ],
             contactPoint: {
               '@type': 'ContactPoint',

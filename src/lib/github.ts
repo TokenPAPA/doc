@@ -2,8 +2,8 @@ import { App, Octokit } from 'octokit';
 import type { ActionResponse, Feedback } from '@/components/feedback';
 
 // GitHub repository info
-export const owner = 'kangqixia';
-export const repo = 'tokenpapa-doc';
+export const owner = 'TokenPAPA';
+export const repo = 'doc';
 export const DocsCategory = 'Docs Feedback'; // GitHub Discussion
 
 let instance: Octokit | undefined;
