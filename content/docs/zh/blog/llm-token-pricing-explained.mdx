@@ -1,0 +1,127 @@
+---
+title: "读懂 Token 计价:输入、输出、缓存一篇讲透"
+description: "2026 年读懂 LLM token 计价:token 是什么、为什么输出比输入贵 3-10 倍、DeepSeek 上下文缓存如何省约 90%、以及真实成本计算示例。"
+date: 2026-08-22
+authors: [tokenpapa]
+category: "价格对比"
+keywords: ["LLM token 计价", "token 成本计算", "token 怎么计费", "DeepSeek API 价格", "DeepSeek V4 Flash 价格", "上下文缓存成本", "LLM 输入输出计价", "token 成本计算器", "DeepSeek V4 API 每 1M tokens 价格", "TokenPAPA 价格"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-08-22 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;读懂 Token 计价:输入、输出、缓存一篇讲透&quot;,&quot;description&quot;:&quot;2026 年读懂 LLM token 计价:token 是什么、为什么输出比输入贵 3-10 倍、DeepSeek 上下文缓存如何省约 90%、以及真实成本计算示例。&quot;,&quot;datePublished&quot;:&quot;2026-08-22&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;为什么输出 token 比输入 token 贵?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;生成 token 的计算开销远高于读取,所以输出按输入的 3-10 倍计费。DeepSeek V4 Flash 输入 $0.14/1M、输出 $0.42/1M;GPT-5.6 Sol 则是 $13.50 对 $60。这正是要设置 max_tokens 的原因。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;上下文缓存能省多少钱?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;DeepSeek 自动上下文缓存可将重复输入成本降低约 90%。跨请求重复发送的系统提示、产品文档和对话历史会自动命中缓存,无需改任何代码。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;一次 API 请求实际要花多少钱?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;一次典型的 1K 输入 + 0.5K 输出请求,在 DeepSeek V4 Flash 上约 $0.00035。TokenPAPA 送的 $1 免费额度大约可覆盖 2,800 次这样的请求。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;DeepSeek V4 API 每 1M tokens 价格与其他模型相比如何?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;DeepSeek V4 Flash($0.14/$0.42)输入价比 GPT-5.6 Sol($13.50/$60)便宜 96%;Mimo V2.5($0.08/$0.24)是绝对最低价。三者都兼容 OpenAI 接口格式。&quot;}}]}" />
+
+# 读懂 Token 计价:输入、输出、缓存一篇讲透
+
+Token 计价是 LLM API 账单上最容易被误解的一行。很多开发者算错了乘数,忘了输出是单独计价的,或者干脆忽略了缓存——月底看到账单比预估贵 5 倍,还一头雾水。
+
+这篇文章把 2026 年的 LLM token 计价彻底讲清楚:token 到底是什么、输入和输出为什么分开收费、上下文缓存如何改写成本公式,以及怎么算出一笔真实的费用。如果你查 DeepSeek V4 API 每 1M tokens 价格时被各种细则绕晕,这篇就是为你写的。
+
+---
+
+## Token 到底是什么
+
+Token 是 LLM 读写的基本单位。它既不是单词也不是字符,而是分词器切出来的一小段文本。大致换算:
+
+- **英文**:1 token ≈ 0.75 个单词(即 1M tokens ≈ 75 万词)
+- **中文**:1 token ≈ 1-2 个汉字
+- **代码**:1 token ≈ 3-4 个字符
+
+你发送的一切和模型返回的一切都会被转成 token,两侧的每个 token 都要计费。所以 token 成本计算的第一步是估算 token 数量而不是字数——一段 500 词的英文提示大约 670 token,而一段 500 字的中文提示根据分词器不同可能是 300-500 token。
+
+---
+
+## 输入 vs 输出:为什么输出更贵
+
+所有服务商都公布两个价格:**输入**(提示)和 **输出**(生成结果)。输出总是更贵,通常是输入的 **3-10 倍**——因为生成 token 的计算强度远高于读取。
+
+最省钱的一条铁律:永远设置 `max_tokens`。一次失控的回复可能花掉正常回复 20 倍的钱,因为多出来的每个输出 token 都按账单上最贵的单价计费。
+
+---
+
+## 价格表:每 1M tokens
+
+要把 DeepSeek V4 API 每 1M tokens 价格放进自己的成本模型里,先锚定这张权威价格表(每 1M tokens,输入 / 输出):
+
+| 模型 | 输入 /1M | 输出 /1M | 上下文 | 说明 |
+|------|---------|---------|--------|------|
+| Mimo V2.5 | $0.08 | $0.24 | 128K | 绝对最低价 |
+| DeepSeek V4 Flash | $0.14 | $0.42 | 128K | 性价比之王 |
+| GPT-5.4 Mini | $0.15 | $0.60 | 128K | OpenAI 入门档 |
+| Qwen 3.7 | $0.20 | $0.60 | 128K | 编码 + 兜底 |
+| GPT-5.6 Luna | $0.27 | $2.70 | 1M | OpenAI 平价档 |
+| DeepSeek V4 Pro | $0.28 | $0.84 | 128K | 旗舰级最佳性价比 |
+| GPT-5.6 Sol | $13.50 | $60.00 | — | 前沿旗舰 |
+
+价差就是重点:DeepSeek V4 Flash 输入价比 GPT-5.6 Sol **便宜 96%**($0.14 vs $13.50)。接口格式完全兼容 OpenAI,改一行 `model=` 就能切换,账单却是天壤之别。
+
+---
+
+## 上下文缓存:省 90% 的隐藏折扣
+
+大多数真实应用每次请求都会重复发送同样的内容:系统提示、产品文档、长长的对话历史。没有缓存,这些 token 每次都按全价输入计费。
+
+DeepSeek 的**自动上下文缓存**改变了这一点。当提示的前缀重复出现时,会直接命中缓存,按输入价的大约 **90% 折扣**计费——不需要改代码,也不需要手动开启。那些纸面上看起来很贵的长上下文任务,一旦缓存命中率上来,实际成本往往只有预估的一个零头。
+
+---
+
+## 真实计算:一次请求到底花多少钱
+
+做一次具体的 token 成本计算,假设典型请求为 **1K 输入 + 0.5K 输出**。
+
+**DeepSeek V4 Flash($0.14 / $0.42):**
+- 输入:1,000 / 1,000,000 × $0.14 = $0.00014
+- 输出:500 / 1,000,000 × $0.42 = $0.00021
+- **合计:约 $0.00035 / 次**
+
+**GPT-5.6 Sol($13.50 / $60.00):**
+- 输入:1,000 / 1,000,000 × $13.50 = $0.01350
+- 输出:500 / 1,000,000 × $60.00 = $0.03000
+- **合计:约 $0.04350 / 次——贵了 124 倍**
+
+把这个放大到每月 10 万次请求的生产负载:DeepSeek V4 Flash 大约 **$52/月**,而 GPT-5.6 Sol 大约 **$4,200/月**。TokenPAPA 送的 $1 免费额度在 V4 Flash 上约可覆盖 2,800 次请求——一分钱不花就能把真实产品原型跑起来。
+
+---
+
+## 常见问题
+
+**问:为什么输出 token 比输入 token 贵?**
+答:生成 token 的计算开销远高于读取,所以输出按输入的 3-10 倍计费——DeepSeek V4 Flash 是 $0.14 对 $0.42,GPT-5.6 Sol 是 $13.50 对 $60。用 `max_tokens` 控制即可。
+
+**问:上下文缓存能省多少钱?**
+答:DeepSeek 自动上下文缓存可降低约 90% 的重复输入成本。重复发送的系统提示、文档和历史会自动命中缓存,无需改代码。
+
+**问:一次 API 请求实际要花多少钱?**
+答:典型的 1K 输入 + 0.5K 输出请求在 DeepSeek V4 Flash 上约 $0.00035。$1 免费额度约可覆盖 2,800 次。
+
+**问:DeepSeek V4 API 每 1M tokens 价格与其他模型相比如何?**
+答:DeepSeek V4 Flash($0.14/$0.42)输入价比 GPT-5.6 Sol($13.50/$60)便宜 96%;Mimo V2.5($0.08/$0.24)绝对价格最低。三者接口格式完全兼容。
+
+---
+
+## 快速开始
+
+1. **注册** [tokenpapa.ai](https://tokenpapa.ai) —— 送 **$1 免费额度**
+2. **创建 API Key** —— OpenAI 兼容,无需中国手机号
+3. **让账单瘦身** —— 一个 Key 接入 30+ 模型,改一行 `model=` 即可切换
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://tokenpapa.ai/v1", api_key="your-key")
+
+resp = client.chat.completions.create(
+    model="deepseek-v4-flash",          # 或 "mimo-v2.5"、"gpt-5.6-luna"
+    messages=[
+        {"role": "system", "content": "你是一个简洁的助手。"},
+        {"role": "user", "content": "用一句话解释 token 计价。"},
+    ],
+    max_tokens=100,                     # 限制输出以控制成本
+)
+print(resp.choices[0].message.content)
+```

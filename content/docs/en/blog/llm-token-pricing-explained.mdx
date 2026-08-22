@@ -1,0 +1,127 @@
+---
+title: "How LLM Token Pricing Works: Input, Output, and Cache Explained"
+description: "How LLM token pricing works in 2026: what tokens are, why output costs 3-10x input, how DeepSeek context caching cuts repeat input ~90%, and real cost calculation examples."
+date: 2026-08-22
+authors: [tokenpapa]
+category: "Pricing"
+keywords: ["llm token pricing explained", "token cost calculation", "how tokens are priced", "deepseek api pricing", "deepseek v4 flash price", "context caching cost", "llm input output pricing", "token cost calculator", "deepseek v4 api pricing per 1m tokens", "TokenPAPA pricing"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-08-22 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;How LLM Token Pricing Works: Input, Output, and Cache Explained&quot;,&quot;description&quot;:&quot;How LLM token pricing works in 2026: what tokens are, why output costs 3-10x input, how DeepSeek context caching cuts repeat input ~90%, and real cost calculation examples.&quot;,&quot;datePublished&quot;:&quot;2026-08-22&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Why does output cost more than input tokens?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Generating tokens is far more compute-heavy than reading them, so output is billed at 3-10x the input rate. On DeepSeek V4 Flash input is $0.14/1M and output $0.42/1M; on GPT-5.6 Sol it is $13.50 vs $60. That is why capping max_tokens matters.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How much does context caching save?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;DeepSeek's automatic context caching cuts repeat input costs by about 90%. System prompts, product docs, and conversation history that are re-sent across requests get cached automatically, with no code changes.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How much does one API request actually cost?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;A typical request with 1K input and 0.5K output tokens costs about $0.00035 on DeepSeek V4 Flash. The $1 free credit at TokenPAPA covers roughly 2,800 such requests.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How does DeepSeek V4 API pricing per 1M tokens compare with other models?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;DeepSeek V4 Flash at $0.14/$0.42 per 1M tokens is 96% cheaper on input than GPT-5.6 Sol at $13.50/$60, while Mimo V2.5 is the absolute cheapest at $0.08/$0.24. All use the same OpenAI-compatible API format.&quot;}}]}" />
+
+# How LLM Token Pricing Works: Input, Output, and Cache Explained
+
+Token pricing is the most misunderstood line on any LLM API bill. Developers often multiply the wrong number, forget that output is priced separately, or ignore caching entirely — and then wonder why their invoice is 5x the estimate.
+
+This guide explains exactly how LLM token pricing works in 2026: what a token is, why input and output are billed differently, how context caching rewrites the math, and how to calculate a real cost. If you have been checking DeepSeek V4 API pricing per 1M tokens and getting confused by the fine print, this is the article for you.
+
+---
+
+## What Is a Token, Anyway?
+
+A token is the unit an LLM reads and writes. It is not a word and not a character — it is a chunk of text the model's tokenizer produces. Roughly:
+
+- **English**: 1 token ≈ 0.75 words (so 1M tokens ≈ 750,000 words)
+- **Chinese**: 1 token ≈ 1-2 characters
+- **Code**: 1 token ≈ 3-4 characters
+
+Everything you send and everything the model returns is converted into tokens, and every token on both sides is billable. That is why token cost calculation starts with estimating token counts, not word counts — a 500-word English prompt is roughly 670 tokens, while a 500-character Chinese prompt can be 300-500 tokens depending on the tokenizer.
+
+---
+
+## Input vs Output: Why Output Costs More
+
+Every provider publishes two prices: **input** (prompt) and **output** (completion). Output is always more expensive — typically **3-10x** — because generating tokens is far more compute-intensive than reading them.
+
+The rule that saves developers the most money: always set `max_tokens`. One runaway reply can cost 20x a normal one, because every extra output token is billed at the highest rate on the bill.
+
+---
+
+## The Price Table: Per 1M Tokens
+
+To anchor your own DeepSeek V4 API pricing per 1M tokens and compare it with alternatives, here is the canonical table (input / output per 1M tokens):
+
+| Model | Input /1M | Output /1M | Context | Notes |
+|-------|-----------|------------|---------|-------|
+| Mimo V2.5 | $0.08 | $0.24 | 128K | Cheapest absolute |
+| DeepSeek V4 Flash | $0.14 | $0.42 | 128K | Cost-effectiveness king |
+| GPT-5.4 Mini | $0.15 | $0.60 | 128K | OpenAI budget tier |
+| Qwen 3.7 | $0.20 | $0.60 | 128K | Coding + fallback |
+| GPT-5.6 Luna | $0.27 | $2.70 | 1M | Budget OpenAI tier |
+| DeepSeek V4 Pro | $0.28 | $0.84 | 128K | Best flagship value |
+| GPT-5.6 Sol | $13.50 | $60.00 | — | Frontier flagship |
+
+The spread is the story: DeepSeek V4 Flash input is **96% cheaper** than GPT-5.6 Sol ($0.14 vs $13.50). Same OpenAI-compatible format, one-line `model=` change, wildly different bill.
+
+---
+
+## Context Caching: The 90% Discount
+
+Most real applications re-send the same content on every request: a system prompt, product documentation, a long conversation history. Without caching, you pay full input price for those tokens every single time.
+
+DeepSeek's **automatic context caching** changes that. When a prefix of your prompt repeats, it is served from cache at roughly **90% off** the input rate — with no code changes and no opt-in. Long-context workloads that look expensive on paper often cost a fraction of the estimate once cache hits kick in.
+
+---
+
+## A Real Calculation: What One Request Costs
+
+Let's do a concrete token cost calculation for a typical request: **1K input + 0.5K output**.
+
+**DeepSeek V4 Flash ($0.14 / $0.42):**
+- Input: 1,000 / 1,000,000 × $0.14 = $0.00014
+- Output: 500 / 1,000,000 × $0.42 = $0.00021
+- **Total: ~$0.00035 per request**
+
+**GPT-5.6 Sol ($13.50 / $60.00):**
+- Input: 1,000 / 1,000,000 × $13.50 = $0.01350
+- Output: 500 / 1,000,000 × $60.00 = $0.03000
+- **Total: ~$0.04350 per request — 124x more**
+
+Scale that to a production workload of 100K requests/month: DeepSeek V4 Flash lands around **$52/month**, while GPT-5.6 Sol runs about **$4,200/month**. The $1 free credit at TokenPAPA covers roughly 2,800 requests on V4 Flash — enough to prototype a real product before you spend a cent.
+
+---
+
+## FAQ
+
+**Q: Why does output cost more than input tokens?**
+A: Generating tokens is far more compute-heavy than reading them, so output is billed at 3-10x input — $0.14 vs $0.42 on DeepSeek V4 Flash, $13.50 vs $60 on GPT-5.6 Sol. Cap `max_tokens` to control it.
+
+**Q: How much does context caching save?**
+A: DeepSeek's automatic context caching cuts repeat input costs by about 90%. Re-sent system prompts, docs, and history get cached automatically — no code changes needed.
+
+**Q: How much does one API request actually cost?**
+A: A typical 1K-input + 0.5K-output request costs about $0.00035 on DeepSeek V4 Flash. The $1 free credit covers roughly 2,800 such requests.
+
+**Q: How does DeepSeek V4 API pricing per 1M tokens compare with other models?**
+A: DeepSeek V4 Flash ($0.14/$0.42) is 96% cheaper on input than GPT-5.6 Sol ($13.50/$60); Mimo V2.5 ($0.08/$0.24) is the absolute cheapest. All use the same OpenAI-compatible format.
+
+---
+
+## Get Started
+
+1. **Sign up** at [tokenpapa.ai](https://tokenpapa.ai) — get **$1 free credit**
+2. **Create your API key** — OpenAI-compatible, no Chinese phone number needed
+3. **Watch your bill shrink** — one key for 30+ models, switch with a one-line `model=` change
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://tokenpapa.ai/v1", api_key="your-key")
+
+resp = client.chat.completions.create(
+    model="deepseek-v4-flash",          # or "mimo-v2.5", "gpt-5.6-luna"
+    messages=[
+        {"role": "system", "content": "You are a concise assistant."},
+        {"role": "user", "content": "Explain token pricing in one sentence."},
+    ],
+    max_tokens=100,                     # cap output to control cost
+)
+print(resp.choices[0].message.content)
+```
