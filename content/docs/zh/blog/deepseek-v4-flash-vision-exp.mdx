@@ -1,0 +1,206 @@
+---
+title: "DeepSeek V4 Flash Vision Exp:文本模型的价格,图片理解的能力"
+description: "DeepSeek V4 Flash Vision Exp 在 $0.14/1M 的文本模型上加入了图片输入——描述图片、识别截图文字、分析图表。支持格式、限制、代码示例,以及如何用一个 API Key 调用。"
+date: 2026-08-23
+authors: [tokenpapa]
+category: "教程"
+keywords: ["deepseek vision api", "deepseek 图片理解", "deepseek v4 flash vision exp", "deepseek 截图识别", "deepseek 图像分析", "deepseek v4 价格", "多模态 llm api", "便宜视觉模型 api", "deepseek api 海外", "TokenPAPA deepseek"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-08-23 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;DeepSeek V4 Flash Vision Exp:文本模型的价格,图片理解的能力&quot;,&quot;description&quot;:&quot;DeepSeek V4 Flash Vision Exp 在 $0.14/1M 的文本模型上加入了图片输入:描述图片、识别截图文字、分析图表。&quot;,&quot;datePublished&quot;:&quot;2026-08-23&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;DeepSeek V4 Flash Vision Exp 是什么?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;DeepSeek 的实验性视觉模型(deepseek-v4-flash-vision-exp),在文本之外接受图片输入,可以描述图片、提取截图文字、分析图表,价格与 DeepSeek V4 Flash 完全一致。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;DeepSeek Vision 支持哪些图片格式?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;JPEG、PNG、GIF、WebP。格式按文件实际内容判断,而不是文件名或声明的 MIME 类型。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;如何把图片传给 DeepSeek Vision?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;三种方式,均使用 OpenAI 兼容格式:base64 内联 data URL、公开图片 URL、或 Files API 的 file_id。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;DeepSeek V4 Flash Vision Exp 多少钱?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;与 DeepSeek V4 Flash 相同——TokenPAPA 上输入 $0.14/1M、输出 $0.42/1M。图片按尺寸换算成 token(每张最多 384 token),与文本一起计费。&quot;}}]}" />
+
+# DeepSeek V4 Flash Vision Exp:文本模型的价格,图片理解的能力
+
+DeepSeek 刚刚让自家最便宜的模型变得多模态。**`deepseek-v4-flash-vision-exp`** 在文本之外支持图片输入——描述照片、提取截图文字、分析图表——而不用升级到更贵的旗舰档位。
+
+对一直在关注 **DeepSeek V4 API 每百万 token 定价**的海外开发者来说,最妙的是:这个视觉模型与 DeepSeek V4 Flash **价格完全相同**。用文本的钱,买到视觉的能力。
+
+下面是官方文档的完整要点,以及如何通过 TokenPAPA 的一个 API Key 直接调用。
+
+---
+
+## DeepSeek V4 Flash Vision Exp 能做什么
+
+实验性视觉模型(`deepseek-v4-flash-vision-exp`)在文本提示之外接收图片。实际应用场景:
+
+- **描述图片** — 解释照片、示意图、产品图里有什么
+- **截图 OCR** — 从 UI 截图、票据、文档中提取文字
+- **分析图表** — 读取绘图数据、提取数字、总结趋势
+- **Agent 视觉问答** — 在 user 消息中附加图片,让模型基于图片推理
+
+很多厂商把视觉能力放在高价旗舰模型上,DeepSeek 却把它做进了廉价档位。
+
+## 支持的图片格式
+
+| 格式 | 支持 |
+|------|------|
+| JPEG | ✔ |
+| PNG | ✔ |
+| GIF | ✔ |
+| WebP | ✔ |
+
+格式按**文件实际内容**判断——不看文件扩展名,也不看声明的 MIME 类型。把 PNG 改名为 `.jpg` 仍按 PNG 处理。
+
+## 如何传图(OpenAI 兼容)
+
+图片以**内容块数组**的形式传入(不再是纯字符串),与 OpenAI 结构一致。三种传图方式:
+
+### 1. Base64 内联(本地文件最简单)
+
+```python
+import base64
+from openai import OpenAI
+
+client = OpenAI(api_key="your-key", base_url="https://tokenpapa.ai/v1")
+
+with open("image.jpg", "rb") as f:
+    b64 = base64.b64encode(f.read()).decode("utf-8")
+
+response = client.chat.completions.create(
+    model="deepseek-v4-flash-vision-exp",
+    messages=[{
+        "role": "user",
+        "content": [
+            {"type": "text", "text": "这张图片里有什么?"},
+            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}"}},
+        ],
+    }],
+)
+print(response.choices[0].message.content)
+```
+
+### 2. 外部图片 URL
+
+传入可公开访问的 `http(s)` 链接,模型自动下载:
+
+```python
+response = client.chat.completions.create(
+    model="deepseek-v4-flash-vision-exp",
+    messages=[{
+        "role": "user",
+        "content": [
+            {"type": "text", "text": "描述一下这张图片。"},
+            {"type": "image_url", "image_url": {"url": "https://example.com/image.jpg"}},
+        ],
+    }],
+)
+```
+
+### 3. Files API 引用
+
+上传一次,之后用 `file_id` 复用——适合大于 32 MiB 的图片或多次使用:
+
+```python
+response = client.chat.completions.create(
+    model="deepseek-v4-flash-vision-exp",
+    messages=[{
+        "role": "user",
+        "content": [
+            {"type": "text", "text": "这张图片里有什么?"},
+            {"type": "file", "file_id": "file-api-xxxxxxxxxxxxxxxx"},
+        ],
+    }],
+)
+```
+
+> **注意:** 图片只能出现在 `user` 消息中。`system` 或 `assistant` 消息带图会返回 400。非视觉模型也会拒绝图片(400,"This model does not support image")。
+
+## 细节级别控制
+
+`image_url` 输入可加 `detail` 字段控制处理方式:
+
+| 取值 | 行为 |
+|------|------|
+| `low` | 推理前缩放到 512×512——更快、更省 token |
+| `high` | 保留原图(为兼容提供,等价于 `original`) |
+| `original` | 保留原图 |
+| `auto` | 自动选择,当前等价于 `original` |
+
+```json
+{"type": "image_url", "image_url": {"url": "https://example.com/image.jpg", "detail": "low"}}
+```
+
+## 图片如何计费(token 换算)
+
+图片按尺寸换算成 token,与文本一起计费:
+
+- 总像素小于约 384×384 的图片会被保持长宽比**放大**
+- 更大的图片会被保持长宽比**缩小**,缩小后总像素约相当于 800×800
+- **每张图片最多 384 token** — 2000×2000 和 5000×5000 的图片消耗相同
+- 多图请求:每张独立按同一规则计算
+
+也就是说视觉成本很可控:即使是大图也封顶在几百 token,真正影响账单的还是 **DeepSeek V4 API 每百万 token 定价**。
+
+## 限制一览
+
+| 限制项 | 数值 |
+|--------|------|
+| 支持格式 | JPEG、PNG、GIF、WebP |
+| 外部 URL 长度 | 8192 字符 |
+| 请求体大小 | 48 MiB |
+| 单张图片最大(base64 / URL) | 32 MiB |
+| 单张图片最大(Files API `file_id`) | 64 MiB |
+| 单个请求最大图片数 | 600 |
+| 图片最大尺寸 | 单边 8192 像素(≥15 张时 4096 像素) |
+
+## API 兼容性
+
+除了 OpenAI 兼容端点,视觉模型还支持:
+
+- **Anthropic API** — `https://api.deepseek.com/anthropic`,使用 `image` 块,`source.type` 为 `base64` / `url` / `file`
+- **Responses API** — 图片以 `input_image` 内容块承载,`detail` 语义相同
+
+在 TokenPAPA 上,OpenAI 兼容端点 `https://tokenpapa.ai/v1` 就够了——上面的代码无需任何改动。
+
+---
+
+## 常见问题
+
+**Q: TokenPAPA 上有 DeepSeek V4 Flash Vision Exp 吗?**
+A: 有——`deepseek-v4-flash-vision-exp` 已在 TokenPAPA 上线。一个 API Key 就能同时调用它以及 DeepSeek V4 Flash/Pro、GPT、Claude、Gemini、Qwen 等模型,全部走同一个 OpenAI 兼容端点。
+
+**Q: 视觉请求会比文本贵吗?**
+A: 没有单独的图片附加费。图片换算成 token(每张最多 384)后按标准费率计费。由于模型与 DeepSeek V4 Flash 同价,视觉能力依然非常便宜。
+
+**Q: DeepSeek V4 Flash 的价格是多少?**
+A: TokenPAPA 上 DeepSeek V4 Flash 为 **输入 $0.14/1M、输出 $0.42/1M**。vision-exp 模型在同一个价格线上。
+
+**Q: 一个请求能传多张图片吗?**
+A: 可以——单个请求最多 600 张,每张独立计费。在 user 消息里加多个 `image_url` 或 `file` 内容块即可。
+
+---
+
+## 快速开始
+
+几分钟内体验 DeepSeek V4 Flash Vision Exp:
+
+1. 在 [tokenpapa.ai](https://tokenpapa.ai) 注册——**$1 免费额度**
+2. 创建 API Key(无需中国手机号)
+3. 把 OpenAI SDK 指向 `https://tokenpapa.ai/v1`,发送一张图片
+
+```python
+from openai import OpenAI
+
+client = OpenAI(api_key="your-key", base_url="https://tokenpapa.ai/v1")
+
+response = client.chat.completions.create(
+    model="deepseek-v4-flash-vision-exp",
+    messages=[{
+        "role": "user",
+        "content": [
+            {"type": "text", "text": "提取这张截图里的文字。"},
+            {"type": "image_url", "image_url": {"url": "https://example.com/screenshot.png"}},
+        ],
+    }],
+)
+print(response.choices[0].message.content)
+```
+
+文本模型的价格,图片理解的能力——一个 Key,一个端点。

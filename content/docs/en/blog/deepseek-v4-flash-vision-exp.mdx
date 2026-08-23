@@ -1,0 +1,206 @@
+---
+title: "DeepSeek V4 Flash Vision Exp: Image Understanding at Text-Only Prices"
+description: "DeepSeek V4 Flash Vision Exp adds image input to the $0.14/1M model — describe images, OCR screenshots, analyze charts. Formats, limits, code examples, and how to call it through one API key."
+date: 2026-08-23
+authors: [tokenpapa]
+category: "Tutorial"
+keywords: ["deepseek vision api", "deepseek image understanding", "deepseek v4 flash vision exp", "deepseek screenshot ocr", "deepseek image analysis", "deepseek v4 pricing", "multimodal llm api", "cheap vision model api", "deepseek api overseas", "TokenPAPA deepseek"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-08-23 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;DeepSeek V4 Flash Vision Exp: Image Understanding at Text-Only Prices&quot;,&quot;description&quot;:&quot;DeepSeek V4 Flash Vision Exp adds image input to the $0.14/1M model: describe images, OCR screenshots, analyze charts. Formats, limits, code examples, and how to call it through one API key.&quot;,&quot;datePublished&quot;:&quot;2026-08-23&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;What is DeepSeek V4 Flash Vision Exp?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;DeepSeek V4 Flash Vision Exp (deepseek-v4-flash-vision-exp) is DeepSeek's experimental vision model. It accepts images in addition to text, so you can describe pictures, extract text from screenshots, and analyze charts — at the same price as DeepSeek V4 Flash.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Which image formats does DeepSeek Vision support?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;JPEG, PNG, GIF, and WebP. Format is detected from the file's actual content, not the filename or declared MIME type.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How do I send an image to DeepSeek Vision?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Three ways with the OpenAI-compatible API: base64 inline data URL, a public image URL, or a file_id from the Files API. All work through the standard chat completions endpoint.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How much does DeepSeek V4 Flash Vision Exp cost?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;The same as DeepSeek V4 Flash — $0.14 per 1M input tokens and $0.42 per 1M output tokens on TokenPAPA. Images are converted to tokens by size (up to 384 tokens per image) and billed together with text.&quot;}}]}" />
+
+# DeepSeek V4 Flash Vision Exp: Image Understanding at Text-Only Prices
+
+DeepSeek just made its cheapest model multimodal. **`deepseek-v4-flash-vision-exp`** accepts images in addition to text — describe a photo, extract text from a screenshot, or analyze a chart — without moving to a pricier flagship tier.
+
+For overseas developers watching **DeepSeek V4 API pricing per 1M tokens**, this is the interesting part: the vision model sits at the **exact same price point** as DeepSeek V4 Flash. You get vision capability for the price of text.
+
+Here's everything the official docs cover, plus how to call it through one API key on TokenPAPA.
+
+---
+
+## What DeepSeek V4 Flash Vision Exp Can Do
+
+The experimental vision model (`deepseek-v4-flash-vision-exp`) takes images alongside your text prompt. Practical uses:
+
+- **Describe images** — explain what's in a photo, diagram, or product shot
+- **OCR screenshots** — pull text out of UI screenshots, receipts, and documents
+- **Analyze charts & tables** — read plotted data, extract numbers, summarize trends
+- **Visual QA in agents** — attach an image in a user message and let the model reason over it
+
+Unlike some vendors that gate vision behind premium models, DeepSeek shipped it on the budget tier.
+
+## Supported Image Formats
+
+| Format | Notes |
+|--------|-------|
+| JPEG | ✔ |
+| PNG | ✔ |
+| GIF | ✔ |
+| WebP | ✔ |
+
+Format is detected from the **file's actual content** — not the filename extension or the declared MIME type. A PNG renamed to `.jpg` is still treated as PNG.
+
+## How to Send Images (OpenAI-Compatible)
+
+Images are passed as **content blocks** (an array) instead of a plain string — the same structure as OpenAI. Three ways to supply an image:
+
+### 1. Base64 Inline (Simplest for Local Files)
+
+```python
+import base64
+from openai import OpenAI
+
+client = OpenAI(api_key="your-key", base_url="https://tokenpapa.ai/v1")
+
+with open("image.jpg", "rb") as f:
+    b64 = base64.b64encode(f.read()).decode("utf-8")
+
+response = client.chat.completions.create(
+    model="deepseek-v4-flash-vision-exp",
+    messages=[{
+        "role": "user",
+        "content": [
+            {"type": "text", "text": "What's in this image?"},
+            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}"}},
+        ],
+    }],
+)
+print(response.choices[0].message.content)
+```
+
+### 2. Public Image URL
+
+Pass a publicly accessible `http(s)` URL — the model downloads it automatically:
+
+```python
+response = client.chat.completions.create(
+    model="deepseek-v4-flash-vision-exp",
+    messages=[{
+        "role": "user",
+        "content": [
+            {"type": "text", "text": "Describe this image."},
+            {"type": "image_url", "image_url": {"url": "https://example.com/image.jpg"}},
+        ],
+    }],
+)
+```
+
+### 3. Files API Reference
+
+Upload once, reuse across requests via `file_id` — best for images > 32 MiB or repeated use:
+
+```python
+response = client.chat.completions.create(
+    model="deepseek-v4-flash-vision-exp",
+    messages=[{
+        "role": "user",
+        "content": [
+            {"type": "text", "text": "What's in this image?"},
+            {"type": "file", "file_id": "file-api-xxxxxxxxxxxxxxxx"},
+        ],
+    }],
+)
+```
+
+> **Note:** Images only work in `user` messages. Putting an image in a `system` or `assistant` message returns a 400 error. Non-vision models also reject images (400, "This model does not support image").
+
+## Detail Level Control
+
+For `image_url` input you can set a `detail` field to control processing:
+
+| Value | Behavior |
+|-------|----------|
+| `low` | Scales to 512×512 before inference — faster, fewer tokens |
+| `high` | Keeps original (equivalent to `original`, for compatibility) |
+| `original` | Keeps original |
+| `auto` | Auto-select; currently equivalent to `original` |
+
+```json
+{"type": "image_url", "image_url": {"url": "https://example.com/image.jpg", "detail": "low"}}
+```
+
+## How Images Are Billed (Token Conversion)
+
+Images are converted to tokens by size and billed together with text:
+
+- Images under ~384×384 are scaled **up** (aspect preserved)
+- Larger images are scaled **down** to roughly **800×800** total pixels
+- **Max 384 tokens per image** — a 2000×2000 and a 5000×5000 image cost the same
+- Multi-image requests: each image is computed independently, same rule
+
+This means vision stays predictable: even large images cap at a few hundred tokens, keeping **DeepSeek V4 API pricing per 1M tokens** the dominant cost factor.
+
+## Limits at a Glance
+
+| Limit | Value |
+|-------|-------|
+| Supported formats | JPEG, PNG, GIF, WebP |
+| External URL length | 8192 characters |
+| Request body size | 48 MiB |
+| Max single image (base64 / URL) | 32 MiB |
+| Max single image (Files API `file_id`) | 64 MiB |
+| Max images per request | 600 |
+| Max image dimension | 8192 px per side (4096 px if ≥15 images) |
+
+## API Compatibility
+
+Besides the OpenAI-compatible endpoint, the vision model works with:
+
+- **Anthropic API** — `https://api.deepseek.com/anthropic`, using `image` blocks with `source.type` = `base64` / `url` / `file`
+- **Responses API** — images as `input_image` content blocks with the same `detail` semantics
+
+On TokenPAPA, the OpenAI-compatible endpoint `https://tokenpapa.ai/v1` is all you need — the same code above runs unchanged.
+
+---
+
+## FAQ
+
+**Q: Is DeepSeek V4 Flash Vision Exp available on TokenPAPA?**
+A: Yes — `deepseek-v4-flash-vision-exp` is live on TokenPAPA today. One API key gives you access to it alongside DeepSeek V4 Flash/Pro, GPT, Claude, Gemini, Qwen, and more, all through the same OpenAI-compatible endpoint.
+
+**Q: Do vision requests cost more than text?**
+A: No per-image surcharge. Images are converted to tokens (max 384 per image) and billed at the standard rate. Since the model is priced identically to DeepSeek V4 Flash, vision stays budget-friendly.
+
+**Q: What are DeepSeek V4 Flash prices?**
+A: On TokenPAPA, DeepSeek V4 Flash is **$0.14 per 1M input** and **$0.42 per 1M output** tokens. The vision-exp model sits at the same price line.
+
+**Q: Can I send multiple images in one request?**
+A: Yes — up to 600 images per request, each billed independently. Just add more `image_url` or `file` content blocks to the user message.
+
+---
+
+## Get Started
+
+Try DeepSeek V4 Flash Vision Exp in minutes:
+
+1. Sign up at [tokenpapa.ai](https://tokenpapa.ai) — **$1 free credit**
+2. Create an API key (no Chinese phone number needed)
+3. Point your OpenAI SDK at `https://tokenpapa.ai/v1` and send an image
+
+```python
+from openai import OpenAI
+
+client = OpenAI(api_key="your-key", base_url="https://tokenpapa.ai/v1")
+
+response = client.chat.completions.create(
+    model="deepseek-v4-flash-vision-exp",
+    messages=[{
+        "role": "user",
+        "content": [
+            {"type": "text", "text": "Extract the text from this screenshot."},
+            {"type": "image_url", "image_url": {"url": "https://example.com/screenshot.png"}},
+        ],
+    }],
+)
+print(response.choices[0].message.content)
+```
+
+Vision understanding at text-only prices — one key, one endpoint.

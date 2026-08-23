@@ -4,6 +4,7 @@
   "icon": "Newspaper",
   "root": true,
   "pages": [
+    "deepseek-v4-flash-vision-exp",
     "claude-3.7-sonnet-vs-deepseek-v4",
     "deepseek-official-vs-tokenpapa",
     "qwen-3-explained",
