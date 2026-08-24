@@ -1,0 +1,140 @@
+---
+title: "用 DeepSeek 做 RAG:嵌入与推理成本全指南"
+description: "DeepSeek RAG 成本全指南:嵌入模型怎么选、向量库怎么搭,以及一个 1 万文档系统的真实月成本案例,全部基于 DeepSeek V4 Flash 定价。"
+date: 2026-08-24
+authors: [tokenpapa]
+category: "教程"
+keywords: ["DeepSeek RAG", "LLM 嵌入成本", "RAG 成本", "DeepSeek RAG 教程", "RAG 架构成本", "向量数据库成本", "LLM API 成本对比 2026", "便宜 RAG API", "DeepSeek V4 Flash 价格", "TokenPAPA RAG"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-08-24 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;用 DeepSeek 做 RAG:嵌入与推理成本全指南&quot;,&quot;description&quot;:&quot;DeepSeek RAG 成本全指南:嵌入模型怎么选、向量库怎么搭,以及一个 1 万文档系统的真实月成本案例,全部基于 DeepSeek V4 Flash 定价。&quot;,&quot;datePublished&quot;:&quot;2026-08-24&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;1 万文档的 RAG 系统一个月要花多少钱?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;按每月 3,000 次查询计算,用 DeepSeek V4 Flash(输入 $0.14/1M、输出 $0.42/1M)大约每月 $3,另加一次性约 $2 的嵌入索引成本;同样负载用 GPT-5.6 Sol 约 $290/月。真正持续花钱的是推理,不是嵌入。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;RAG 的嵌入成本是多少?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;嵌入是一次性索引成本:1 万篇文档每篇约 2K token,合计约 2,000 万 token。按 Mistral Embed 的 $0.10/1M 输入计算,总计约 $2——相比持续的推理开销通常可以忽略。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;DeepSeek 适合做 RAG 吗?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;适合。DeepSeek V4 Flash 在 Terminal Bench 2.1 上得分 82.7,擅长遵循检索到的上下文,而且自动上下文缓存可把重复输入成本降低约 90%,正是检索型提示词最需要的特性。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;能用免费额度先搭一个 RAG 原型吗?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;能。TokenPAPA 送的 $1 免费额度在 DeepSeek V4 Flash 上约可发起 2,800 次请求,足够索引一个小型知识库并验证检索质量,再决定是否正式投入。&quot;}}]}" />
+
+# 用 DeepSeek 做 RAG:嵌入与推理成本全指南
+
+检索增强生成(RAG)是让大模型访问私有文档的标准做法——客服知识库、产品文档、内部制度都能靠它回答。但月底账单上,成本其实藏在两个地方:一次性给全部文档做嵌入索引的成本,和每次查询生成回答的推理成本。
+
+这是一份以数字为核心的完整指南:嵌入模型怎么选、向量库怎么搭,以及 1 万文档系统的真实月成本拆解,生成层以 DeepSeek V4 Flash 为主力。
+
+---
+
+## RAG 系统把钱花在哪里
+
+RAG 系统只有两个成本中心:
+
+- **一次性索引**:每篇文档过一遍嵌入模型,存入向量数据库(pgvector、Qdrant、Chroma 按运维习惯选,成本都很低)。
+- **持续推理**:每次查询嵌入问题、检索 top-k 片段,再把「系统提示 + 片段 + 问题」交给对话模型生成答案。
+
+生成调用是**输入密集型**的——提示词因携带检索上下文而变长,而输出 token 单价是输入的 3-10 倍,所以 RAG 里设置 `max_tokens` 比任何场景都重要。
+
+---
+
+## 价格表:每 1M tokens
+
+做预算前,先锚定各模型的实际单价(每 1M tokens,输入 / 输出):
+
+| 模型 | 输入 /1M | 输出 /1M | 上下文 | 说明 |
+|------|---------|---------|--------|------|
+| Mimo V2.5 | $0.08 | $0.24 | 128K | 绝对最低价 |
+| DeepSeek V4 Flash | $0.14 | $0.42 | 128K | 性价比之王 |
+| Qwen 3.7 | $0.20 | $0.60 | 128K | 编码 + 兜底 |
+| GPT-5.6 Luna | $0.27 | $2.70 | 1M | OpenAI 平价档 |
+| DeepSeek V4 Pro | $0.28 | $0.84 | 128K | 旗舰级最佳性价比 |
+| GPT-5.6 Sol | $13.50 | $60.00 | — | 前沿旗舰 |
+
+做 LLM API 成本对比 2026,价差就是答案:DeepSeek V4 Flash 输入价比 GPT-5.6 Sol **便宜 96%**($0.14 vs $13.50)。在 RAG 查询量级下,这个差距决定知识库每月是花一杯咖啡钱,还是一台服务器钱。
+
+---
+
+## 嵌入成本:一次选定,一次付清
+
+嵌入模型的选择影响检索质量,而不是钱包。三个标准:
+
+1. **多语言质量** —— 语料同时含中英文时,选一个不会把两种语言挤进同一片向量空间的模型
+2. **每 1M token 单价** —— 嵌入是走量生意,单价是唯一要看的数字
+3. **OpenAI 兼容接口** —— LangChain/LlamaIndex 代码零改动
+
+算一笔账:1 万篇文档每篇约 2K token,合计约 **2,000 万 token**,只索引一次。按 Mistral Embed 的 $0.10/1M 输入计算,约 **$2 一次性成本**。就算选更贵的模型,相比持续的推理开销也只是零头——嵌入层为召回率优化,生成层才为价格优化。
+
+---
+
+## 1 万文档系统的月成本
+
+假设 1 万篇文档(约 2,000 万嵌入 token,一次性约 $2)、每月 3,000 次查询,每次查询携带 **5K 输入 token**(系统提示 + 4 个约 1K 片段)+ **0.5K 输出 token**:
+
+| 模型 | 单次查询成本 | 月成本(3,000 次) |
+|------|-------------:|------------------:|
+| Mimo V2.5 | $0.00052 | 约 $1.60 |
+| DeepSeek V4 Flash | $0.00091 | 约 $2.70 |
+| Qwen 3.7 | $0.00130 | 约 $3.90 |
+| DeepSeek V4 Pro | $0.00182 | 约 $5.50 |
+| GPT-5.6 Luna | $0.00270 | 约 $8.10 |
+| GPT-5.6 Sol | $0.09750 | 约 $290 |
+
+放到标准生产负载(月 10 万次请求)同样成立:V4 Flash 约 **$52/月**,GPT-5.6 Sol 约 **$4,200/月**——同一条流水线,便宜 98%。
+
+---
+
+## 五个省 RAG 成本的办法
+
+1. **开启上下文缓存** —— DeepSeek 自动缓存免费,重复输入降 ~90%,系统提示正是最值得缓存的固定前缀
+2. **设置 `max_tokens`** —— 一次失控回答的成本是正常回答的 20 倍
+3. **模型分层** —— V4 Flash 处理 90% 的普通查询,难问题才升级到 V4 Pro 或 Luna
+4. **检索更少但更好的片段** —— 加 reranker 或 BM25 混合检索,输入变少,质量不降
+5. **答案缓存** —— 重复问题绝不该让 LLM 算第二遍
+
+---
+
+## 常见问题
+
+**问:1 万文档的 RAG 系统一个月要花多少钱?**
+答:每月 3,000 次查询,用 DeepSeek V4 Flash 约 $3,另加一次性约 $2 的索引成本;同样负载用 GPT-5.6 Sol 约 $290/月。
+
+**问:RAG 的嵌入成本是多少?**
+答:索引 1 万篇文档约需 2,000 万 token;按 Mistral Embed 的 $0.10/1M 计算约 $2 一次性成本。持续开销在推理,不在嵌入。
+
+**问:DeepSeek 适合做 RAG 吗?**
+答:适合——Terminal Bench 2.1 得分 82.7,擅长遵循检索上下文,重复输入还能省约 90% 缓存成本。
+
+**问:能用免费额度先搭一个 RAG 原型吗?**
+答:能——$1 免费额度在 DeepSeek V4 Flash 上约 2,800 次请求,足够索引小型知识库并测试检索质量。
+
+---
+
+## 快速开始
+
+1. **注册** [tokenpapa.ai](https://tokenpapa.ai) —— 送 **$1 免费额度**
+2. **创建 API Key** —— OpenAI 兼容,无需中国手机号
+3. **上线 RAG 流水线** —— 一个 Key 接入 30+ 模型,改一行 `model=` 即可切换
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://tokenpapa.ai/v1", api_key="your-key")
+
+# 1) 嵌入查询(OpenAI 兼容的 embeddings 接口)
+query_vec = client.embeddings.create(
+    model="your-embedding-model",  # 在 /v1/models 查看可用的嵌入模型
+    input="我该怎么重置密码?",
+).data[0].embedding
+
+# 2) 从向量库检索 top-k 片段(pgvector / Qdrant / Chroma)
+top_chunks = vector_store.search(query_vec, top_k=4)
+
+# 3) 用 DeepSeek V4 Flash 生成回答
+resp = client.chat.completions.create(
+    model="deepseek-v4-flash",          # 或 "deepseek-v4-pro"、"qwen3.7-plus"
+    messages=[
+        {"role": "system", "content": "只依据给定上下文回答,保持简洁。"},
+        {"role": "user", "content": "上下文:\n" + "\n".join(top_chunks) + "\n\n问题:我该怎么重置密码?"},
+    ],
+    max_tokens=300,                     # 限制输出以控制成本
+)
+print(resp.choices[0].message.content)
+```

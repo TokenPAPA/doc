@@ -1,0 +1,140 @@
+---
+title: "DeepSeek for RAG: Embedding and Inference Cost Guide"
+description: "Complete DeepSeek RAG cost guide: embedding model selection, vector store setup, and a real 10K-document monthly cost case study built on DeepSeek V4 Flash pricing."
+date: 2026-08-24
+authors: [tokenpapa]
+category: "Tutorial"
+keywords: ["deepseek rag", "llm embedding cost", "rag cost", "deepseek rag tutorial", "rag architecture cost", "vector database cost", "llm api cost comparison 2026", "cheap rag api", "deepseek v4 flash price", "TokenPAPA rag"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-08-24 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;DeepSeek for RAG: Embedding and Inference Cost Guide&quot;,&quot;description&quot;:&quot;Complete DeepSeek RAG cost guide: embedding model selection, vector store setup, and a real 10K-document monthly cost case study built on DeepSeek V4 Flash pricing.&quot;,&quot;datePublished&quot;:&quot;2026-08-24&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How much does a 10K-document RAG system cost per month?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;At 3,000 queries per month, roughly $3/month on DeepSeek V4 Flash ($0.14/1M input, $0.42/1M output) plus a one-time ~$2 embedding indexing cost. The same workload on GPT-5.6 Sol costs about $290/month — generation, not embeddings, is the recurring line item.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How much do embeddings cost for RAG?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Embedding is a one-time indexing cost: 10K documents at ~2K tokens each is roughly 20M tokens. At Mistral Embed's $0.10/1M input that is about $2 total — usually a rounding error next to ongoing inference.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Is DeepSeek good for RAG?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Yes. DeepSeek V4 Flash scores 82.7 on Terminal Bench 2.1, handles long retrieval contexts well, and its automatic context caching cuts repeated input cost by about 90% — exactly what retrieval-heavy prompts need.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Can I prototype a RAG system with the free credit?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Yes. The $1 free credit at TokenPAPA covers roughly 2,800 requests on DeepSeek V4 Flash — enough to index a small knowledge base and validate retrieval quality before spending real money.&quot;}}]}" />
+
+# DeepSeek for RAG: Embedding and Inference Cost Guide
+
+Retrieval-Augmented Generation (RAG) is how most teams give an LLM access to private documents — support wikis, product docs, internal policies. But when the monthly bill arrives, the costs are hiding in two very different places: the one-time embedding pass that indexes your documents, and the per-query inference that answers them.
+
+This is a numbers-first guide: embedding model selection, vector store setup, and a full cost breakdown of a realistic 10K-document system — with DeepSeek V4 Flash as the generation backbone, straight from the same LLM API cost comparison 2026 tables we publish everywhere.
+
+---
+
+## How a RAG System Spends Tokens
+
+A RAG system has exactly two cost centers:
+
+- **One-time indexing**: every document is passed through an embedding model and stored in a vector database (pgvector, Qdrant, Chroma — pick by operational comfort, not cost; they're all cheap to run at this scale).
+- **Ongoing inference**: each query embeds the question, retrieves the top-k chunks, and sends `system prompt + top-k chunks + question` to a chat model for generation.
+
+The generation call is **input-heavy** — your prompt is long because it carries the retrieved context. And since output tokens cost 3-10x input, capping `max_tokens` on every answer matters for RAG more than almost any other workload.
+
+---
+
+## The Price Table: Per 1M Tokens
+
+Before building a budget, anchor on what each model actually costs. These are per 1M tokens (input / output):
+
+| Model | Input /1M | Output /1M | Context | Notes |
+|-------|-----------|------------|---------|-------|
+| Mimo V2.5 | $0.08 | $0.24 | 128K | Cheapest absolute |
+| DeepSeek V4 Flash | $0.14 | $0.42 | 128K | Cost-effectiveness king |
+| Qwen 3.7 | $0.20 | $0.60 | 128K | Coding + fallback |
+| GPT-5.6 Luna | $0.27 | $2.70 | 1M | Budget OpenAI tier |
+| DeepSeek V4 Pro | $0.28 | $0.84 | 128K | Best flagship value |
+| GPT-5.6 Sol | $13.50 | $60.00 | — | Frontier flagship |
+
+For any LLM API cost comparison 2026, the spread is the story: DeepSeek V4 Flash input is **96% cheaper** than GPT-5.6 Sol ($0.14 vs $13.50). At RAG query volumes, that gap decides whether your knowledge base costs coffee money or a server room.
+
+---
+
+## Embedding Costs: Pick Once, Pay Once
+
+Embedding selection matters for retrieval quality, not for your wallet. Three criteria:
+
+1. **Multilingual quality** — if your corpus mixes Chinese and English, pick a model that doesn't collapse both into the same vector neighborhood
+2. **Price per 1M tokens** — embedding is a volume game, so unit price is the only number that matters
+3. **OpenAI-compatible endpoint** — so your LangChain/LlamaIndex code doesn't fork
+
+The math: 10K documents at ~2K tokens each ≈ **20M embedding tokens**, indexed once. At Mistral Embed's $0.10/1M input (see our Mistral guide), that's **~$2 one-time**. Even at pricier rates, indexing stays a rounding error next to ongoing inference — so optimize embeddings for recall, and optimize the generation layer for price.
+
+---
+
+## A Realistic 10K-Document System: Monthly Cost
+
+Assume 10K docs (≈20M embedding tokens, ~$2 one-time), 3,000 queries/month (100/day — a busy internal tool), and each query generating with **5K input tokens** (system prompt + top-4 chunks of ~1K each) + **0.5K output tokens**:
+
+| Model | Cost / query | Cost / month (3K queries) |
+|-------|-------------:|--------------------------:|
+| Mimo V2.5 | $0.00052 | ~$1.60 |
+| DeepSeek V4 Flash | $0.00091 | ~$2.70 |
+| Qwen 3.7 | $0.00130 | ~$3.90 |
+| DeepSeek V4 Pro | $0.00182 | ~$5.50 |
+| GPT-5.6 Luna | $0.00270 | ~$8.10 |
+| GPT-5.6 Sol | $0.09750 | ~$290 |
+
+The same shape holds at scale: at the canonical production workload of 100K requests/month, DeepSeek V4 Flash lands around **$52/month** versus **$4,200/month** on GPT-5.6 Sol — same RAG pipeline, 98% cheaper.
+
+---
+
+## Five Ways to Cut RAG Costs
+
+1. **Turn on context caching** — DeepSeek's automatic context caching is free and cuts repeated input ~90%; your system prompt and static instructions are the perfect cacheable prefix
+2. **Cap `max_tokens`** — a runaway answer costs 20x a normal one
+3. **Tier your models** — V4 Flash answers 90% of queries; escalate only hard ones to V4 Pro or Luna
+4. **Retrieve fewer, better chunks** — a reranker or hybrid BM25 search cuts input tokens without cutting answer quality
+5. **Cache answers** — identical questions (support bots, FAQ lookups) should never hit the LLM twice
+
+---
+
+## FAQ
+
+**Q: How much does a 10K-document RAG system cost per month?**
+A: At 3,000 queries/month, about $3 on DeepSeek V4 Flash plus a one-time ~$2 indexing cost — versus ~$290/month on GPT-5.6 Sol.
+
+**Q: How much do embeddings cost for RAG?**
+A: Roughly 20M tokens to index 10K docs; at Mistral Embed's $0.10/1M that's ~$2 one-time. Inference, not embeddings, is the recurring cost.
+
+**Q: Is DeepSeek good for RAG?**
+A: Yes — 82.7 on Terminal Bench 2.1, strong at following retrieved context, and ~90% cache savings on repeat input.
+
+**Q: Can I prototype a RAG system with the free credit?**
+A: Yes — the $1 free credit covers ~2,800 requests on DeepSeek V4 Flash, plenty to index a small knowledge base and test retrieval quality.
+
+---
+
+## Get Started
+
+1. **Sign up** at [tokenpapa.ai](https://tokenpapa.ai) — get **$1 free credit**
+2. **Create your API key** — OpenAI-compatible, no Chinese phone number needed
+3. **Ship your RAG pipeline** — one key for 30+ models, switch with a one-line `model=` change
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://tokenpapa.ai/v1", api_key="your-key")
+
+# 1) Embed the query (OpenAI-compatible embeddings endpoint)
+query_vec = client.embeddings.create(
+    model="your-embedding-model",  # check /v1/models for available embedding models
+    input="How do I reset my password?",
+).data[0].embedding
+
+# 2) Retrieve top chunks from your vector store (pgvector / Qdrant / Chroma)
+top_chunks = vector_store.search(query_vec, top_k=4)
+
+# 3) Generate the answer on DeepSeek V4 Flash
+resp = client.chat.completions.create(
+    model="deepseek-v4-flash",          # or "deepseek-v4-pro", "qwen3.7-plus"
+    messages=[
+        {"role": "system", "content": "Answer using the provided context only. Be concise."},
+        {"role": "user", "content": "Context:\n" + "\n".join(top_chunks) + "\n\nQuestion: How do I reset my password?"},
+    ],
+    max_tokens=300,                     # cap output to control cost
+)
+print(resp.choices[0].message.content)
+```
