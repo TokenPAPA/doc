@@ -1,0 +1,181 @@
+---
+title: "Use DeepSeek with Vercel AI SDK in 5 Minutes"
+description: "Next.js + Vercel AI SDK + DeepSeek: install, env vars, useChat streaming UI, and deploy — OpenAI-compatible, from $0.14/1M input tokens."
+date: 2026-08-26
+authors: [tokenpapa]
+category: "Tutorial"
+keywords: ["vercel ai sdk deepseek", "deepseek nextjs", "deepseek with vercel ai sdk", "vercel ai sdk tutorial", "deepseek chatbot nextjs", "deepseek stream output", "deepseek v4 flash price", "openai compatible api nextjs", "deploy deepseek app", "TokenPAPA deepseek"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-08-26 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;Use DeepSeek with Vercel AI SDK in 5 Minutes&quot;,&quot;description&quot;:&quot;Next.js + Vercel AI SDK + DeepSeek: install, env vars, useChat streaming UI, and deploy — OpenAI-compatible, from $0.14/1M input tokens.&quot;,&quot;datePublished&quot;:&quot;2026-08-26&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Can I use DeepSeek with Vercel AI SDK?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Yes — DeepSeek is OpenAI-compatible. Point createOpenAI at https://tokenpapa.ai/v1 and stream with useChat in minutes.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Which DeepSeek model should I use in production?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Start with deepseek-v4-flash at $0.14/$0.42 per 1M tokens; switch to deepseek-v4-pro at $0.28/$0.84 for harder reasoning tasks.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How much does DeepSeek V4 API cost per 1M tokens?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;DeepSeek V4 Flash is $0.14 input and $0.42 output per 1M tokens — about 100x cheaper than GPT-5.6 Sol. The $1 free credit covers roughly 2,800 requests.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Does streaming work with Vercel AI SDK?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Yes — streamText returns a data stream response that useChat consumes out of the box; DeepSeek V4 Flash has a time-to-first-token around 0.4s.&quot;}}]}" />
+
+# Use DeepSeek with Vercel AI SDK in 5 Minutes
+
+Vercel AI SDK is the fastest way to ship an AI chat feature in Next.js — and DeepSeek is the cheapest model worth shipping. Combined, you get a streaming chatbot that costs almost nothing to run: DeepSeek V4 API pricing per 1M tokens starts at just $0.14 for input.
+
+No custom adapters, no proxies, no Chinese phone number. DeepSeek speaks the OpenAI protocol, so `@ai-sdk/openai` works as-is. Here's the whole thing in five minutes.
+
+---
+
+## What It Costs (per 1M tokens)
+
+| Model | Input /1M | Output /1M | Best for |
+|-------|-----------|------------|----------|
+| **DeepSeek V4 Flash** | $0.14 | $0.42 | Default for most apps |
+| DeepSeek V4 Pro | $0.28 | $0.84 | Harder reasoning |
+| GPT-5.6 Luna | $0.27 | $2.70 | OpenAI-ecosystem apps |
+| GPT-5.6 Sol | $13.50 | $60.00 | Frontier quality, high budget |
+
+For a typical assistant, V4 Flash is 96% cheaper than GPT-5.6 Sol on input — and it scores **82.7 on Terminal Bench 2.1**, so the quality holds up.
+
+---
+
+## Step 1 — Install and Configure
+
+```bash
+npm i ai @ai-sdk/openai
+```
+
+Create a `.env.local` file:
+
+```bash
+DEEPSEEK_API_KEY=your-tokenpapa-key
+```
+
+Grab the key from [tokenpapa.ai](https://tokenpapa.ai) — you get **$1 free credit** on signup, no credit card required.
+
+---
+
+## Step 2 — Create the Route Handler
+
+`app/api/chat/route.ts`:
+
+```ts
+import { streamText } from 'ai';
+import { createOpenAI } from '@ai-sdk/openai';
+
+const openai = createOpenAI({
+  apiKey: process.env.DEEPSEEK_API_KEY,
+  baseURL: 'https://tokenpapa.ai/v1', // OpenAI-compatible
+});
+
+export async function POST(req: Request) {
+  const { messages } = await req.json();
+  const result = streamText({
+    model: openai('deepseek-v4-flash'),
+    messages,
+  });
+  return result.toDataStreamResponse();
+}
+```
+
+That's the entire backend. `streamText` handles token streaming, cancellation, and errors for you.
+
+---
+
+## Step 3 — Build the Chat UI with useChat
+
+`app/page.tsx`:
+
+```tsx
+'use client';
+import { useChat } from 'ai/react';
+
+export default function Chat() {
+  const { messages, input, handleInputChange, handleSubmit } = useChat();
+
+  return (
+    <div style={{ maxWidth: 640, margin: '0 auto', padding: 24 }}>
+      {messages.map(m => (
+        <div key={m.id}>
+          <strong>{m.role === 'user' ? 'You' : 'DeepSeek'}:</strong> {m.content}
+        </div>
+      ))}
+      <form onSubmit={handleSubmit}>
+        <input
+          value={input}
+          onChange={handleInputChange}
+          placeholder="Ask anything…"
+          style={{ width: '80%', padding: 8 }}
+        />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  );
+}
+```
+
+Run `npm run dev` and you have a streaming chat. The first token arrives in roughly **0.4s** on V4 Flash.
+
+---
+
+## Step 4 — Deploy to Vercel
+
+1. Push the repo to GitHub and import it into Vercel.
+2. Add `DEEPSEEK_API_KEY` to Project → Settings → Environment Variables.
+3. Deploy. Done — zero servers to manage.
+
+---
+
+## What It Costs to Run
+
+DeepSeek V4 API pricing per 1M tokens is the whole story here: **$0.14 in / $0.42 out** on Flash. Concretely:
+
+- **$1 free credit ≈ 2,800 requests** (~1.5K tokens each) — enough to build and demo an MVP.
+- **$10 ≈ 20,000+ requests** — a real production pilot.
+- **Context caching** cuts repeated input by up to ~90% when users resend long prompts.
+- Set `max_tokens` on long generations — output tokens cost 3x input on Flash.
+
+| Cost lever | Savings |
+|-----------|---------|
+| V4 Flash base price | ~100x cheaper than GPT-5.6 Sol |
+| Automatic context caching | Up to ~90% off repeated input |
+| `max_tokens` cap | Prevents runaway output bills |
+| Model tiering (Flash + Pro) | Pay $0.14 when easy, $0.28 when hard |
+
+---
+
+## FAQ
+
+**Q: Can I use DeepSeek with Vercel AI SDK?**
+A: Yes — DeepSeek is OpenAI-compatible. Point `createOpenAI` at `https://tokenpapa.ai/v1` and stream with `useChat` in minutes.
+
+**Q: Which DeepSeek model should I use in production?**
+A: Start with `deepseek-v4-flash` ($0.14/$0.42 per 1M tokens); switch to `deepseek-v4-pro` ($0.28/$0.84) for harder reasoning tasks.
+
+**Q: How much does DeepSeek V4 API cost per 1M tokens?**
+A: DeepSeek V4 Flash is $0.14 input and $0.42 output per 1M tokens — about 100x cheaper than GPT-5.6 Sol. The $1 free credit covers roughly 2,800 requests.
+
+**Q: Does streaming work with Vercel AI SDK?**
+A: Yes — `streamText` returns a data stream response that `useChat` consumes out of the box; DeepSeek V4 Flash has a time-to-first-token around 0.4s.
+
+---
+
+## Get Started
+
+1. **Sign up** at [tokenpapa.ai](https://tokenpapa.ai) — get **$1 free credit**
+2. **Create your API key** — OpenAI-compatible
+3. **Ship your chat app** — code above, live
+
+The same key also works with the Python SDK if your backend isn't Node:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://tokenpapa.ai/v1", api_key="your-key")
+
+stream = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": "Hello!"}],
+    stream=True,
+)
+for chunk in stream:
+    print(chunk.choices[0].delta.content or "", end="")
+```

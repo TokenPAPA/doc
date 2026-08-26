@@ -1,0 +1,181 @@
+---
+title: "Vercel AI SDK 接入 DeepSeek:5 分钟上手"
+description: "Next.js + Vercel AI SDK + DeepSeek:安装、环境变量、useChat 流式聊天 UI、一键部署——OpenAI 兼容,输入低至 $0.14/1M tokens。"
+date: 2026-08-26
+authors: [tokenpapa]
+category: "教程"
+keywords: ["Vercel AI SDK DeepSeek", "DeepSeek Next.js", "Vercel AI SDK 教程", "DeepSeek 聊天机器人", "DeepSeek 流式输出", "DeepSeek V4 Flash 价格", "OpenAI 兼容 API Next.js", "DeepSeek 部署", "useChat DeepSeek", "TokenPAPA DeepSeek"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-08-26 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;Vercel AI SDK 接入 DeepSeek:5 分钟上手&quot;,&quot;description&quot;:&quot;Next.js + Vercel AI SDK + DeepSeek:安装、环境变量、useChat 流式聊天 UI、一键部署——OpenAI 兼容,输入低至 $0.14/1M tokens。&quot;,&quot;datePublished&quot;:&quot;2026-08-26&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Vercel AI SDK 能用 DeepSeek 吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;能。DeepSeek 完全兼容 OpenAI 协议,把 createOpenAI 指向 https://tokenpapa.ai/v1,几分钟内就能用 useChat 流式对话。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;生产环境该用哪个 DeepSeek 模型？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;默认用 deepseek-v4-flash($0.14/$0.42 每 1M tokens);更难的推理任务切 deepseek-v4-pro($0.28/$0.84)。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;DeepSeek V4 API 每 1M tokens 多少钱？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;DeepSeek V4 Flash 输入 $0.14、输出 $0.42 每 1M tokens——比 GPT-5.6 Sol 便宜约 100 倍。$1 免费额度大约可跑 2,800 次请求。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Vercel AI SDK 支持流式输出吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;支持。streamText 返回数据流响应,useChat 开箱即用;DeepSeek V4 Flash 首 token 延迟约 0.4s。&quot;}}]}" />
+
+# Vercel AI SDK 接入 DeepSeek:5 分钟上手
+
+Vercel AI SDK 是在 Next.js 里上线 AI 聊天功能最快的方案,而 DeepSeek 是最值得上线的便宜模型。两者一组合,你就得到一个几乎不花钱的流式聊天机器人——DeepSeek V4 API pricing per 1M tokens,输入只要 $0.14。
+
+不需要自定义适配器、不需要代理、不需要中国手机号。DeepSeek 讲的是 OpenAI 协议,所以 `@ai-sdk/openai` 直接就能用。全程五分钟,开始。
+
+---
+
+## 价格一览(每 1M tokens)
+
+| 模型 | 输入 /1M | 输出 /1M | 适合场景 |
+|------|---------|---------|---------|
+| **DeepSeek V4 Flash** | $0.14 | $0.42 | 大多数应用默认选择 |
+| DeepSeek V4 Pro | $0.28 | $0.84 | 更难的推理任务 |
+| GPT-5.6 Luna | $0.27 | $2.70 | OpenAI 生态应用 |
+| GPT-5.6 Sol | $13.50 | $60.00 | 旗舰质量、预算充足 |
+
+对典型助手场景,V4 Flash 输入比 GPT-5.6 Sol 便宜 96%,而且在 **Terminal Bench 2.1 拿到 82.7 分**,质量完全够用。
+
+---
+
+## 第 1 步 —— 安装与配置
+
+```bash
+npm i ai @ai-sdk/openai
+```
+
+创建 `.env.local` 文件:
+
+```bash
+DEEPSEEK_API_KEY=your-tokenpapa-key
+```
+
+去 [tokenpapa.ai](https://tokenpapa.ai) 拿 Key——注册即送 **$1 免费额度**,不需要信用卡。
+
+---
+
+## 第 2 步 —— 创建路由处理器
+
+`app/api/chat/route.ts`:
+
+```ts
+import { streamText } from 'ai';
+import { createOpenAI } from '@ai-sdk/openai';
+
+const openai = createOpenAI({
+  apiKey: process.env.DEEPSEEK_API_KEY,
+  baseURL: 'https://tokenpapa.ai/v1', // OpenAI 兼容
+});
+
+export async function POST(req: Request) {
+  const { messages } = await req.json();
+  const result = streamText({
+    model: openai('deepseek-v4-flash'),
+    messages,
+  });
+  return result.toDataStreamResponse();
+}
+```
+
+后端就这么点代码。`streamText` 帮你处理 token 流式、取消和错误。
+
+---
+
+## 第 3 步 —— 用 useChat 构建聊天界面
+
+`app/page.tsx`:
+
+```tsx
+'use client';
+import { useChat } from 'ai/react';
+
+export default function Chat() {
+  const { messages, input, handleInputChange, handleSubmit } = useChat();
+
+  return (
+    <div style={{ maxWidth: 640, margin: '0 auto', padding: 24 }}>
+      {messages.map(m => (
+        <div key={m.id}>
+          <strong>{m.role === 'user' ? 'You' : 'DeepSeek'}:</strong> {m.content}
+        </div>
+      ))}
+      <form onSubmit={handleSubmit}>
+        <input
+          value={input}
+          onChange={handleInputChange}
+          placeholder="Ask anything…"
+          style={{ width: '80%', padding: 8 }}
+        />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  );
+}
+```
+
+`npm run dev` 跑起来,一个流式聊天就上线了。V4 Flash 首 token 大约 **0.4s** 就能到。
+
+---
+
+## 第 4 步 —— 部署到 Vercel
+
+1. 把仓库推到 GitHub,在 Vercel 导入。
+2. 在 Project → Settings → Environment Variables 添加 `DEEPSEEK_API_KEY`。
+3. 部署,完成——不用管任何服务器。
+
+---
+
+## 跑起来要花多少钱
+
+DeepSeek V4 API pricing per 1M tokens 就是全部答案:**Flash 输入 $0.14 / 输出 $0.42**。具体感受一下:
+
+- **$1 免费额度 ≈ 2,800 次请求**(每次约 1.5K tokens)——足够搭完并演示一个 MVP;
+- **$10 ≈ 20,000+ 次请求**——可以支撑真实的生产试点;
+- **上下文缓存**在用户反复发长 prompt 时,重复输入最高省 ~90%;
+- 长生成记得设 `max_tokens`——Flash 输出单价是输入的 3 倍。
+
+| 省钱杠杆 | 省多少 |
+|---------|-------|
+| V4 Flash 基础价 | 比 GPT-5.6 Sol 便宜约 100 倍 |
+| 自动上下文缓存 | 重复输入最高省 ~90% |
+| 设置 `max_tokens` | 防止失控的输出账单 |
+| 模型分层(Flash + Pro) | 简单任务 $0.14,难题 $0.28 |
+
+---
+
+## 常见问题
+
+**问:Vercel AI SDK 能用 DeepSeek 吗?**
+答:能。DeepSeek 完全兼容 OpenAI 协议,把 `createOpenAI` 指向 `https://tokenpapa.ai/v1`,几分钟内就能用 `useChat` 流式对话。
+
+**问:生产环境该用哪个 DeepSeek 模型?**
+答:默认用 `deepseek-v4-flash`($0.14/$0.42 每 1M tokens);更难的推理任务切 `deepseek-v4-pro`($0.28/$0.84)。
+
+**问:DeepSeek V4 API 每 1M tokens 多少钱?**
+答:DeepSeek V4 Flash 输入 $0.14、输出 $0.42 每 1M tokens——比 GPT-5.6 Sol 便宜约 100 倍。$1 免费额度大约可跑 2,800 次请求。
+
+**问:Vercel AI SDK 支持流式输出吗?**
+答:支持。`streamText` 返回数据流响应,`useChat` 开箱即用;DeepSeek V4 Flash 首 token 延迟约 0.4s。
+
+---
+
+## 快速开始
+
+1. **注册** [tokenpapa.ai](https://tokenpapa.ai) —— 送 **$1 免费额度**
+2. **创建 API Key** —— OpenAI 兼容
+3. **上线你的聊天应用** —— 上面代码直接可用
+
+同一个 Key 在 Python 后端也能直接用:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://tokenpapa.ai/v1", api_key="your-key")
+
+stream = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": "你好!"}],
+    stream=True,
+)
+for chunk in stream:
+    print(chunk.choices[0].delta.content or "", end="")
+```
