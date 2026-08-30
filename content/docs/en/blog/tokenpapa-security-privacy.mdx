@@ -1,0 +1,138 @@
+---
+title: "TokenPAPA Security & Privacy: How We Handle Your Data"
+description: "How TokenPAPA protects your data: TLS 1.3 encryption in transit, AES-256 at rest, hashed API keys, Stripe payment security, no training on your prompts, and clear deletion controls."
+date: 2026-08-30
+authors: [tokenpapa]
+category: "Tutorial"
+keywords: ["llm api security", "ai api privacy", "OpenAI-compatible API aggregator", "llm api data privacy", "secure llm api", "tokenpapa security", "api key security", "llm api encryption", "stripe payment security", "ai api data handling"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-08-30 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;TokenPAPA Security &amp; Privacy: How We Handle Your Data&quot;,&quot;description&quot;:&quot;How TokenPAPA protects your data: TLS 1.3 encryption in transit, AES-256 at rest, hashed API keys, Stripe payment security, no training on your prompts, and clear deletion controls.&quot;,&quot;datePublished&quot;:&quot;2026-08-30&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Does TokenPAPA use my prompts to train models?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;No. TokenPAPA never trains models on your prompts, completions, or any customer data. Your traffic is forwarded to the model provider you chose for inference only, and we have no training pipeline that consumes customer content.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Is my API traffic encrypted?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Yes. All traffic to https://tokenpapa.ai/v1 is encrypted with TLS 1.3 in transit, and data at rest is encrypted with AES-256. Your prompts and responses are never sent in plaintext.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How does TokenPAPA store API keys?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;API keys are stored as salted, one-way hashes, never in plaintext, and they are never written into logs. You can create scoped keys per project, rotate them anytime, and revoke a key instantly from the dashboard.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;What payment security does TokenPAPA use?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Payments are processed by Stripe under PCI-DSS compliance. Card numbers never touch TokenPAPA servers, so there is nothing for an attacker to steal on our side.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How long does TokenPAPA keep logs, and can I delete my data?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Request logs are kept for a short operational window for billing and abuse prevention; prompt bodies are not retained beyond what is required to serve the request. You can delete your account and associated data anytime from the dashboard.&quot;}}]}" />
+
+# TokenPAPA Security & Privacy: How We Handle Your Data
+
+Security is a trust conversation, not a feature checklist. When you put a production workload on an API, you are handing us three things: your code's traffic, your API keys, and the data inside your prompts. This post is our plain-language answer to what we do with each of them — what is encrypted, what is logged, what is stored, and what you can delete.
+
+As an **OpenAI-compatible API aggregator**, TokenPAPA sits between your application and 30+ upstream models. That position means we have a responsibility to be boring about security: the safer and more predictable the plumbing, the less you have to think about it — and the more time you can spend on your actual product.
+
+---
+
+## Price Per 1M Tokens: What You're Protecting
+
+Good security is a baseline, not a premium feature. We charge the same transparent rates whether you send 10 requests a day or 10 million. For reference, here is what a secure, well-priced workload looks like on TokenPAPA (input / output per 1M tokens):
+
+| Model | Input /1M | Output /1M | Context | Notes |
+|-------|-----------|------------|---------|-------|
+| Mimo V2.5 | $0.08 | $0.24 | 128K | Cheapest absolute |
+| DeepSeek V4 Flash | $0.14 | $0.42 | 128K | Cost-effectiveness king |
+| Qwen 3.7 | $0.20 | $0.60 | 128K | Coding + fallback |
+| GPT-5.6 Luna | $0.27 | $2.70 | 1M | Budget OpenAI tier |
+| Kimi K3 | $0.50 | $2.00 | 256K | 10% below official |
+| GPT-5.6 Sol | $13.50 | $60.00 | — | Frontier flagship |
+
+Security and cost belong in the same sentence: DeepSeek V4 Flash is 96% cheaper than GPT-5.6 Sol on input ($0.14 vs $13.50) while scoring 82.7 on Terminal Bench 2.1 — and every request, cheap or expensive, gets the same encryption and access controls. Every new account starts with **$1 free credit** (roughly 2,800 requests on V4 Flash), so you can verify both quality and security posture before committing.
+
+---
+
+## Encryption in Transit and at Rest
+
+Every request to `https://tokenpapa.ai/v1` travels over **TLS 1.3**. That covers the full path: your app → TokenPAPA → the upstream model provider. Prompts and completions are never sent in plaintext, and we enforce modern cipher suites with short-lived session keys so a captured connection can't be replayed later.
+
+At rest, anything we persist — account metadata, billing records, configuration — is encrypted with **AES-256**. The practical upshot: even if storage media were compromised, the data on it is unreadable without keys that live in a separate, access-controlled key management layer.
+
+For teams with stricter requirements, the same OpenAI-compatible endpoint works behind standard network controls: pin your client to our TLS certificate, restrict egress from your VPC to our API domain, and you have a simple, auditable integration surface.
+
+---
+
+## API Keys: How We Store Them
+
+Your API key is the crown jewel of an LLM integration — whoever holds it spends your money and reads your traffic. So we treat keys like passwords:
+
+- **Hashed, not stored.** Keys are stored as salted, one-way hashes. We can verify a key at request time without ever being able to read it back in plaintext.
+- **Never logged.** Keys are stripped from request logs. If you ever leak one, it won't also be sitting in our error logs.
+- **Scoped and revocable.** Create separate keys per project or environment, set usage limits per key, rotate them anytime, and revoke instantly from the dashboard.
+- **One key, many models.** Because TokenPAPA is an OpenAI-compatible API aggregator, one key gives you access to DeepSeek, GPT-5.6, Qwen, Kimi, and more — which means fewer keys to manage, not more. Switch models with a one-line `model=` change and keep the same key, the same endpoint, and the same security boundary.
+
+---
+
+## Payments: Stripe and PCI-DSS
+
+Money handling is the part of an API platform where "we handle your data" gets serious, because card data is regulated, irreplaceable, and unforgiving.
+
+TokenPAPA processes payments through **Stripe**, which is **PCI-DSS Level 1** certified. Card numbers are entered into Stripe's hosted payment elements and never touch TokenPAPA servers — we only ever receive a tokenized confirmation. That means there is no card data on our systems for an attacker to exfiltrate, and we never see, store, or log your full card number. What we do store is billing history: how much you topped up, when, and which usage it paid for.
+
+---
+
+## Logging and Data Retention
+
+Transparency about logs is where most privacy policies get vague, so let's be specific:
+
+- **What we log:** request timestamps, model, token counts, error codes, and IP-level metadata needed for rate limiting and abuse prevention.
+- **What we don't log:** full prompt bodies are not retained beyond what is needed to serve the request. We do not build datasets from your traffic, and we do not mine your content for product features.
+- **How long we keep it:** operational and billing logs are kept for a short, fixed window — long enough to reconcile invoices and investigate incidents, short enough that your data isn't accumulating forever.
+- **Cache note:** DeepSeek's automatic context caching can cut repeat-input cost by ~90%, but caching operates on the model side per your usage patterns; it does not change how we handle or retain your data on our side.
+
+---
+
+## Your Controls: Keys, Data, and Deletion
+
+You should never need a support ticket to control your own data. From the TokenPAPA dashboard you can:
+
+1. **View and rotate keys** — regenerate any key, or set a per-key monthly cap.
+2. **See usage and billing** — every request is itemized per model, so you know exactly what your data and compute cost.
+3. **Export what's yours** — download your account and usage records.
+4. **Delete your account** — remove your account, keys, and associated data at any time, no questions asked and no retention gotchas.
+
+If you have a compliance question (GDPR, SOC 2 evidence, data processing agreements), contact us and a human — not a bot — will answer with specifics.
+
+---
+
+## What "OpenAI-Compatible" Means for Security
+
+Here is the part we care about most: being an OpenAI-compatible API aggregator means your security boundary is *small*. You keep your existing SDK, your existing retry logic, and your existing monitoring — you change a `base_url` and a `model=` string. Fewer moving parts in your stack means fewer places for a secret to leak, fewer dependencies to audit, and one consistent security review instead of five vendor reviews.
+
+---
+
+## FAQ
+
+**Q: Does TokenPAPA use my prompts to train models?**
+A: No. TokenPAPA never trains models on your prompts, completions, or any customer data. Your traffic is forwarded to the model provider you chose for inference only, and we have no training pipeline that consumes customer content.
+
+**Q: Is my API traffic encrypted?**
+A: Yes. All traffic to https://tokenpapa.ai/v1 is encrypted with TLS 1.3 in transit, and data at rest is encrypted with AES-256. Your prompts and responses are never sent in plaintext.
+
+**Q: How does TokenPAPA store API keys?**
+A: API keys are stored as salted, one-way hashes, never in plaintext, and they are never written into logs. You can create scoped keys per project, rotate them anytime, and revoke a key instantly from the dashboard.
+
+**Q: What payment security does TokenPAPA use?**
+A: Payments are processed by Stripe under PCI-DSS compliance. Card numbers never touch TokenPAPA servers, so there is nothing for an attacker to steal on our side.
+
+**Q: How long does TokenPAPA keep logs, and can I delete my data?**
+A: Request logs are kept for a short operational window for billing and abuse prevention; prompt bodies are not retained beyond what is required to serve the request. You can delete your account and associated data anytime from the dashboard.
+
+---
+
+## Get Started
+
+1. **Sign up** at [tokenpapa.ai](https://tokenpapa.ai) — get **$1 free credit**
+2. **Create your API key** — scoped, revocable, stored hashed
+3. **Build securely** — TLS 1.3, Stripe payments, and full control over your data
+
+```python
+from openai import OpenAI
+client = OpenAI(base_url="https://tokenpapa.ai/v1", api_key="your-key")
+
+resp = client.chat.completions.create(
+    model="deepseek-v4-flash",  # or gpt-5.6-luna, qwen3.7-plus, kimi-k3...
+    max_tokens=2048,
+    messages=[{"role": "user", "content": "Summarize this document."}]
+)
+print(resp.choices[0].message.content)
+```
