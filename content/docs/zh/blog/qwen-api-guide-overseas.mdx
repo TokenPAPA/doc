@@ -116,7 +116,7 @@ import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
 1. **访问 [tokenpapa.ai](https://tokenpapa.ai)** 并使用邮箱创建账户
 2. **充值** —— 支持美国信用卡、国际信用卡或 PayPal
 3. **在控制台生成 API 密钥**（以 `tp-sk-` 开头）
-4. **使用端点** `https://api.tokenpapa.ai/v1`，配合任意兼容 OpenAI 的客户端
+4. **使用端点** `https://tokenpapa.ai/v1`，配合任意兼容 OpenAI 的客户端
 
 **通过 TokenPAPA 可用的 Qwen 模型：**
 
@@ -198,7 +198,7 @@ from openai import OpenAI
 # 配置客户端使用 TokenPAPA 端点
 client = OpenAI(
     api_key="tp-sk-your-api-key-here",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 # 示例 1：Qwen 2.5 72B —— 通用对话
@@ -244,7 +244,7 @@ print(response.choices[0].message.content)
 import OpenAI from 'openai';
 
 const client = new OpenAI({
-  baseURL: 'https://api.tokenpapa.ai/v1',
+  baseURL: 'https://tokenpapa.ai/v1',
   apiKey: 'tp-sk-your-api-key',
 });
 
@@ -279,7 +279,7 @@ console.log(codeResponse.choices[0].message.content);
 
 ```bash
 # Qwen 2.5 72B —— 通用对话
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tp-sk-...key" \
   -d '{
@@ -293,7 +293,7 @@ curl https://api.tokenpapa.ai/v1/chat/completions \
   }'
 
 # Qwen Coder —— 代码生成
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tp-sk-...key" \
   -d '{
@@ -350,7 +350,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="tp-sk-your-key",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 def route_query(task_type: str, prompt: str) -> str:

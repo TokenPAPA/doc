@@ -212,7 +212,7 @@ Go to API Keys in your dashboard and click "Create New Key." Your key starts wit
 
 ### Step 4: Start Using Gemini 2.5
 
-TokenPAPA provides an OpenAI-compatible endpoint at `https://api.tokenpapa.ai/v1`. Use any OpenAI SDK by changing the `base_url` and `api_key`.
+TokenPAPA provides an OpenAI-compatible endpoint at `https://tokenpapa.ai/v1`. Use any OpenAI SDK by changing the `base_url` and `api_key`.
 
 **Basic Chat:**
 
@@ -221,7 +221,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="tp-sk-your-api-key-here",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 response = client.chat.completions.create(
@@ -244,7 +244,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="tp-sk-your-api-key-here",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 response = client.chat.completions.create(
@@ -271,7 +271,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="tp-sk-your-api-key-here",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 stream = client.chat.completions.create(

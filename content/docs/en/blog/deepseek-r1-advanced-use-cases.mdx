@@ -12,7 +12,7 @@ category: Technical Guides
 
 <JsonLd json='{"@context":"https://schema.org","@type":"Article","headline":"DeepSeek R1 Advanced Use Cases — Chain-of-Thought Reasoning for Overseas Developers","description":"Explore advanced DeepSeek R1 use cases for overseas developers: chain-of-thought reasoning, complex math, multi-step logic, code analysis, and strategic planning. Includes Python code examples and TokenPAPA API access guide.","datePublished":"2026-06-24","author":{"@type":"Organization","name":"TokenPAPA"}}' />
 
-<JsonLd json='{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What makes DeepSeek R1 different?","acceptedAnswer":{"@type":"Answer","text":"DeepSeek R1 uses chain-of-thought reasoning to show step-by-step thinking before final answers, making it ideal for complex math, science, and logic tasks."}},{"@type":"Question","name":"What are advanced use cases for DeepSeek R1?","acceptedAnswer":{"@type":"Answer","text":"Advanced use cases include AIME-level math, scientific analysis, multi-step logical deduction, code logic analysis, strategic planning, and statistical data analysis."}},{"@type":"Question","name":"How does DeepSeek R1 compare to V3?","acceptedAnswer":{"@type":"Answer","text":"V3 handles general chat and coding at $0.27/1M input tokens. R1 at $0.55/1M input excels at deep reasoning. For math proofs, R1 scores 79.8% on AIME vs V3 at 39.2%."}},{"@type":"Question","name":"Can overseas developers access DeepSeek R1?","acceptedAnswer":{"@type":"Answer","text":"Yes. TokenPAPA provides access to DeepSeek R1 via an OpenAI-compatible API at api.tokenpapa.ai/v1. No Chinese phone needed, US credit cards accepted, setup in 3 minutes."}},{"@type":"Question","name":"How do I get R1 reasoning output in code?","acceptedAnswer":{"@type":"Answer","text":"Use the model name deepseek-reasoner via the OpenAI SDK. Access reasoning tokens via response.choices[0].message.reasoning_content and the final answer via response.choices[0].message.content."}}]}' />
+<JsonLd json='{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What makes DeepSeek R1 different?","acceptedAnswer":{"@type":"Answer","text":"DeepSeek R1 uses chain-of-thought reasoning to show step-by-step thinking before final answers, making it ideal for complex math, science, and logic tasks."}},{"@type":"Question","name":"What are advanced use cases for DeepSeek R1?","acceptedAnswer":{"@type":"Answer","text":"Advanced use cases include AIME-level math, scientific analysis, multi-step logical deduction, code logic analysis, strategic planning, and statistical data analysis."}},{"@type":"Question","name":"How does DeepSeek R1 compare to V3?","acceptedAnswer":{"@type":"Answer","text":"V3 handles general chat and coding at $0.27/1M input tokens. R1 at $0.55/1M input excels at deep reasoning. For math proofs, R1 scores 79.8% on AIME vs V3 at 39.2%."}},{"@type":"Question","name":"Can overseas developers access DeepSeek R1?","acceptedAnswer":{"@type":"Answer","text":"Yes. TokenPAPA provides access to DeepSeek R1 via an OpenAI-compatible API at tokenpapa.ai/v1. No Chinese phone needed, US credit cards accepted, setup in 3 minutes."}},{"@type":"Question","name":"How do I get R1 reasoning output in code?","acceptedAnswer":{"@type":"Answer","text":"Use the model name deepseek-reasoner via the OpenAI SDK. Access reasoning tokens via response.choices[0].message.reasoning_content and the final answer via response.choices[0].message.content."}}]}' />
 
 # DeepSeek R1 Advanced Use Cases — Chain-of-Thought Reasoning for Overseas Developers
 
@@ -55,7 +55,7 @@ DeepSeek R1 excels at competition-level mathematics and formal proofs. Its chain
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://api.tokenpapa.ai/v1",
+    base_url="https://tokenpapa.ai/v1",
     api_key="your-tokenpapa-api-key"
 )
 
@@ -410,7 +410,7 @@ import os
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://api.tokenpapa.ai/v1",
+    base_url="https://tokenpapa.ai/v1",
     api_key=os.environ.get("TOKENPAPA_API_KEY")
 )
 
@@ -461,7 +461,7 @@ V3 handles general chat, coding, and content generation faster and cheaper at $0
 
 ### Can I access DeepSeek R1 from overseas without a Chinese phone?
 
-Yes. [TokenPAPA](https://tokenpapa.ai) provides access to DeepSeek R1 through an OpenAI-compatible API at `https://api.tokenpapa.ai/v1`. No Chinese phone number is required. US credit cards are accepted, and setup takes about 3 minutes.
+Yes. [TokenPAPA](https://tokenpapa.ai) provides access to DeepSeek R1 through an OpenAI-compatible API at `https://tokenpapa.ai/v1`. No Chinese phone number is required. US credit cards are accepted, and setup takes about 3 minutes.
 
 ### How do I get DeepSeek R1's reasoning output programmatically?
 

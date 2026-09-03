@@ -64,7 +64,7 @@ The simplest and most reliable way to **get a DeepSeek API key from overseas** i
 4. **Navigate to the API Keys section** and click "Create New Key"
 5. **Copy your key** — it starts with `tp-sk-`
 
-That's it. You now have a working DeepSeek API key from overseas. You can use it immediately with any OpenAI-compatible client by setting the base URL to `https://api.tokenpapa.ai/v1`.
+That's it. You now have a working DeepSeek API key from overseas. You can use it immediately with any OpenAI-compatible client by setting the base URL to `https://tokenpapa.ai/v1`.
 
 ### What Models Are Available
 
@@ -264,7 +264,7 @@ from openai import OpenAI
 # Initialize the client with your TokenPAPA API key
 client = OpenAI(
     api_key="tp-sk-your-api-key-here",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 # Example 1: DeepSeek V3 — General Chat
@@ -311,7 +311,7 @@ print(response.choices[0].message.content)
 
 ```bash
 # DeepSeek V3 — General Chat
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tp-sk-your-api-key-here" \
   -d '{
@@ -325,7 +325,7 @@ curl https://api.tokenpapa.ai/v1/chat/completions \
   }'
 
 # DeepSeek R1 — Complex Reasoning
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tp-sk-your-api-key-here" \
   -d '{
@@ -337,7 +337,7 @@ curl https://api.tokenpapa.ai/v1/chat/completions \
   }'
 
 # DeepSeek Coder — Code Generation
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tp-sk-your-api-key-here" \
   -d '{
@@ -392,7 +392,7 @@ For most developers starting out, **DeepSeek V3 is the best default choice** —
 
 **Yes — with a two-line change.** Since both DeepSeek's direct API and relay platforms like TokenPAPA provide OpenAI-compatible endpoints, you just need to:
 
-1. Change the `base_url` to `https://api.tokenpapa.ai/v1`
+1. Change the `base_url` to `https://tokenpapa.ai/v1`
 2. Swap out your API key
 
 Everything else — the chat completions format, streaming, function calling, embedding endpoints — works exactly the same. Your existing LangChain, LlamaIndex, Vercel AI SDK, or custom integrations will work without modification.

@@ -207,7 +207,7 @@ DeepSeek V4 Flash 引入了**缓存命中加速**机制。当输入提示匹配�
 import requests, json
 
 response = requests.post(
-    "https://api.tokenpapa.ai/v1/chat/completions",
+    "https://tokenpapa.ai/v1/chat/completions",
     headers={"Authorization": "Bearer your-tokenpapa-key"},
     json={"model": "deepseek-v4-flash", "messages": [
         {"role": "user", "content": "Explain caching"}
@@ -359,7 +359,7 @@ Gemini Live 支持摄像头输入、屏幕共享、语音和文本——全部�
 from openai import OpenAI
 client = OpenAI(
     api_key="your-tokenpapa-key",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 stream = client.chat.completions.create(
     model="deepseek-v4-flash",  # 或 gpt-5、claude-sonnet-4 等

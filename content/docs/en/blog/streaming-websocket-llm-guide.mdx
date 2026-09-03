@@ -186,7 +186,7 @@ DeepSeek V4 Flash introduced **cache-hit acceleration**. When a prompt matches a
 import requests, json
 
 response = requests.post(
-    "https://api.tokenpapa.ai/v1/chat/completions",
+    "https://tokenpapa.ai/v1/chat/completions",
     headers={"Authorization": "Bearer your-tokenpapa-key"},
     json={"model": "deepseek-v4-flash", "messages": [
         {"role": "user", "content": "Explain caching"}
@@ -329,7 +329,7 @@ Managing different streaming protocols across providers is complex. Each model h
 from openai import OpenAI
 client = OpenAI(
     api_key="your-tokenpapa-key",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 stream = client.chat.completions.create(
     model="deepseek-v4-flash",  # or gpt-5, claude-sonnet-4, etc.

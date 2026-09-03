@@ -147,7 +147,7 @@ MiniMax 的定价极具竞争力，尤其是通过中转服务路由的海外开
 1. **访问 [tokenpapa.ai](https://tokenpapa.ai)** 并创建账户（邮箱 + 密码——无需手机号）。
 2. **导航到 API 密钥** 部分并生成一个新密钥。
 3. **充值余额**——最低仅需 $5。
-4. **在代码中使用所提供的端点**（`https://api.tokenpapa.ai/v1`）。
+4. **在代码中使用所提供的端点**（`https://tokenpapa.ai/v1`）。
 
 ### 通过 tokenpapa 的 API 端点
 
@@ -176,7 +176,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="your-tokenpapa-api-key",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 response = client.chat.completions.create(
@@ -201,7 +201,7 @@ for chunk in response:
 import requests
 
 response = requests.post(
-    "https://api.tokenpapa.ai/v1/audio/speech",
+    "https://tokenpapa.ai/v1/audio/speech",
     headers={
         "Authorization": f"Bearer your-tokenpapa-api-key",
         "Content-Type": "application/json"
@@ -229,7 +229,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="your-tokenpapa-api-key",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 # 加载长文档（例如一整本书）
@@ -254,7 +254,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="your-tokenpapa-api-key",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 tools = [
@@ -339,7 +339,7 @@ MiniMax-Text-01 的超大上下文窗口使其非常适合需要记住完整对�
 import time
 from openai import OpenAI, RateLimitError, APIError
 
-client = OpenAI(api_key="your-key", base_url="https://api.tokenpapa.ai/v1")
+client = OpenAI(api_key="your-key", base_url="https://tokenpapa.ai/v1")
 
 def chat_with_retry(messages, max_retries=3):
     for attempt in range(max_retries):

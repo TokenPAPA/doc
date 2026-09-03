@@ -368,7 +368,7 @@ Managing 8 different LLM APIs — each with its own SDK, API key, billing system
 Replace your provider-specific API calls with a single TokenPAPA endpoint:
 
 ```
-https://api.tokenpapa.ai/v1/chat/completions
+https://tokenpapa.ai/v1/chat/completions
 ```
 
 Set the model parameter to any supported model (`deepseek-v4-flash`, `gpt-4o`, `claude-sonnet-4`, `gemini-2.5-flash`, `minimax-text-01`, `moonshot-k2`, etc.) and your application handles the rest.
@@ -378,7 +378,7 @@ import openai
 
 client = openai.OpenAI(
     api_key="your-tokenpapa-key",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 # Switch between models by changing one parameter

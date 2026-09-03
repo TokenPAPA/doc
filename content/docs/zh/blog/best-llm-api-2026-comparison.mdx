@@ -368,7 +368,7 @@ Moonshot AI 的 K2 模型（驱动 Kimi 助手）专为长上下文应用而设�
 将你的提供商特定 API 调用替换为统一的 TokenPAPA 端点：
 
 ```
-https://api.tokenpapa.ai/v1/chat/completions
+https://tokenpapa.ai/v1/chat/completions
 ```
 
 将 model 参数设置为任意支持的模型（`deepseek-v4-flash`、`gpt-4o`、`claude-sonnet-4`、`gemini-2.5-flash`、`minimax-text-01`、`moonshot-k2` 等），你的应用即可处理余下工作。
@@ -378,7 +378,7 @@ import openai
 
 client = openai.OpenAI(
     api_key="your-tokenpapa-key",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 # 通过改变一个参数即可切换模型

@@ -60,7 +60,7 @@ DeepSeek的经济高效微调已成为预算敏感型团队的默认选择，Ope
   "messages": [
     {"role": "system", "content": "你是一个GPU算力代理服务的客户支持。用户可能来自美国、欧洲或东南亚。"},
     {"role": "user", "content": "从美国怎么访问DeepSeek V4？"},
-    {"role": "assistant", "content": "通过我们的统一API端点 api.tokenpapa.ai 即可从美国访问DeepSeek V4，无需VPN。"}
+    {"role": "assistant", "content": "通过我们的统一API端点 tokenpapa.ai 即可从美国访问DeepSeek V4，无需VPN。"}
   ]
 }
 ```
@@ -129,7 +129,7 @@ Qwen 2.5 是**开放权重**模型，可以通过 API 网关或自有硬件微�
 
 ```bash
 # 通过 tokenpapa 的统一 API
-curl https://api.tokenpapa.ai/v1/fine-tune \
+curl https://tokenpapa.ai/v1/fine-tune \
   -H "Authorization: Bearer $TOKENPAPA_KEY" \
   -d '{
     "base_model": "qwen2.5:72b",

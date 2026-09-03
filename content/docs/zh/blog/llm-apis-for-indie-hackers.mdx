@@ -184,7 +184,7 @@ import openai
 
 # 配置 TokenPapa 客户端（一把密钥，多个模型）
 client = openai.OpenAI(
-    base_url="https://api.tokenpapa.ai/v1",
+    base_url="https://tokenpapa.ai/v1",
     api_key="tp-sk-your-api-key"
 )
 
@@ -228,7 +228,7 @@ print(f"内容审核：{moderation}")
 import OpenAI from 'openai';
 
 const client = new OpenAI({
-  baseURL: 'https://api.tokenpapa.ai/v1',
+  baseURL: 'https://tokenpapa.ai/v1',
   apiKey: 'tp-sk-your-api-key',
 });
 
@@ -262,7 +262,7 @@ console.log(summary, codeReview);
 
 ```bash
 # 简单任务 —— 使用 Gemini Flash（$0.075/1M）
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tp-sk-...key" \
   -d '{
@@ -272,7 +272,7 @@ curl https://api.tokenpapa.ai/v1/chat/completions \
   }'
 
 # 复杂任务 —— 使用 DeepSeek V3（$0.27/1M）
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tp-sk-...key" \
   -d '{
@@ -282,7 +282,7 @@ curl https://api.tokenpapa.ai/v1/chat/completions \
   }'
 
 # 安全关键型 —— 使用 Claude Haiku（$0.25/1M）
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tp-sk-...key" \
   -d '{

@@ -223,7 +223,7 @@ from openai import OpenAI
 # Single API key for all models
 client = OpenAI(
     api_key=os.environ["TOKENPAPA_API_KEY"],
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 # Define task profiles with model preferences
@@ -426,7 +426,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key=os.environ["TOKENPAPA_API_KEY"],
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 response = client.chat.completions.create(

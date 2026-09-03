@@ -249,7 +249,7 @@ Anthropic 的 Claude API 在美国和英国可以直接使用，并在少数精�
 
 ### 第四步：开始使用 Claude Sonnet 4
 
-TokenPAPA 提供 OpenAI 兼容的端点：`https://api.tokenpapa.ai/v1`。你可以通过更改 Base URL 和 API 密钥，在任何兼容 OpenAI 的客户端中使用它。
+TokenPAPA 提供 OpenAI 兼容的端点：`https://tokenpapa.ai/v1`。你可以通过更改 Base URL 和 API 密钥，在任何兼容 OpenAI 的客户端中使用它。
 
 **Python 示例：**
 
@@ -258,7 +258,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="tp-sk-your-api-key-here",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 # Claude Sonnet 4 — 通用聊天
@@ -278,7 +278,7 @@ print(response.choices[0].message.content)
 **cURL 示例：**
 
 ```bash
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tp-sk-...ere" \
   -d '{
@@ -345,7 +345,7 @@ Anthropic API 有按层级变化的速率限制。在 API 调用中实现指数�
 
 ### 1. 我可以在美国境外使用 Claude Sonnet 4 API 吗？
 
-**可以。** 尽管 Anthropic 将直接 API 访问限制在美国、英国及少数精选国家，但像 [TokenPAPA](https://tokenpapa.ai) 这样的 API 中继平台可向海外开发者提供 Claude API 访问，无任何地理限制。你可以用邮箱注册，使用美国信用卡或 PayPal 充值，并在不到 3 分钟内获得一个位于 `https://api.tokenpapa.ai/v1` 的 OpenAI 兼容端点。无需美国地址、电话号码或账单地址。
+**可以。** 尽管 Anthropic 将直接 API 访问限制在美国、英国及少数精选国家，但像 [TokenPAPA](https://tokenpapa.ai) 这样的 API 中继平台可向海外开发者提供 Claude API 访问，无任何地理限制。你可以用邮箱注册，使用美国信用卡或 PayPal 充值，并在不到 3 分钟内获得一个位于 `https://tokenpapa.ai/v1` 的 OpenAI 兼容端点。无需美国地址、电话号码或账单地址。
 
 ### 2. Claude Sonnet 4 API 的费用是多少？
 
@@ -365,7 +365,7 @@ Claude Sonnet 4 支持 **200K Token 的上下文窗口**，单次处理即可处
 
 ### 6. 我可以通过 TokenPAPA 使用 OpenAI Python SDK 调用 Claude API 吗？
 
-**完全可以。** TokenPAPA 提供 OpenAI 兼容的端点（`https://api.tokenpapa.ai/v1`），因此你可以在 Claude 模型上使用任何 OpenAI SDK 客户端（Python、Node.js、Go 等）。只需更改 `base_url` 和 `api_key`——其他一切，包括聊天补全格式、流式传输和函数调用方式，都保持不变。
+**完全可以。** TokenPAPA 提供 OpenAI 兼容的端点（`https://tokenpapa.ai/v1`），因此你可以在 Claude 模型上使用任何 OpenAI SDK 客户端（Python、Node.js、Go 等）。只需更改 `base_url` 和 `api_key`——其他一切，包括聊天补全格式、流式传输和函数调用方式，都保持不变。
 
 ### 7. 生产环境中应该使用哪个 Claude 模型？
 

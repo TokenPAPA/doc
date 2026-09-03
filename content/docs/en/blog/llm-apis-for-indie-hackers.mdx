@@ -184,7 +184,7 @@ import openai
 
 # Configure TokenPapa client (single key, multiple models)
 client = openai.OpenAI(
-    base_url="https://api.tokenpapa.ai/v1",
+    base_url="https://tokenpapa.ai/v1",
     api_key="tp-sk-your-api-key"
 )
 
@@ -228,7 +228,7 @@ print(f"Moderation: {moderation}")
 import OpenAI from 'openai';
 
 const client = new OpenAI({
-  baseURL: 'https://api.tokenpapa.ai/v1',
+  baseURL: 'https://tokenpapa.ai/v1',
   apiKey: 'tp-sk-your-api-key',
 });
 
@@ -262,7 +262,7 @@ console.log(summary, codeReview);
 
 ```bash
 # Simple task — use Gemini Flash ($0.075/1M)
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tp-sk-your-api-key" \
   -d '{
@@ -272,7 +272,7 @@ curl https://api.tokenpapa.ai/v1/chat/completions \
   }'
 
 # Complex task — use DeepSeek V3 ($0.27/1M)
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tp-sk-your-api-key" \
   -d '{
@@ -282,7 +282,7 @@ curl https://api.tokenpapa.ai/v1/chat/completions \
   }'
 
 # Safety-critical — use Claude Haiku ($0.25/1M)
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tp-sk-your-api-key" \
   -d '{

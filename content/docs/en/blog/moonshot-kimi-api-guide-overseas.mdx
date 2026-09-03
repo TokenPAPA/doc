@@ -12,7 +12,7 @@ category: Provider Guides
 
 <JsonLd json='{"@context":"https://schema.org","@type":"Article","headline":"Moonshot AI / Kimi API Guide for Overseas Developers — Long-Context LLM Access","description":"Complete guide to accessing Moonshot AI and Kimi API from overseas. Covers 128K+ context windows, Moonshot K2 model capabilities, TokenPAPA relay access, pricing, and Python code examples without a Chinese phone.","datePublished":"2026-06-24","author":{"@type":"Organization","name":"TokenPAPA"}}' />
 
-<JsonLd json='{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I access Moonshot AI / Kimi API from overseas without a Chinese phone?","acceptedAnswer":{"@type":"Answer","text":"Yes. TokenPAPA provides Moonshot AI API access without Chinese phone verification. Direct registration on Moonshot AI&apos;s platform requires a Chinese phone number for account setup and billing."}},{"@type":"Question","name":"How long is the Moonshot AI context window?","acceptedAnswer":{"@type":"Answer","text":"Moonshot AI models support up to 128K tokens natively, with some variants supporting up to 1 million tokens (1M). This matches or exceeds GPT-4o (128K) and DeepSeek V3 (128K), making Moonshot AI ideal for long-document analysis."}},{"@type":"Question","name":"What is the difference between Moonshot AI and Kimi?","acceptedAnswer":{"@type":"Answer","text":"Moonshot AI is the company that builds the underlying large language models (Moonshot K2, Moonshot v1). Kimi (kimi.moonshot.cn) is their consumer-facing AI assistant product, similar to ChatGPT. The API provides direct access to the underlying models."}},{"@type":"Question","name":"How does Moonshot K2 compare to GPT-4o and DeepSeek V3?","acceptedAnswer":{"@type":"Answer","text":"Moonshot K2 is competitive on long-context tasks where it excels, and offers a 128K native context window. It trails GPT-4o on general knowledge benchmarks and DeepSeek V3 on coding, but leads on extended document understanding and retrieval tasks at scale due to its context architecture."}},{"@type":"Question","name":"What is the pricing for Moonshot AI API via TokenPAPA?","acceptedAnswer":{"@type":"Answer","text":"Moonshot K2 costs $0.22/1M input tokens and $0.88/1M output tokens via TokenPAPA. This is significantly cheaper than GPT-4o ($2.50/1M input) and slightly cheaper than DeepSeek V3 ($0.27/1M input)."}},{"@type":"Question","name":"Is Moonshot AI API compatible with the OpenAI Python SDK?","acceptedAnswer":{"@type":"Answer","text":"Yes. Moonshot AI API via TokenPAPA is fully OpenAI-compatible. Any existing OpenAI client code works by simply changing the base URL to https://api.tokenpapa.ai/v1 and swapping the API key."}},{"@type":"Question","name":"What Chinese LLM models are available besides Moonshot AI?","acceptedAnswer":{"@type":"Answer","text":"TokenPAPA provides access to DeepSeek V3, DeepSeek R1, Qwen 2.5, GLM-4, MiniMax Text-01, and other Chinese LLMs — all through a single API key and OpenAI-compatible endpoint."}}]}' />
+<JsonLd json='{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I access Moonshot AI / Kimi API from overseas without a Chinese phone?","acceptedAnswer":{"@type":"Answer","text":"Yes. TokenPAPA provides Moonshot AI API access without Chinese phone verification. Direct registration on Moonshot AI&apos;s platform requires a Chinese phone number for account setup and billing."}},{"@type":"Question","name":"How long is the Moonshot AI context window?","acceptedAnswer":{"@type":"Answer","text":"Moonshot AI models support up to 128K tokens natively, with some variants supporting up to 1 million tokens (1M). This matches or exceeds GPT-4o (128K) and DeepSeek V3 (128K), making Moonshot AI ideal for long-document analysis."}},{"@type":"Question","name":"What is the difference between Moonshot AI and Kimi?","acceptedAnswer":{"@type":"Answer","text":"Moonshot AI is the company that builds the underlying large language models (Moonshot K2, Moonshot v1). Kimi (kimi.moonshot.cn) is their consumer-facing AI assistant product, similar to ChatGPT. The API provides direct access to the underlying models."}},{"@type":"Question","name":"How does Moonshot K2 compare to GPT-4o and DeepSeek V3?","acceptedAnswer":{"@type":"Answer","text":"Moonshot K2 is competitive on long-context tasks where it excels, and offers a 128K native context window. It trails GPT-4o on general knowledge benchmarks and DeepSeek V3 on coding, but leads on extended document understanding and retrieval tasks at scale due to its context architecture."}},{"@type":"Question","name":"What is the pricing for Moonshot AI API via TokenPAPA?","acceptedAnswer":{"@type":"Answer","text":"Moonshot K2 costs $0.22/1M input tokens and $0.88/1M output tokens via TokenPAPA. This is significantly cheaper than GPT-4o ($2.50/1M input) and slightly cheaper than DeepSeek V3 ($0.27/1M input)."}},{"@type":"Question","name":"Is Moonshot AI API compatible with the OpenAI Python SDK?","acceptedAnswer":{"@type":"Answer","text":"Yes. Moonshot AI API via TokenPAPA is fully OpenAI-compatible. Any existing OpenAI client code works by simply changing the base URL to https://tokenpapa.ai/v1 and swapping the API key."}},{"@type":"Question","name":"What Chinese LLM models are available besides Moonshot AI?","acceptedAnswer":{"@type":"Answer","text":"TokenPAPA provides access to DeepSeek V3, DeepSeek R1, Qwen 2.5, GLM-4, MiniMax Text-01, and other Chinese LLMs — all through a single API key and OpenAI-compatible endpoint."}}]}' />
 
 # Moonshot AI / Kimi API Guide for Overseas Developers — Access China's Long-Context LLM Powerhouse
 
@@ -120,7 +120,7 @@ The primary barrier for overseas developers wanting to use Moonshot AI is the sa
 1. **Visit [tokenpapa.ai](https://tokenpapa.ai)** and create an account with your email
 2. **Add funds** using a US credit card, international card, or PayPal
 3. **Generate an API key** from the dashboard (starts with `tp-sk-`)
-4. **Use the endpoint** `https://api.tokenpapa.ai/v1` with any OpenAI-compatible client
+4. **Use the endpoint** `https://tokenpapa.ai/v1` with any OpenAI-compatible client
 
 **Available Moonshot AI models via TokenPAPA:**
 
@@ -159,7 +159,7 @@ from openai import OpenAI
 # Configure the client with TokenPAPA endpoint
 client = OpenAI(
     api_key="tp-sk-your-api-key-here",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 # Moonshot K2 — General Chat
@@ -183,7 +183,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="tp-sk-your-api-key-here",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 # Streaming chat with Moonshot K2
@@ -210,7 +210,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="tp-sk-your-api-key-here",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 # Load a very long document (e.g., research paper, legal contract, technical manual)
@@ -254,7 +254,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="tp-sk-your-api-key-here",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 # Start a conversation about a long document
@@ -296,7 +296,7 @@ import time
 
 client = OpenAI(
     api_key="tp-sk-your-api-key-here",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 documents = [
@@ -340,7 +340,7 @@ for doc in documents:
 
 ```bash
 # Moonshot K2 Chat
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tp-sk-...key" \
   -d '{
@@ -353,7 +353,7 @@ curl https://api.tokenpapa.ai/v1/chat/completions \
   }'
 
 # Moonshot K2 Long-Context Analysis
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tp-sk-...key" \
   -d '{
@@ -373,7 +373,7 @@ The Moonshot AI API integrates seamlessly with popular developer tools via the O
 
 | Tool/Platform | Setup | Notes |
 |--------------|:-----:|-------|
-| **LangChain** | Set `base_url` to `https://api.tokenpapa.ai/v1` | Full support for chains, agents, tools |
+| **LangChain** | Set `base_url` to `https://tokenpapa.ai/v1` | Full support for chains, agents, tools |
 | **LlamaIndex** | Change `OpenAI` base URL | Works with all RAG patterns |
 | **Vercel AI SDK** | Set `baseURL` in provider config | Streaming and edge support |
 | **Open WebUI** | Add as OpenAI-compatible provider | Chat interface for Moonshot models |
@@ -407,7 +407,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="tp-sk-your-api-key",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 def route_query(task_type: str, prompt: str) -> str:
@@ -491,11 +491,11 @@ Moonshot K2 costs **$0.22 per 1M input tokens** and **$0.88 per 1M output tokens
 
 ### 6. Is Moonshot AI API compatible with the OpenAI Python SDK?
 
-**Yes — fully compatible.** Any existing OpenAI client code works by changing the `base_url` to `https://api.tokenpapa.ai/v1` and swapping the API key. The same applies to LangChain, LlamaIndex, Vercel AI SDK, and any other tool that supports OpenAI-compatible APIs. Switching from Moonshot K2 to DeepSeek V3 or any other Chinese LLM requires changing only the `model` parameter.
+**Yes — fully compatible.** Any existing OpenAI client code works by changing the `base_url` to `https://tokenpapa.ai/v1` and swapping the API key. The same applies to LangChain, LlamaIndex, Vercel AI SDK, and any other tool that supports OpenAI-compatible APIs. Switching from Moonshot K2 to DeepSeek V3 or any other Chinese LLM requires changing only the `model` parameter.
 
 ### 7. What Chinese LLM models are available besides Moonshot AI via TokenPAPA?
 
-[TokenPAPA](https://tokenpapa.ai) provides access to **DeepSeek V3**, **DeepSeek R1**, **Qwen 2.5** (72B, Coder 32B, Math 72B), **GLM-4** (including GLM-4V and GLM-4 32K), **MiniMax Text-01**, and **Moonshot AI** — all through a single API key and the same OpenAI-compatible endpoint at `https://api.tokenpapa.ai/v1`.
+[TokenPAPA](https://tokenpapa.ai) provides access to **DeepSeek V3**, **DeepSeek R1**, **Qwen 2.5** (72B, Coder 32B, Math 72B), **GLM-4** (including GLM-4V and GLM-4 32K), **MiniMax Text-01**, and **Moonshot AI** — all through a single API key and the same OpenAI-compatible endpoint at `https://tokenpapa.ai/v1`.
 
 ---
 

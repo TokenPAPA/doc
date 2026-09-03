@@ -250,7 +250,7 @@ Go to the API Keys section in your TokenPAPA dashboard and click "Create New Key
 
 ### Step 4: Start Using Claude Sonnet 4
 
-TokenPAPA provides an OpenAI-compatible endpoint at `https://api.tokenpapa.ai/v1`. Use it with any OpenAI-compatible client by changing the base URL and API key.
+TokenPAPA provides an OpenAI-compatible endpoint at `https://tokenpapa.ai/v1`. Use it with any OpenAI-compatible client by changing the base URL and API key.
 
 **Python Example:**
 
@@ -259,7 +259,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="tp-sk-your-api-key-here",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 # Claude Sonnet 4 — General Chat
@@ -279,7 +279,7 @@ print(response.choices[0].message.content)
 **cURL Example:**
 
 ```bash
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tp-sk-your-api-key-here" \
   -d '{
@@ -346,7 +346,7 @@ This routing strategy typically achieves 40–70% cost savings compared to using
 
 ### 1. Can I use Claude Sonnet 4 API from outside the US?
 
-**Yes.** While Anthropic restricts direct API access to the US, UK, and a few select countries, API relay platforms like [TokenPAPA](https://tokenpapa.ai) provide Claude API access to overseas developers without geographic restrictions. You sign up with your email, fund your account with a US credit card or PayPal, and get an OpenAI-compatible endpoint at `https://api.tokenpapa.ai/v1` in under 3 minutes. No US address, phone number, or billing address is required.
+**Yes.** While Anthropic restricts direct API access to the US, UK, and a few select countries, API relay platforms like [TokenPAPA](https://tokenpapa.ai) provide Claude API access to overseas developers without geographic restrictions. You sign up with your email, fund your account with a US credit card or PayPal, and get an OpenAI-compatible endpoint at `https://tokenpapa.ai/v1` in under 3 minutes. No US address, phone number, or billing address is required.
 
 ### 2. How much does Claude Sonnet 4 API cost?
 
@@ -366,7 +366,7 @@ Claude Sonnet 4 supports a **200K token context window**, allowing it to process
 
 ### 6. Can I use the OpenAI Python SDK with Claude API via TokenPAPA?
 
-**Yes — fully.** TokenPAPA provides an OpenAI-compatible endpoint (`https://api.tokenpapa.ai/v1`), so you can use any OpenAI SDK client (Python, Node.js, Go, etc.) with Claude models. Simply change the `base_url` and `api_key` — everything else, including the chat completions format, streaming, and function calling style, remains the same.
+**Yes — fully.** TokenPAPA provides an OpenAI-compatible endpoint (`https://tokenpapa.ai/v1`), so you can use any OpenAI SDK client (Python, Node.js, Go, etc.) with Claude models. Simply change the `base_url` and `api_key` — everything else, including the chat completions format, streaming, and function calling style, remains the same.
 
 ### 7. Which Claude model should I use for production?
 

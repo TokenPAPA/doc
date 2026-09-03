@@ -44,7 +44,7 @@ import { JsonLd } from '@/components/json-ld';
         "name": "如何从海外访问 Mistral AI API？",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "您可以通过 TokenPAPA（https://tokenpapa.ai）从海外访问 Mistral AI API。TokenPAPA 提供 OpenAI 兼容的端点 https://api.tokenpapa.ai/v1 — 只需用邮箱注册、充值、生成 API 密钥即可开始调用 Mistral 模型，无地域限制、无需电话验证、支持国际支付。"
+          "text": "您可以通过 TokenPAPA（https://tokenpapa.ai）从海外访问 Mistral AI API。TokenPAPA 提供 OpenAI 兼容的端点 https://tokenpapa.ai/v1 — 只需用邮箱注册、充值、生成 API 密钥即可开始调用 Mistral 模型，无地域限制、无需电话验证、支持国际支付。"
         }
       },
       {
@@ -136,7 +136,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="tp-sk-your-api-key-here",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 tools = [{
@@ -256,14 +256,14 @@ Mistral AI 的直接 API 可以从大部分国家访问，但主要服务区域�
 
 ### 第四步：开始使用 Mistral 模型
 
-TokenPAPA 提供 OpenAI 兼容的端点 `https://api.tokenpapa.ai/v1`：
+TokenPAPA 提供 OpenAI 兼容的端点 `https://tokenpapa.ai/v1`：
 
 ```python
 from openai import OpenAI
 
 client = OpenAI(
     api_key="tp-sk-your-api-key-here",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 # Mistral Large 2 — 多语言对话
@@ -282,7 +282,7 @@ print(response.choices[0].message.content)
 **cURL：**
 
 ```bash
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer *** \
   -d '{
@@ -352,7 +352,7 @@ Mistral 提供 **Mistral Large 2**（旗舰，$2/百万输入，$6/百万输出�
 
 ### 2. 如何从海外访问 Mistral AI API？
 
-使用 API 中继平台。[TokenPAPA](https://tokenpapa.ai) 为全球用户提供 Mistral API 访问，无地域限制。使用邮箱注册（无需电话验证），通过信用卡/PayPal/加密货币充值，生成 API 密钥，然后使用 `https://api.tokenpapa.ai/v1` — 设置过程不到 3 分钟。同一个密钥还可以访问 200+ 其他模型。
+使用 API 中继平台。[TokenPAPA](https://tokenpapa.ai) 为全球用户提供 Mistral API 访问，无地域限制。使用邮箱注册（无需电话验证），通过信用卡/PayPal/加密货币充值，生成 API 密钥，然后使用 `https://tokenpapa.ai/v1` — 设置过程不到 3 分钟。同一个密钥还可以访问 200+ 其他模型。
 
 ### 3. Mistral Large 2 与 DeepSeek V4、GPT-4o 和 Claude 相比如何？
 

@@ -195,7 +195,7 @@ Moonshot 的 Kimi 助手因其 **20 万 token 上下文窗口**（K2 中已进�
 ### 主要功能
 
 - **零注册烦恼：** 使用邮箱注册——无需中国手机号
-- **兼容 OpenAI 的端点：** 只需在现有代码中将 `api.openai.com` 改为 `api.tokenpapa.ai`
+- **兼容 OpenAI 的端点：** 只需在现有代码中将 `api.openai.com` 改为 `tokenpapa.ai`
 - **所有主要提供商：** DeepSeek、Qwen、GLM、MiniMax、Moonshot、百度——一个 API 密钥搞定
 - **加密货币或信用卡支付：** USDT、USDC、BTC、ETH 以及主流信用卡/借记卡
 - **负载均衡：** 提供商之间自动故障转移
@@ -210,7 +210,7 @@ import openai
 
 # 只需切换 base URL 和 API 密钥
 client = openai.OpenAI(
-    base_url="https://api.tokenpapa.ai/v1",
+    base_url="https://tokenpapa.ai/v1",
     api_key="your-tokenpapa-api-key"
 )
 
@@ -316,7 +316,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 # 配置 TokenPapa 客户端
 client = openai.OpenAI(
-    base_url="https://api.tokenpapa.ai/v1",
+    base_url="https://tokenpapa.ai/v1",
     api_key="tp-sk-your-api-key"
 )
 
@@ -361,7 +361,7 @@ for model, response in results:
 import OpenAI from 'openai';
 
 const client = new OpenAI({
-  baseURL: 'https://api.tokenpapa.ai/v1',
+  baseURL: 'https://tokenpapa.ai/v1',
   apiKey: 'tp-sk-your-api-key'
 });
 
@@ -407,7 +407,7 @@ queryAll();
 
 ```bash
 # 通过 TokenPapa 测试 DeepSeek
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tp-sk-...key" \
   -d '{
@@ -546,7 +546,7 @@ TokenPapa 维护边缘缓存和优化路由以最小化延迟。
 OPENAI_API_KEY="sk-you...-key"
 
 # 之后（使用 TokenPapa）
-OPENAI_BASE_URL="https://api.tokenpapa.ai/v1"
+OPENAI_BASE_URL="https://tokenpapa.ai/v1"
 OPENAI_API_KEY="tp-sk-your-tokenpapa-key"
 ```
 

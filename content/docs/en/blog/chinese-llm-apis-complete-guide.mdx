@@ -198,7 +198,7 @@ Your Application → TokenPapa Unified API → Chinese LLM Providers
 ### Key Features
 
 - **Zero Registration Hassle:** Sign up with your email — no Chinese phone number required
-- **OpenAI-Compatible Endpoint:** Just change `api.openai.com` to `api.tokenpapa.ai` in your existing code
+- **OpenAI-Compatible Endpoint:** Just change `api.openai.com` to `tokenpapa.ai` in your existing code
 - **All Major Providers:** DeepSeek, Qwen, GLM, MiniMax, Moonshot, Baidu — one API key
 - **Pay in Crypto or Card:** USDT, USDC, BTC, ETH, and major credit/debit cards
 - **Load Balancing:** Automatic failover across providers
@@ -213,7 +213,7 @@ import openai
 
 # Just swap the base URL and API key
 client = openai.OpenAI(
-    base_url="https://api.tokenpapa.ai/v1",
+    base_url="https://tokenpapa.ai/v1",
     api_key="your-tokenpapa-api-key"
 )
 
@@ -319,7 +319,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 # Configure TokenPapa client
 client = openai.OpenAI(
-    base_url="https://api.tokenpapa.ai/v1",
+    base_url="https://tokenpapa.ai/v1",
     api_key="tp-sk-your-api-key"
 )
 
@@ -364,7 +364,7 @@ for model, response in results:
 import OpenAI from 'openai';
 
 const client = new OpenAI({
-  baseURL: 'https://api.tokenpapa.ai/v1',
+  baseURL: 'https://tokenpapa.ai/v1',
   apiKey: 'tp-sk-your-api-key'
 });
 
@@ -410,7 +410,7 @@ queryAll();
 
 ```bash
 # Test DeepSeek via TokenPapa
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tp-sk-your-api-key" \
   -d '{
@@ -549,7 +549,7 @@ Already have a project? Switch in 30 seconds:
 OPENAI_API_KEY="sk-your-openai-key"
 
 # After (with TokenPapa)
-OPENAI_BASE_URL="https://api.tokenpapa.ai/v1"
+OPENAI_BASE_URL="https://tokenpapa.ai/v1"
 OPENAI_API_KEY="tp-sk-your-tokenpapa-key"
 ```
 

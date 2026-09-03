@@ -196,7 +196,7 @@ pip install openai
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://api.tokenpapa.ai/v1",
+    base_url="https://tokenpapa.ai/v1",
     api_key="your-api-key-here"
 )
 
@@ -229,7 +229,7 @@ print(response.choices[0].message.content)
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://api.tokenpapa.ai/v1",
+    base_url="https://tokenpapa.ai/v1",
     api_key="your-api-key-here"
 )
 
@@ -250,7 +250,7 @@ for chunk in stream:
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://api.tokenpapa.ai/v1",
+    base_url="https://tokenpapa.ai/v1",
     api_key="your-api-key-here"
 )
 
@@ -277,7 +277,7 @@ response = client.chat.completions.create(
 print(response.choices[0].message)
 ```
 
-> 💡 **专业提示：** 由于 API 兼容 OpenAI，你还可以使用 LangChain、LlamaIndex、Vercel AI SDK 以及任何其他兼容 OpenAI 的框架 —— 只需将 `base_url` 指向 `https://api.tokenpapa.ai/v1` 即可。
+> 💡 **专业提示：** 由于 API 兼容 OpenAI，你还可以使用 LangChain、LlamaIndex、Vercel AI SDK 以及任何其他兼容 OpenAI 的框架 —— 只需将 `base_url` 指向 `https://tokenpapa.ai/v1` 即可。
 
 ---
 

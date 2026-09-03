@@ -74,7 +74,7 @@ TokenPAPA uses the OpenAI-compatible format, so your existing OpenAI SDK code wo
 import openai
 
 client = openai.OpenAI(
-    base_url="https://api.tokenpapa.ai/v1",
+    base_url="https://tokenpapa.ai/v1",
     api_key="your-tokenpapa-key"
 )
 
@@ -92,7 +92,7 @@ print(response.choices[0].message.content)
 Or with curl:
 
 ```bash
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer your-tokenpapa-key" \
   -d '{
@@ -136,7 +136,7 @@ If you already have a Chinese phone number and only need DeepSeek, the official 
 
 ```bash
 # 30-second test with curl
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer your-key-here" \
   -d '{"model": "deepseek-v4-flash", "messages": [{"role": "user", "content": "Say hello!"}]}'

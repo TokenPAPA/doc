@@ -19,7 +19,7 @@ Before you start, grab these three things from your TokenPAPA dashboard:
 
 | Item | Value | Where to find it |
 |---|---|---|
-| **Base URL** | `https://api.tokenpapa.ai/v1` | Platform homepage or Console → Token page |
+| **Base URL** | `https://tokenpapa.ai/v1` | Platform homepage or Console → Token page |
 | **API Key** | `sk-xxx...xxxx` | Console → Token → Create (shown only once) |
 | **Model name** | e.g. `deepseek-v4-flash` | Model Square (Pricing page) or Console → Available Models |
 
@@ -32,7 +32,7 @@ Before you start, grab these three things from your TokenPAPA dashboard:
 Every OpenAI-compatible agent needs the same three fields. Once you understand this pattern, you can configure *any* tool without a guide:
 
 ```
-Base URL  →  https://api.tokenpapa.ai/v1
+Base URL  →  https://tokenpapa.ai/v1
 API Key   →  sk-xxx...xxxx
 Model     →  deepseek-v4-flash   (or any model in your plan)
 ```
@@ -46,7 +46,7 @@ Model     →  deepseek-v4-flash   (or any model in your plan)
 Before configuring anything, run this one command in your terminal. It confirms that your Key, Base URL and model name are all correct — so when a tool doesn't work later, you'll know the problem is in the tool's settings, not your credentials:
 
 ```bash
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer sk-xxx...xxxx" \
   -d '{"model": "deepseek-v4-flash", "messages": [{"role": "user", "content": "ping"}]}'
@@ -72,7 +72,7 @@ Cursor is one of the most popular AI code editors, and it supports custom OpenAI
 2. Scroll to the **OpenAI API Key** section → toggle **Override OpenAI Base URL**
 3. Enter:
    - **OpenAI API Key:** `sk-xxx...xxxx`
-   - **OpenAI Base URL:** `https://api.tokenpapa.ai/v1`
+   - **OpenAI Base URL:** `https://tokenpapa.ai/v1`
 4. Click **Verify** — Cursor will confirm the connection
 5. Add a model name (e.g. `deepseek-v4-flash`) to your model list, then select it in the model picker
 
@@ -88,7 +88,7 @@ Cursor is one of the most popular AI code editors, and it supports custom OpenAI
 Claude Code (Anthropic's terminal agent) normally talks to Anthropic's API. If your TokenPAPA plan includes Claude models and exposes an Anthropic-compatible endpoint, point Claude Code at TokenPAPA with two environment variables:
 
 ```bash
-export ANTHROPIC_BASE_URL="https://api.tokenpapa.ai"   # ← your Anthropic-compatible endpoint (no /v1 — the client appends it)
+export ANTHROPIC_BASE_URL="https://tokenpapa.ai"   # ← your Anthropic-compatible endpoint (no /v1 — the client appends it)
 export ANTHROPIC_AUTH_TOKEN="sk-xxx...xxxx"
 export ANTHROPIC_MODEL="claude-sonnet-4-6"             # or whichever Claude model you use
 claude
@@ -106,7 +106,7 @@ OpenAI's open-source Codex CLI agent respects standard OpenAI environment variab
 
 ```bash
 export OPENAI_API_KEY="sk-xxx...xxxx"
-export OPENAI_BASE_URL="https://api.tokenpapa.ai/v1"
+export OPENAI_BASE_URL="https://tokenpapa.ai/v1"
 
 # run with your model of choice
 codex exec --model deepseek-v4-flash "explain this repo"
@@ -127,7 +127,7 @@ Cline and Roo Code are the most popular open-source AI coding agents for VS Code
 1. Install the extension → open its settings panel
 2. **API Provider:** select **OpenAI Compatible**
 3. Fill in:
-   - **Base URL:** `https://api.tokenpapa.ai/v1`
+   - **Base URL:** `https://tokenpapa.ai/v1`
    - **API Key:** `sk-xxx...xxxx`
    - **Model ID:** `deepseek-v4-flash` (or `qwen3.7-max` for agentic coding)
 4. Click the **"Check"** button to verify — you should see the model's pricing appear
@@ -149,7 +149,7 @@ Add this to your `config.json`:
       "title": "DeepSeek V4 Flash (TokenPAPA)",
       "provider": "openai",
       "model": "deepseek-v4-flash",
-      "apiBase": "https://api.tokenpapa.ai/v1",
+      "apiBase": "https://tokenpapa.ai/v1",
       "apiKey": "sk-xxx...xxxx"
     }
   ]
@@ -169,7 +169,7 @@ Dify lets you build AI apps visually, and any OpenAI-compatible model provider p
 1. Go to **Settings → Model Provider**
 2. Find **OpenAI-API-compatible** (or add a custom provider)
 3. Enter:
-   - **API Base URL:** `https://api.tokenpapa.ai/v1`
+   - **API Base URL:** `https://tokenpapa.ai/v1`
    - **API Key:** `sk-xxx...xxxx`
 4. Click **Save** — Dify fetches your available models automatically
 
@@ -184,7 +184,7 @@ n8n is the leading open-source workflow automation platform. Use TokenPAPA insid
 1. Create an **OpenAI** node credential
 2. Click **"Use custom base URL"**
 3. Set:
-   - **Base URL:** `https://api.tokenpapa.ai/v1`
+   - **Base URL:** `https://tokenpapa.ai/v1`
    - **API Key:** `sk-xxx...xxxx`
 4. In the node, set **Model** to e.g. `deepseek-v4-flash`
 
@@ -227,7 +227,7 @@ If a tool fails after setup, work through this table top to bottom:
 |---|---|---|
 | `401 Unauthorized` | Wrong / expired key | Re-check your key; create a new token if needed |
 | `404 Model Not Found` | Wrong model ID | Copy the exact ID from Model Square — e.g. `deepseek-v4-flash`, not `DeepSeek V4 Flash` |
-| Connection refused / timeout | Wrong base URL | Must end with `/v1`: `https://api.tokenpapa.ai/v1` |
+| Connection refused / timeout | Wrong base URL | Must end with `/v1`: `https://tokenpapa.ai/v1` |
 | Works in Step 0 curl test, not in the agent | Agent-specific field issue | Some agents have separate "API key" and "env var" fields — fill both |
 | Works in Playground, not in the agent | Agent caches an old config | Restart the agent / reload the window after saving settings |
 | Slow responses | Regional network path | See [LLM API Latency Comparison](/en/docs/blog/llm-api-latency-comparison-2026) |

@@ -261,7 +261,7 @@ def route_query(complexity_score: float) -> str:
 
 - **即时访问所有 Claude 4 模型** — 通过单一 API 密钥使用 Opus 4、Sonnet 4 和 Haiku
 - **无地域限制** — 支持任何国家，无需美国地址或电话
-- **兼容 OpenAI 的端点** — 只需将 `base_url` 改为 `https://api.tokenpapa.ai/v1`，即可使用任意 OpenAI SDK
+- **兼容 OpenAI 的端点** — 只需将 `base_url` 改为 `https://tokenpapa.ai/v1`，即可使用任意 OpenAI SDK
 - **国际支付** — 支持美国信用卡、PayPal、加密货币或本地支付方式
 - **按量付费** — 无最低消费，无订阅费用
 - **全球 CDN** — 从北美、欧洲和亚洲低延迟路由
@@ -272,7 +272,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="tpapa-...",              # 你的 TokenPAPA API 密钥
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 # 只需更改模型名称即可切换不同模型

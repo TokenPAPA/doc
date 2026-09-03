@@ -116,7 +116,7 @@ The biggest barrier for overseas developers wanting to use Qwen is the same as f
 1. **Visit [tokenpapa.ai](https://tokenpapa.ai)** and create an account with your email
 2. **Add funds** using a US credit card, international card, or PayPal
 3. **Generate an API key** from the dashboard (starts with `tp-sk-`)
-4. **Use the endpoint** `https://api.tokenpapa.ai/v1` with any OpenAI-compatible client
+4. **Use the endpoint** `https://tokenpapa.ai/v1` with any OpenAI-compatible client
 
 **Available Qwen models via TokenPAPA:**
 
@@ -198,7 +198,7 @@ from openai import OpenAI
 # Configure the client with TokenPAPA endpoint
 client = OpenAI(
     api_key="tp-sk-your-api-key-here",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 # Example 1: Qwen 2.5 72B — General Chat
@@ -244,7 +244,7 @@ print(response.choices[0].message.content)
 import OpenAI from 'openai';
 
 const client = new OpenAI({
-  baseURL: 'https://api.tokenpapa.ai/v1',
+  baseURL: 'https://tokenpapa.ai/v1',
   apiKey: 'tp-sk-your-api-key',
 });
 
@@ -279,7 +279,7 @@ console.log(codeResponse.choices[0].message.content);
 
 ```bash
 # Qwen 2.5 72B — General Chat
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tp-sk-your-api-key" \
   -d '{
@@ -293,7 +293,7 @@ curl https://api.tokenpapa.ai/v1/chat/completions \
   }'
 
 # Qwen Coder — Code Generation
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tp-sk-your-api-key" \
   -d '{
@@ -350,7 +350,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="tp-sk-your-key",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 def route_query(task_type: str, prompt: str) -> str:

@@ -74,7 +74,7 @@ TokenPAPA 使用 OpenAI 兼容格式，代码只需改 `base_url`：
 import openai
 
 client = openai.OpenAI(
-    base_url="https://api.tokenpapa.ai/v1",
+    base_url="https://tokenpapa.ai/v1",
     api_key="你的tokenpapa-key"
 )
 
@@ -92,7 +92,7 @@ print(response.choices[0].message.content)
 用 curl：
 
 ```bash
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer *** \
   -d '{
@@ -136,7 +136,7 @@ curl https://api.tokenpapa.ai/v1/chat/completions \
 
 ```bash
 # 30 秒 curl 测试
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer *** \
   -d '{"model": "deepseek-v4-flash", "messages": [{"role": "user", "content": "Say hello!"}]}'

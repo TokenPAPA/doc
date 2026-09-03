@@ -147,7 +147,7 @@ The biggest barrier to using MiniMax as an overseas developer is the phone verif
 1. **Visit [tokenpapa.ai](https://tokenpapa.ai)** and create an account (email + password — no phone needed).
 2. **Navigate to the API Keys** section and generate a new key.
 3. **Top up your balance** — start with as little as $5.
-4. **Use the provided endpoint** (`https://api.tokenpapa.ai/v1`) in your code.
+4. **Use the provided endpoint** (`https://tokenpapa.ai/v1`) in your code.
 
 ### API Endpoints via tokenpapa
 
@@ -176,7 +176,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="your-tokenpapa-api-key",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 response = client.chat.completions.create(
@@ -201,7 +201,7 @@ for chunk in response:
 import requests
 
 response = requests.post(
-    "https://api.tokenpapa.ai/v1/audio/speech",
+    "https://tokenpapa.ai/v1/audio/speech",
     headers={
         "Authorization": f"Bearer your-tokenpapa-api-key",
         "Content-Type": "application/json"
@@ -229,7 +229,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="your-tokenpapa-api-key",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 # Load a long document (e.g., an entire book)
@@ -254,7 +254,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="your-tokenpapa-api-key",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 tools = [
@@ -339,7 +339,7 @@ Build voice assistants, audiobook narrators, or interactive voice response (IVR)
 import time
 from openai import OpenAI, RateLimitError, APIError
 
-client = OpenAI(api_key="your-key", base_url="https://api.tokenpapa.ai/v1")
+client = OpenAI(api_key="your-key", base_url="https://tokenpapa.ai/v1")
 
 def chat_with_retry(messages, max_retries=3):
     for attempt in range(max_retries):

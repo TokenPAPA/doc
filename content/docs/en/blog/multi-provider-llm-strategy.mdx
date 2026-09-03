@@ -74,7 +74,7 @@ PROVIDERS = [
     {
         "name": "anthropic",
         # Uses tokenpapa gateway for unified format
-        "base_url": "https://api.tokenpapa.ai/v1/chat/completions",
+        "base_url": "https://tokenpapa.ai/v1/chat/completions",
         "model": "claude-4-sonnet",
         "weight": 0.1,  # 10% (premium)
         "timeout": 30,
@@ -138,7 +138,7 @@ const providers = [
     model: 'deepseek-v4', weight: 0.6 },
   { name: 'openai', url: 'https://api.openai.com/v1/chat/completions',
     model: 'gpt-5', weight: 0.3 },
-  { name: 'gateway', url: 'https://api.tokenpapa.ai/v1/chat/completions',
+  { name: 'gateway', url: 'https://tokenpapa.ai/v1/chat/completions',
     model: 'claude-4-sonnet', weight: 0.1 },
 ];
 

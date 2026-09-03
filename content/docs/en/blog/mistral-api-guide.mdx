@@ -45,7 +45,7 @@ import { JsonLd } from '@/components/json-ld';
         "name": "How do I access Mistral AI API from overseas?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "You can access Mistral AI API from overseas via TokenPAPA at https://tokenpapa.ai. TokenPAPA provides an OpenAI-compatible endpoint at https://api.tokenpapa.ai/v1 — simply sign up with your email, fund your account, generate an API key, and start calling Mistral models. No geographic restrictions, no phone verification, and international payments accepted."
+          "text": "You can access Mistral AI API from overseas via TokenPAPA at https://tokenpapa.ai. TokenPAPA provides an OpenAI-compatible endpoint at https://tokenpapa.ai/v1 — simply sign up with your email, fund your account, generate an API key, and start calling Mistral models. No geographic restrictions, no phone verification, and international payments accepted."
         }
       },
       {
@@ -137,7 +137,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="tp-sk-your-api-key-here",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 tools = [{
@@ -257,14 +257,14 @@ Go to API Keys in your dashboard and create a new key (starts with `tp-sk-`).
 
 ### Step 4: Start Using Mistral Models
 
-TokenPAPA provides an OpenAI-compatible endpoint at `https://api.tokenpapa.ai/v1`:
+TokenPAPA provides an OpenAI-compatible endpoint at `https://tokenpapa.ai/v1`:
 
 ```python
 from openai import OpenAI
 
 client = OpenAI(
     api_key="tp-sk-your-api-key-here",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 # Mistral Large 2 — Multilingual Chat
@@ -283,7 +283,7 @@ print(response.choices[0].message.content)
 **cURL:**
 
 ```bash
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tp-sk-...re" \
   -d '{
@@ -353,7 +353,7 @@ Mistral offers **Mistral Large 2** (flagship, $2/1M input, $6/1M output) — bes
 
 ### 2. How do I access Mistral AI API from overseas?
 
-Use an API relay platform. [TokenPAPA](https://tokenpapa.ai) provides Mistral API access worldwide with no geographic restrictions. Sign up with email (no phone verification), fund via card/PayPal/crypto, generate an API key, and use `https://api.tokenpapa.ai/v1` — setup in under 3 minutes. Same key also gives you 200+ other models.
+Use an API relay platform. [TokenPAPA](https://tokenpapa.ai) provides Mistral API access worldwide with no geographic restrictions. Sign up with email (no phone verification), fund via card/PayPal/crypto, generate an API key, and use `https://tokenpapa.ai/v1` — setup in under 3 minutes. Same key also gives you 200+ other models.
 
 ### 3. How does Mistral Large 2 compare to DeepSeek V4, GPT-4o, and Claude?
 

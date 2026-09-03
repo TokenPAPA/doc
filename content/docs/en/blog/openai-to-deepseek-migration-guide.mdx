@@ -43,7 +43,7 @@ client = openai.OpenAI(
 # After — DeepSeek via TokenPAPA
 client = openai.OpenAI(
     api_key="sk-tokenpapa-...",      # ← Change API key
-    base_url="https://api.tokenpapa.ai/v1"  # ← Change base URL
+    base_url="https://tokenpapa.ai/v1"  # ← Change base URL
 )
 ```
 
@@ -88,7 +88,7 @@ Not all OpenAI models have a 1:1 DeepSeek equivalent. Here's the mapping:
 ```python
 client = openai.OpenAI(
     api_key="sk-tokenpapa-...",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 ```
 
@@ -96,13 +96,13 @@ client = openai.OpenAI(
 ```javascript
 const openai = new OpenAI({
   apiKey: "sk-tokenpapa-...",
-  baseURL: "https://api.tokenpapa.ai/v1"
+  baseURL: "https://tokenpapa.ai/v1"
 });
 ```
 
 **cURL:**
 ```bash
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer sk-tokenpapa-..." \
   -d '{
@@ -131,7 +131,7 @@ OpenAI → DeepSeek model name mapping:
     "provider": "deepseek",
     "model": "deepseek-v3",
     "api_key": "sk-tokenpapa-...",
-    "base_url": "https://api.tokenpapa.ai/v1"
+    "base_url": "https://tokenpapa.ai/v1"
   }
 }
 ```
@@ -241,7 +241,7 @@ You don't have to go all-in on DeepSeek. A hybrid approach is often best:
 ```python
 deepseek = openai.OpenAI(
     api_key="sk-tokenpapa-...",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 openai_client = openai.OpenAI(
     api_key="sk-openai-..."

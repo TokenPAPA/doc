@@ -211,7 +211,7 @@ Vertex AI 提供企业级 Gemini 访问，但要求拥有支持区域账单地�
 
 ### 第 4 步：开始使用 Gemini 2.5
 
-TokenPAPA 提供 OpenAI 兼容端点：`https://api.tokenpapa.ai/v1`。使用任何 OpenAI SDK，只需修改 `base_url` 和 `api_key` 即可。
+TokenPAPA 提供 OpenAI 兼容端点：`https://tokenpapa.ai/v1`。使用任何 OpenAI SDK，只需修改 `base_url` 和 `api_key` 即可。
 
 **基础聊天：**
 
@@ -220,7 +220,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="tp-sk-your-api-key-here",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 response = client.chat.completions.create(
@@ -243,7 +243,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="tp-sk-your-api-key-here",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 response = client.chat.completions.create(
@@ -270,7 +270,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="tp-sk-your-api-key-here",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 stream = client.chat.completions.create(

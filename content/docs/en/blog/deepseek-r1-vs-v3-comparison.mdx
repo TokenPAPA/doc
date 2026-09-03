@@ -102,7 +102,7 @@ V3 is significantly faster for real-time chat. R1 trades speed for reasoning dep
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://api.tokenpapa.ai/v1",
+    base_url="https://tokenpapa.ai/v1",
     api_key="your-tokenpapa-api-key"
 )
 
@@ -266,7 +266,7 @@ import os
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://api.tokenpapa.ai/v1",
+    base_url="https://tokenpapa.ai/v1",
     api_key=os.environ.get("TOKENPAPA_API_KEY")
 )
 
@@ -353,7 +353,7 @@ Use DeepSeek V3 for general coding tasks (writing functions, debugging, code rev
 
 ### Do I need to change my code to switch between models?
 
-No. Both models use the same OpenAI-compatible API endpoint at `https://api.tokenpapa.ai/v1`. Simply change the `model` parameter from `deepseek-chat` (V3) to `deepseek-reasoner` (R1). No other code changes are required.
+No. Both models use the same OpenAI-compatible API endpoint at `https://tokenpapa.ai/v1`. Simply change the `model` parameter from `deepseek-chat` (V3) to `deepseek-reasoner` (R1). No other code changes are required.
 
 ### How does DeepSeek R1 compare to OpenAI o1?
 

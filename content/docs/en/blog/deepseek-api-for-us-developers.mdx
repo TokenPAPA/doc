@@ -64,7 +64,7 @@ The official DeepSeek platform requires a Chinese mainland mobile number (+86) f
 3. **Generate a new API key** — no Chinese phone number required, no VPN needed.
 4. **Copy your key** and start building.
 
-TokenPapa acts as a relay to the DeepSeek API, meaning you get full access to all DeepSeek models through a standard OpenAI-compatible endpoint. Your API calls go to `https://api.tokenpapa.ai/v1` with your TokenPapa API key, and TokenPapa handles the backend connection to DeepSeek.
+TokenPapa acts as a relay to the DeepSeek API, meaning you get full access to all DeepSeek models through a standard OpenAI-compatible endpoint. Your API calls go to `https://tokenpapa.ai/v1` with your TokenPapa API key, and TokenPapa handles the backend connection to DeepSeek.
 
 > **Why TokenPapa?** No phone verification, no geographic restrictions, instant credit top-up via international payment methods (credit card, PayPal, crypto), and enterprise-level rate limits out of the box.
 
@@ -79,7 +79,7 @@ Once you have your TokenPapa API key, setting up your environment takes less tha
 ```bash
 # Add to your .bashrc, .zshrc, or .env file
 export TOKENPAPA_API_KEY="sk-tp-your-key-here"
-export TOKENPAPA_BASE_URL="https://api.tokenpapa.ai/v1"
+export TOKENPAPA_BASE_URL="https://tokenpapa.ai/v1"
 ```
 
 ### Option B: Direct Configuration in Code
@@ -89,7 +89,7 @@ For testing or one-off scripts, you can pass values directly (though environment
 ### Verify Your Setup
 
 ```bash
-curl -X GET https://api.tokenpapa.ai/v1/models \
+curl -X GET https://tokenpapa.ai/v1/models \
   -H "Authorization: Bearer $TOKENPAPA_API_KEY"
 ```
 
@@ -119,7 +119,7 @@ from openai import OpenAI
 # Initialize the client with TokenPapa's base URL and your API key
 client = OpenAI(
     api_key=os.getenv("TOKENPAPA_API_KEY"),
-    base_url=os.getenv("TOKENPAPA_BASE_URL", "https://api.tokenpapa.ai/v1"),
+    base_url=os.getenv("TOKENPAPA_BASE_URL", "https://tokenpapa.ai/v1"),
 )
 
 def chat_with_deepseek(
@@ -154,7 +154,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key=os.getenv("TOKENPAPA_API_KEY"),
-    base_url="https://api.tokenpapa.ai/v1",
+    base_url="https://tokenpapa.ai/v1",
 )
 
 stream = client.chat.completions.create(
@@ -178,7 +178,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key=os.getenv("TOKENPAPA_API_KEY"),
-    base_url="https://api.tokenpapa.ai/v1",
+    base_url="https://tokenpapa.ai/v1",
 )
 
 functions = [
@@ -304,7 +304,7 @@ from openai import OpenAI, RateLimitError, APIError
 
 client = OpenAI(
     api_key=os.getenv("TOKENPAPA_API_KEY"),
-    base_url="https://api.tokenpapa.ai/v1",
+    base_url="https://tokenpapa.ai/v1",
 )
 
 def robust_completion(messages, model="deepseek-chat", max_retries=3):
@@ -424,7 +424,7 @@ TokenPapa does not train on your API data. Requests and responses are processed 
 
 ### Can I use DeepSeek API with JavaScript or Node.js?
 
-Yes. Since TokenPapa exposes an OpenAI-compatible API, you can use the OpenAI JavaScript/TypeScript SDK (`openai` npm package) with a custom `baseURL` of `https://api.tokenpapa.ai/v1`. The same approach works for Python, Node.js, Go, curl, and any OpenAI SDK client.
+Yes. Since TokenPapa exposes an OpenAI-compatible API, you can use the OpenAI JavaScript/TypeScript SDK (`openai` npm package) with a custom `baseURL` of `https://tokenpapa.ai/v1`. The same approach works for Python, Node.js, Go, curl, and any OpenAI SDK client.
 
 ### Does DeepSeek support vision or multimodal inputs?
 

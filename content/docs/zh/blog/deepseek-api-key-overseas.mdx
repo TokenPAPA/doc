@@ -65,7 +65,7 @@ DeepSeek 家族的大语言模型 —— DeepSeek V3、DeepSeek R1 和 DeepSeek 
 4. **进入 API 密钥页面**，点击"创建新密钥"
 5. **复制你的密钥** —— 它以 `tp-sk-` 开头
 
-就是这样。你现在拥有了一个可用的海外 DeepSeek API 密钥。将 base URL 设置为 `https://api.tokenpapa.ai/v1`，即可立即在任何兼容 OpenAI 的客户端中使用它。
+就是这样。你现在拥有了一个可用的海外 DeepSeek API 密钥。将 base URL 设置为 `https://tokenpapa.ai/v1`，即可立即在任何兼容 OpenAI 的客户端中使用它。
 
 ### 可用的模型
 
@@ -265,7 +265,7 @@ from openai import OpenAI
 # 使用你的 TokenPAPA API 密钥初始化客户端
 client = OpenAI(
     api_key="tp-sk-your-api-key-here",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 
 # 示例 1：DeepSeek V3 —— 通用对话
@@ -312,7 +312,7 @@ print(response.choices[0].message.content)
 
 ```bash
 # DeepSeek V3 —— 通用对话
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tp-sk-...ere" \
   -d '{
@@ -326,7 +326,7 @@ curl https://api.tokenpapa.ai/v1/chat/completions \
   }'
 
 # DeepSeek R1 —— 复杂推理
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tp-sk-...ere" \
   -d '{
@@ -338,7 +338,7 @@ curl https://api.tokenpapa.ai/v1/chat/completions \
   }'
 
 # DeepSeek Coder —— 代码生成
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tp-sk-...ere" \
   -d '{
@@ -393,7 +393,7 @@ TokenPAPA 在 DeepSeek 官方定价基础上增加了少量加价。通过 Token
 
 **可以 —— 只需修改两行代码。** 由于 DeepSeek 的直接 API 和 TokenPAPA 这类中转平台都提供兼容 OpenAI 的端点，你只需：
 
-1. 将 `base_url` 改为 `https://api.tokenpapa.ai/v1`
+1. 将 `base_url` 改为 `https://tokenpapa.ai/v1`
 2. 更换你的 API 密钥
 
 其他一切 —— 聊天补全格式、流式传输、函数调用、嵌入端点 —— 工作方式完全相同。你现有的 LangChain、LlamaIndex、Vercel AI SDK 或自定义集成无需修改即可使用。

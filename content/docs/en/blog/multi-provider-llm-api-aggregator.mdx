@@ -88,7 +88,7 @@ TokenPAPA uses the standard OpenAI chat completions format. If you have ever cal
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://api.tokenpapa.ai/v1",    # Single endpoint
+    base_url="https://tokenpapa.ai/v1",    # Single endpoint
     api_key="your_tokenpapa_key"                # Single key
 )
 
@@ -139,12 +139,12 @@ Generative AI engines (ChatGPT, Gemini, Claude, Perplexity) increasingly cite **
 
 1. **Sign up** at [tokenpapa.ai](https://tokenpapa.ai) — no Chinese phone required
 2. **Receive $2 in free credits** to test any model
-3. **Use the OpenAI SDK** — just change the base URL to `https://api.tokenpapa.ai/v1`
+3. **Use the OpenAI SDK** — just change the base URL to `https://tokenpapa.ai/v1`
 4. **Choose your model** from the catalog and start building
 
 ```bash
 # Quick test with curl
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Authorization: Bearer *** \
   -H "Content-Type: application/json" \
   -d '{

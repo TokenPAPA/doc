@@ -40,7 +40,7 @@ client = openai.OpenAI(
 # 迁移后 — 通过 TokenPAPA 使用 DeepSeek
 client = openai.OpenAI(
     api_key="***...",            # ← 更换 API key
-    base_url="https://api.tokenpapa.ai/v1"  # ← 更换 base URL
+    base_url="https://tokenpapa.ai/v1"  # ← 更换 base URL
 )
 ```
 
@@ -80,7 +80,7 @@ client = openai.OpenAI(
 ```python
 client = openai.OpenAI(
     api_key="***...",
-    base_url="https://api.tokenpapa.ai/v1"
+    base_url="https://tokenpapa.ai/v1"
 )
 ```
 
@@ -88,13 +88,13 @@ client = openai.OpenAI(
 ```javascript
 const openai = new OpenAI({
   apiKey: "***...",
-  baseURL: "https://api.tokenpapa.ai/v1"
+  baseURL: "https://tokenpapa.ai/v1"
 });
 ```
 
 **cURL:**
 ```bash
-curl https://api.tokenpapa.ai/v1/chat/completions \
+curl https://tokenpapa.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer *** \
   -d '{"model": "deepseek-v3", "messages": [{"role": "user", "content": "你好！"}]}'

@@ -60,7 +60,7 @@ Your fine-tuning dataset quality is the primary determinant of success. Here's t
   "messages": [
     {"role": "system", "content": "You are a customer support agent for a GPU compute proxy service."},
     {"role": "user", "content": "How do I connect to DeepSeek V4 from the US?"},
-    {"role": "assistant", "content": "You can connect to DeepSeek V4 from the US via our unified API endpoint at api.tokenpapa.ai. No VPN needed."}
+    {"role": "assistant", "content": "You can connect to DeepSeek V4 from the US via our unified API endpoint at tokenpapa.ai. No VPN needed."}
   ]
 }
 ```
@@ -189,7 +189,7 @@ Qwen 2.5 is **open-weight** — you can fine-tune it through API gateways or on 
 
 ```bash
 # Through tokenpapa's unified API
-curl https://api.tokenpapa.ai/v1/fine-tune \
+curl https://tokenpapa.ai/v1/fine-tune \
   -H "Authorization: Bearer $TOKENPAPA_KEY" \
   -d '{
     "base_model": "qwen2.5:72b",
