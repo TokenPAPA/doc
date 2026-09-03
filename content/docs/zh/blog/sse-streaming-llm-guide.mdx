@@ -1,0 +1,209 @@
+---
+title: "SSE 流式输出实战:从 0 到 1 工程指南"
+description: "从零讲透 LLM 流式输出:SSE 原理、线上协议长什么样、Python 与浏览器端实现、SSE 与 WebSocket 怎么选,以及那些真正浪费时间的坑。"
+date: 2026-09-03
+authors: [tokenpapa]
+category: "教程"
+keywords: ["sse 流式输出", "流式输出教程", "server sent events", "sse 与 websocket", "llm token 流式", "openai 兼容流式", "fetch 解析 sse", "deepseek 流式 api", "聊天流式教程", "sse python"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-09-03 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;SSE 流式输出实战:从 0 到 1 工程指南&quot;,&quot;description&quot;:&quot;从零讲透 LLM 流式输出:SSE 原理、线上协议长什么样、Python 与浏览器端实现、SSE 与 WebSocket 怎么选,以及常见坑。&quot;,&quot;datePublished&quot;:&quot;2026-09-03&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;LLM 流式输出里的 SSE 是什么?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;SSE(Server-Sent Events)是一种基于 HTTP 的推送协议,服务器通过一条长连接把事件持续推给客户端。LLM API 用它把生成的每个 token 尽快发出来,首个 token 大约 0.4 秒就能到达,不用等整段答案生成完。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;SSE 和 WebSocket 怎么选?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;对话补全用 SSE:一次请求进、单向 token 流出,还自带断线重连。只有当服务器需要随时主动推送消息时才用 WebSocket,比如协作文档或实时大盘。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;为什么 EventSource 不能给 LLM API 带 Authorization 头?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;EventSource 在设计上不允许自定义请求头,而且 API Key 本来就不该出现在浏览器里。标准做法是写一个持有 Key 的后端代理转发流,或用 fetch 配合 ReadableStream 自己解析。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;怎么从 OpenAI 兼容 API 流式取 token?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;把请求里的 stream 设为 true。OpenAI SDK 会逐个 yield 增量块;裸响应是 text/event-stream,每行 data 是一个 JSON 块,直到最后的 [DONE] 标记。TokenPAPA 这类 OpenAI 兼容聚合平台开箱即用。&quot;}}]}" />
+
+# SSE 流式输出实战:从 0 到 1 工程指南
+
+如果你看过聊天界面一个字一个字地"打"出回答,你见到的就是 **SSE(Server-Sent Events)**。流式输出早已不是加分项:用户期待几百毫秒内看到第一个 token,而不是对着转圈干等。在 TokenPAPA 这类 **OpenAI 兼容 API 聚合器**上,同一套流式代码就能跑 DeepSeek、GPT-5.6、Qwen、Claude 等模型。
+
+这篇指南从 0 走到 1:SSE 原理、LLM 流在线上长什么样、Python 与浏览器端怎么接、何时选 SSE 而不是 WebSocket,以及常见的坑。
+
+---
+
+## 成本:每 1M tokens
+
+流式改变的是模型的"手感",不改变计费方式——仍然按 token 付费。2026 年性价比梯队大致如下:
+
+| 模型 | 输入 /1M | 输出 /1M | 适合场景 |
+|------|---------|---------|---------|
+| **DeepSeek V4 Flash** | $0.14 | $0.42 | 默认流式助手 |
+| DeepSeek V4 Pro | $0.28 | $0.84 | 更难推理,依然快 |
+| GPT-5.6 Luna | $0.27 | $2.70 | OpenAI 生态应用 |
+| GPT-5.6 Sol | $13.50 | $60.00 | 顶级质量,高预算 |
+
+DeepSeek V4 Flash 输入比 GPT-5.6 Sol 便宜 **96%**,首 token 时延约 **0.4s**,流式体验一点不输。每月 10 万次请求的模拟负载,跑 V4 Flash 约 **$52/月**,跑旗舰档要 **$4,200/月**——便宜,流式才跑得起。
+
+---
+
+## SSE 到底是什么
+
+SSE 是一种单向、基于 HTTP 的推送协议:客户端发起普通 HTTP 请求,服务器保持连接不关闭,有数据就按 `text/event-stream` 格式写:
+
+```
+data: {"choices":[{"delta":{"content":"你好"}}]}
+
+data: {"choices":[{"delta":{"content":"世界"}}]}
+
+data: [DONE]
+```
+
+每行 `data:` 是一个事件,空行表示结束。因为走的就是 HTTP,防火墙、负载均衡、标准库全都天然兼容,不需要专门的协议握手。LLM 厂商的 OpenAI 兼容流式接口用的正是这个格式。
+
+---
+
+## Python 端流式
+
+OpenAI SDK 把线上格式封装好了。`stream=True`,然后遍历增量:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_TOKENPAPA_KEY",
+    base_url="https://tokenpapa.ai/v1"
+)
+
+stream = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    max_tokens=512,
+    stream=True,  # 底层就是 SSE
+    messages=[{"role": "user", "content": "用一段话解释 SSE。"}],
+)
+
+for chunk in stream:
+    delta = chunk.choices[0].delta.content
+    if delta:
+        print(delta, end="", flush=True)
+```
+
+一个必须养成的习惯:**永远设置 max_tokens**。多数模型输出单价是输入的 3–10 倍,一次中断的流已经生成了 4000 token,账单照样全算。
+
+同样的 `stream=True` 代码,换到**任何 OpenAI 兼容 API 聚合器**都成立——`model` 改成 `gpt-5.6-luna` 或 `qwen3.7-plus`,其它一行不动。
+
+---
+
+## 浏览器端:用 fetch,别用 EventSource
+
+最直觉的写法是 `EventSource`,浏览器内置的 SSE 客户端,自带断线重连:
+
+```js
+const es = new EventSource('/api/chat/stream');
+es.onmessage = (e) => { console.log(e.data); };
+```
+
+但对大多数 LLM 应用,它有两个致命问题:
+
+1. **EventSource 不能设置自定义请求头。** 没有 `Authorization`,也没有自定义参数。
+2. **API Key 本来就不该出现在浏览器里**,必须留在服务端。
+
+标准做法是:后端持有 Key、用上面的 Python 代码把上游流原样转发到 `/api/chat`;前端用 `fetch` 自己解析 SSE:
+
+```js
+const resp = await fetch('/api/chat', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ prompt: '简单解释一下 SSE。' }),
+});
+
+const reader = resp.body.getReader();
+const decoder = new TextDecoder();
+let buffer = '';
+
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+  buffer += decoder.decode(value, { stream: true });
+
+  const events = buffer.split('\n\n');  // 空行是事件结束符
+  buffer = events.pop() ?? '';
+
+  for (const raw of events) {
+    const line = raw.split('\n').find(l => l.startsWith('data:'));
+    if (!line) continue;
+    const data = line.slice(5).trim();
+    if (data === '[DONE]') return;
+    const json = JSON.parse(data);
+    const text = json.choices?.[0]?.delta?.content;
+    if (text) appendToUI(text);  // 打字机效果
+  }
+}
+```
+
+这就是一个完整的流式聊天循环——浏览器端连 SDK 都不用装。
+
+---
+
+## SSE vs WebSocket:怎么选?
+
+| 维度 | SSE | WebSocket |
+|------|-----|-----------|
+| 方向 | 服务器 → 客户端(单向) | 双向 |
+| 协议 | 普通 HTTP(`text/event-stream`) | 独立握手(ws://) |
+| 断线重连 | 内置 | 自己实现 |
+| 请求头/鉴权 | EventSource 受限,用 fetch/代理 | 完全可控 |
+| 适合 | LLM token 流、通知推送 | 聊天室、游戏、协作文档 |
+
+LLM 对话是"发一条消息、收一串 token":教科书式的**单向推送**。SSE 免费送你自动重连、HTTP/2 多路复用,服务器也不用维护额外状态。只有服务器需要在任意时刻主动发消息时才值得上 WebSocket——实时光标、多人白板、行情推送。很多团队两条腿走路:WebSocket 管在线状态,SSE 管模型输出。
+
+---
+
+## 常见坑(以及解法)
+
+**1. 代理缓冲把流"憋"住了。** Nginx 和部分 CDN 默认缓冲响应,token 会攒成一坨才到,甚至直接超时。对流式路由关掉缓冲:`proxy_buffering off;`,并返回 `X-Accel-Buffering: no` 头。每过一个代理都要实测一遍。
+
+**2. 客户端超时。** 推理模型在 token 之间可能停顿很久,远超默认的 30 秒 HTTP 超时。把读超时调到 60 秒以上,并区分"一个字节都没到"(真超时)和"有字节但停顿"(正常)。
+
+**3. 忘了 `[DONE]` 哨兵。** 有些解析器把结尾的 `data: [DONE]` 当 JSON 解析直接崩。记得先判断再 `JSON.parse`。
+
+**4. 半包问题。** 一个 token 块可能被网络拆成两次到达,也可能两个块挤在一次读取里。必须攒进 buffer 按 `\n\n` 切分,如上面前端代码所示。
+
+**5. Python 背压。** 消费速度跟不上上游发送速度时,内存会持续上涨。及时处理增量,并发流用 SDK 的异步客户端。
+
+---
+
+## FAQ
+
+**LLM 流式输出里的 SSE 是什么?**
+SSE(Server-Sent Events)是一种基于 HTTP 的推送协议,服务器通过一条长连接把事件持续推给客户端。LLM API 用它把每个生成的 token 尽快发出,首个 token 约 0.4 秒就能到达。
+
+**SSE 和 WebSocket 怎么选?**
+对话补全用 SSE:一次请求进、单向 token 流出,自带断线重连。服务器需要随时主动推送消息时才用 WebSocket,比如协作文档或实时大盘。
+
+**为什么 EventSource 不能给 LLM API 带 Authorization 头?**
+EventSource 不允许自定义请求头,而且 API Key 本就不该出现在浏览器。标准做法是写一个持有 Key 的后端代理转发流,或用 fetch 配合 ReadableStream 自己解析。
+
+**怎么从 OpenAI 兼容 API 流式取 token?**
+把请求里的 `stream` 设为 true。OpenAI SDK 逐个 yield 增量块;裸响应是 `text/event-stream`,每行 `data:` 是一个 JSON 块,直到 `[DONE]` 标记。TokenPAPA 这类 **OpenAI 兼容 API 聚合器**开箱即用。
+
+---
+
+## 快速开始
+
+1. 前往 [tokenpapa.ai](https://tokenpapa.ai) 注册 — **送 $1 免费额度**,仅需邮箱,不要中国手机号。
+2. 创建 API Key。
+3. 一个 OpenAI 兼容接口,流式调用 30+ 模型:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_TOKENPAPA_KEY",
+    base_url="https://tokenpapa.ai/v1"
+)
+
+stream = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    max_tokens=256,
+    stream=True,
+    messages=[{"role": "user", "content": "把这段话流式返回给我。"}],
+)
+
+for chunk in stream:
+    print(chunk.choices[0].delta.content or "", end="", flush=True)
+```
+
+一个 Key,30+ 模型,token 逐字到达。流式输出本该如此。
