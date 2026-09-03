@@ -1,0 +1,252 @@
+---
+title: 连接 TokenPAPA 到 AI Agent
+description: 把 TokenPAPA API Key 配置到 Cursor、Claude Code、Codex、Cline、Dify、n8n 等第三方 AI Agent,OpenAI 兼容端点,两分钟完成配置
+---
+
+你已经使用 TokenPAPA,理由很简单:**一个 API Key,接入所有主流大模型**——DeepSeek、Qwen、MiniMax、Kimi、Claude 等,无需中国手机号,不受地域限制。
+
+但 Key 躺在控制台里是没用的,它必须进入你日常使用的工具才有价值。而如今,这些工具就是 **Agent**——Cursor 帮你自动补全代码、Claude Code 帮你重构仓库、Codex 把一条 TODO 变成 Pull Request。
+
+好消息是:因为 TokenPAPA 使用的是 **OpenAI 兼容协议**,市面上几乎所有 Agent 都能在 2 分钟内接入。不需要重写 SDK、不需要装插件、没有厂商锁定。
+
+这篇教程先讲清楚通用配置模式,再给出 2026 年最流行的编码 Agent 和 AI 工具的即贴即用配置。每个工具小节都以**成功标志**收尾——你随时都能确认自己配对了没有。
+
+---
+
+## 开始前需要准备什么
+
+先在 TokenPAPA 控制台准备好以下三项:
+
+| 配置项 | 值 | 获取位置 |
+|---|---|---|
+| **Base URL** | `https://api.tokenpapa.ai/v1` | 平台首页或 控制台 → Token 页面 |
+| **API Key** | `sk-xxx...xxxx` | 控制台 → Token → 创建(仅显示一次) |
+| **模型名称** | 如 `deepseek-v4-flash` | Model Square(定价页)或 控制台 → 可用模型 |
+
+> ⚠️ **创建后立即保存 Key。** 出于安全考虑,TokenPAPA 只在创建时显示一次完整 Key。弄丢了就吊销重建一个。
+
+---
+
+## 万能模式:3 个字段,适配所有工具
+
+所有 OpenAI 兼容的 Agent 需要的都是同样的三个字段。理解了这个模式,以后任何工具你都可以不看教程直接配:
+
+```
+Base URL  →  https://api.tokenpapa.ai/v1
+API Key   →  sk-xxx...xxxx
+Model     →  deepseek-v4-flash   (或你套餐里的任意模型)
+```
+
+**就这么多。** 无论是编码 Agent、聊天客户端还是自动化平台,永远都是这三个字段。只要某个 App 让你填 "OpenAI API Key"、"自定义服务商"、"API 兼容端点"——对,就是这里。
+
+---
+
+## 第 0 步:动手配置前,先验证你的 Key 可用
+
+在配置任何工具之前,先在终端跑一条命令。它能确认你的 Key、Base URL、模型名三者都没问题——这样之后某个工具连不上时,你就能确定问题出在工具设置上,而不是你的凭证:
+
+```bash
+curl https://api.tokenpapa.ai/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer *** \
+  -d '{"model": "deepseek-v4-flash", "messages": [{"role": "user", "content": "ping"}]}'
+```
+
+**✅ 成功标志:** 返回一段 JSON,里面有模型的回复。
+**如果返回 `401 Unauthorized`** → Key 错误或已过期。
+**如果返回 `404 Model Not Found`** → 模型 ID 写错,去 Model Square 复制完整 ID。
+
+这条通过之后,下面每个工具都只是"把这三个值填进不同的输入框"而已。
+
+---
+
+## 编码类 Agent
+
+### Cursor
+
+Cursor 是最流行的 AI 代码编辑器之一,支持自定义 OpenAI 兼容 API 服务商。
+
+**配置步骤:**
+
+1. 打开 Cursor → **设置**(齿轮图标)→ **Models**
+2. 滚动到 **OpenAI API Key** 区域 → 打开 **Override OpenAI Base URL** 开关
+3. 填写:
+   - **OpenAI API Key:** `sk-xxx...xxxx`
+   - **OpenAI Base URL:** `https://api.tokenpapa.ai/v1`
+4. 点击 **Verify**——Cursor 会验证连接
+5. 把模型名(如 `deepseek-v4-flash`)加入模型列表,然后在模型选择器里选中它
+
+**✅ 成功标志:** Verify 按钮显示绿色通过;模型出现在选择器里;发一条消息能正常收到回复。
+
+> 💡 找不到入口?在 Cursor 设置的搜索框里直接输入 `openai base url` 就能跳到该字段——它在不同版本的菜单位置略有差异。
+> 💡 更倾向环境变量?也可以在终端里先设置 `OPENAI_API_KEY` 和 `OPENAI_BASE_URL` 再启动 Cursor——很多团队这样做,Key 不用留在界面里。
+
+---
+
+### Claude Code
+
+Claude Code(Anthropic 的终端 Agent)默认连接 Anthropic 官方 API。如果你的 TokenPAPA 套餐包含 Claude 模型、并且平台提供 Anthropic 兼容端点,可以用两个环境变量把它指向 TokenPAPA:
+
+```bash
+export ANTHROPIC_BASE_URL="https://api.tokenpapa.ai"   # ← 你的 Anthropic 兼容端点(不带 /v1,客户端会自动拼接)
+export ANTHROPIC_AUTH_TOKEN="sk-xxx...xxxx"
+export ANTHROPIC_MODEL="claude-sonnet-4-6"             # 或你使用的其他 Claude 模型
+claude
+```
+
+**✅ 成功标志:** Claude Code 正常启动,测试提问能收到回复,且没有 `401` 报错。
+
+> ⚠️ **运行前先确认:** 到 TokenPAPA 模型列表 / API 文档核实 Anthropic 兼容端点和 Claude 模型 ID。如果你的账号只走 OpenAI 兼容端点,就改用下面的 Cursor、Codex CLI 或 Cline 来接 Claude 模型——模型一样,只是协议不同。
+
+---
+
+### OpenAI Codex CLI
+
+OpenAI 开源的 Codex CLI Agent 读取标准的 OpenAI 环境变量,指向 TokenPAPA 非常简单:
+
+```bash
+export OPENAI_API_KEY="sk-xxx...xxxx"
+export OPENAI_BASE_URL="https://api.tokenpapa.ai/v1"
+
+# 用你选的模型运行
+codex exec --model deepseek-v4-flash "解释一下这个仓库"
+```
+
+**✅ 成功标志:** Codex 正常回答你的提问,输出中没有 `401` / `404` 报错。
+
+> 💡 TokenPAPA 上的 DeepSeek、Qwen、Kimi、MiniMax 价格只有 GPT 的零头——用它们跑 Codex 是 2026 年运行终端 Agent 最省钱的方式之一。价格对比见 [LLM API 价格对比](/zh/docs/blog/llm-api-pricing-comparison-2026)。
+
+---
+
+### Cline 与 Roo Code(VS Code)
+
+Cline 和 Roo Code 是 VS Code 上最流行的开源 AI 编码 Agent,都支持任意 OpenAI 兼容服务商。
+
+**配置步骤(两者相同):**
+
+1. 安装扩展 → 打开设置面板
+2. **API Provider:** 选择 **OpenAI Compatible**
+3. 填写:
+   - **Base URL:** `https://api.tokenpapa.ai/v1`
+   - **API Key:** `sk-xxx...xxxx`
+   - **Model ID:** `deepseek-v4-flash`(Agent 编码场景可选 `qwen3.7-max`)
+4. 点击 **"Check"** 按钮验证——成功后会显示该模型的定价
+
+**✅ 成功标志:** Check 按钮返回绿色 ✓(或显示模型价格)。如果你的版本按钮叫 "Connect" 而不是 "Check" 也没关系——以绿色确认提示为准。
+
+---
+
+### Continue(VS Code / JetBrains)
+
+Continue 是流行的开源 AI 助手,通过配置文件读取服务商。把下面内容加入你的 `config.json`:
+
+```json
+{
+  "models": [
+    {
+      "title": "DeepSeek V4 Flash (TokenPAPA)",
+      "provider": "openai",
+      "model": "deepseek-v4-flash",
+      "apiBase": "https://api.tokenpapa.ai/v1",
+      "apiKey": "sk-xxx...xxxx"
+    }
+  ]
+}
+```
+
+**✅ 成功标志:** 重启扩展后,"DeepSeek V4 Flash (TokenPAPA)" 出现在模型下拉框里,选中后能正常对话。
+
+---
+
+## 工作流与无代码 Agent
+
+### Dify
+
+Dify 可以可视化搭建 AI 应用,任何 OpenAI 兼容模型服务商都能直接接入。
+
+1. 进入 **设置 → 模型供应商**
+2. 找到 **OpenAI-API-compatible**(或添加自定义供应商)
+3. 填写:
+   - **API Base URL:** `https://api.tokenpapa.ai/v1`
+   - **API Key:** `sk-xxx...xxxx`
+4. 点击 **保存**——Dify 会自动拉取你可用的模型列表
+
+**✅ 成功标志:** 保存后可用模型列表里出现你的 TokenPAPA 模型,并且能在任意工作流/聊天机器人里选中使用。
+
+> 💡 列表里找不到 "OpenAI-API-compatible"?选任意标注 "OpenAI 兼容" 的供应商即可——字段完全一样。
+
+### n8n
+
+n8n 是领先的开源工作流自动化平台。在它的 **OpenAI** 节点里使用 TokenPAPA:
+
+1. 创建一个 **OpenAI** 节点凭证
+2. 勾选 **"Use custom base URL"**
+3. 填写:
+   - **Base URL:** `https://api.tokenpapa.ai/v1`
+   - **API Key:** `sk-xxx...xxxx`
+4. 在节点里把 **Model** 设为如 `deepseek-v4-flash`
+
+**✅ 成功标志:** 对节点执行一次测试运行,返回绿色成功结果,而不是鉴权报错。
+
+> 💡 小技巧:n8n 的很多节点(LangChain、AI Agent、Basic LLM Chain)底层都是 OpenAI 兼容的,都暴露了自定义 Base URL 字段——同样的三个字段到处通用。
+
+---
+
+## 聊天类 App 与一键导入
+
+聊天客户端(LobeChat、OpenCat、Cherry Studio、ChatBox、Open WebUI…)甚至不需要这篇教程:TokenPAPA 的 **控制台 → Token 页面** 对支持的 App 提供了一键 **Import** 按钮,其余所有 OpenAI 兼容聊天客户端也都是同一套 Base URL + Key + Model 三件套。完整列表见 [Chat 应用接入指南](/zh/docs/guide/feature-guide/user/chat-apps)。
+
+---
+
+## 每个 Agent 该用哪个模型?
+
+| 工具 | 推荐模型 | 理由 |
+|---|---|---|
+| Cursor(补全 / 对话) | `deepseek-v4-flash` | 快、便宜、代码能力强 |
+| Codex CLI / Agent 编码 | `qwen3.7-max` 或 `deepseek-v4-pro` | 工具调用与多步推理强 |
+| Claude Code | `claude-sonnet-4-6` | Anthropic 的指令遵循能力(套餐开通时) |
+| Cline / Roo(长任务跑批) | `deepseek-v4-flash` | 长时间会话成本可控 |
+| Dify / n8n(生产工作流) | `deepseek-v4-flash` + 缓存 | 命中缓存最高省 90% 成本 |
+| 翻译 / 写作任务 | `kimi-k3` 或 `qwen3.7-plus` | 多语言输出能力强 |
+
+具体模型列表以你的套餐为准——到定价页的 **Model Square** 查看当前目录和单价。
+
+---
+
+## 故障排查
+
+工具配置失败时,按顺序从上往下排查这张表:
+
+| 现象 | 可能原因 | 解决办法 |
+|---|---|---|
+| `401 Unauthorized` | Key 错误 / 已过期 | 核对你的 Key;必要时新建 Token |
+| `404 Model Not Found` | 模型 ID 写错 | 从 Model Square 复制完整 ID——是 `deepseek-v4-flash`,不是 `DeepSeek V4 Flash` |
+| 连接拒绝 / 超时 | Base URL 写错 | 必须以 `/v1` 结尾:`https://api.tokenpapa.ai/v1` |
+| 第 0 步 curl 能通、Agent 里不行 | Agent 特定字段没填对 | 有些 Agent 的 "API key" 和环境变量是两个字段,都填上 |
+| Playground 能用、Agent 里不行 | Agent 缓存了旧配置 | 保存设置后重启 Agent / 重新加载窗口 |
+| 响应慢 | 区域网络路径问题 | 检查到 api.tokenpapa.ai 的网络延迟 |
+
+**黄金法则:** 第 0 步的 curl 测试能通过、但某个工具还是失败 → 问题一定出在那个工具的设置里,回去核对填进去的三个字段。更底层的 API 排错见 [LLM API 错误处理与调试指南](/zh/docs/blog/llm-api-error-handling-debugging)。
+
+---
+
+## 安全提醒
+
+- **永远不要把 Key 提交到 Git。** 用环境变量或工具的密钥存储
+- **尽量一个工具一个 Key**——TokenPAPA 支持创建多个 Token,单个 Key 泄露可以单独吊销,不影响其他
+- **定期轮换。** 新建 Key → 更新工具配置 → 删除旧 Key
+- 关注用量:经常到 **控制台 → 日志** 查看消耗,及时发现异常
+
+---
+
+## 开始使用
+
+现在你有一个 Key 驱动整套 AI 工具——把最便宜的国产大模型(DeepSeek V4 Flash 输入 $0.14/1M tokens)放进别人要花 10–20 倍价格才能用的 Agent 里。
+
+**2 分钟上手:**
+
+1. [注册 TokenPAPA](https://tokenpapa.ai)
+2. 在控制台创建 API Key
+3. 先跑第 0 步 curl 验证,再选一个上面的 Agent 填入三个字段
+
+有问题?来 GitHub 找我们,或通过控制台联系支持——开工愉快!🚀
