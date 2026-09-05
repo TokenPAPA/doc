@@ -1,0 +1,141 @@
+---
+title: "LLM API 价格走势 2026:降价潮会持续吗?"
+description: "2026 LLM API 价格走势:DeepSeek 连续两年降价后在 8 月宣布涨价、GPT-5.6 Luna 降价 80%,以及 LLM API 成本对比 2026 眼中的「双速市场」与应对策略。"
+date: 2026-09-05
+authors: [tokenpapa]
+category: "价格对比"
+keywords: ["LLM API 价格走势", "AI API 降价", "DeepSeek 涨价", "GPT-5.6 Luna 降价", "2026 最便宜 LLM API", "DeepSeek V4 Flash 价格", "LLM API 成本对比 2026", "LLM API 定价 2026", "AI API 价格战", "TokenPAPA 稳定定价"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-09-05 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;LLM API 价格走势 2026:降价潮会持续吗?&quot;,&quot;description&quot;:&quot;2026 LLM API 价格走势:DeepSeek 连续两年降价后在 8 月宣布涨价、GPT-5.6 Luna 降价 80%,以及 LLM API 成本对比 2026 眼中的双速市场与应对策略。&quot;,&quot;datePublished&quot;:&quot;2026-09-05&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;2026 年 LLM API 价格还会继续降吗?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;不会全线下降——市场已经分成两个速度。平价档仍在降:OpenAI 在 7 月 30 日把 GPT-5.6 Luna 降价 80%,Mimo V2.5 输入价只要 $0.08/1M。与此同时,自 2024 年以来降价十多次的 DeepSeek,在 2026 年 8 月 6 日宣布 API 价格将显著上调。预计平价端继续下探,而握有开发者心智的厂商会选择性涨价。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;DeepSeek 为什么在多年降价后突然涨价?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;官方给出的原因是需求激增、算力成本上升和高峰时段承压。V4 Flash 上线几周就成为全球调用量最大的模型之一,以 $0.14/1M 输入的价格支撑这么大的流量很难持续。这次涨价标志着靠补贴维持的最便宜前沿模型时代结束。TokenPAPA 上 deepseek-v4-flash 仍稳定在 $0.14/$0.42、deepseek-v4-pro 稳定在 $0.28/$0.84(每 1M tokens)。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;2026 年的 LLM API 成本对比里谁最划算?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;DeepSeek V4 Flash($0.14/$0.42 每 1M)仍是性价比之王:Terminal Bench 2.1 得分 82.7,首 token 约 0.4 秒,输入价比 GPT-5.6 Sol 便宜 96%。绝对最低价是 Mimo V2.5($0.08/$0.24);OpenAI 生态里的平价首选是 GPT-5.6 Luna($0.27/$2.70)。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;开发者如何应对 LLM API 价格波动?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;走一个价格稳定的多模型网关:一个 TokenPAPA Key 就能调用 30+ 模型,某家涨价时只需改一行 model=,不需要迁移。按任务分层选模型,每次调用设置 max_tokens(输出单价是输入的 3–10 倍),并开启自动上下文缓存,重复输入成本可降低约 90%。&quot;}}]}" />
+
+# LLM API 价格走势 2026:降价潮会持续吗?
+
+问任何开发者 2025 年的 LLM API 什么样,答案只有一个字:便宜。各家一年降价几十次,好用的模型单价跌到每 1M tokens 不到 $0.20。2026 年的剧情更有意思:7 月 30 日,OpenAI 把 GPT-5.6 Luna 直接降价 80%;一周之后,连续两年当"价格屠夫"的 DeepSeek 却宣布**API 价格将显著上调**。两件事同时为真,合起来说明市场已经分裂成两个速度。这篇就是 LLM API 成本对比 2026 的走势版:过去一年到底发生了什么、接下来价格往哪走、以及怎么架构才能让下一条公告与你无关。
+
+---
+
+## 价格表:现在的计价器读数
+
+先看基线。以下为 TokenPAPA 每 1M tokens 价格(输入 / 输出),截至 2026 年 9 月:
+
+| 模型 | 输入 /1M | 输出 /1M | 备注 |
+|------|---------|---------|------|
+| Mimo V2.5 | $0.08 | $0.24 | 绝对最低价 |
+| DeepSeek V4 Flash | $0.14 | $0.42 | 性价比之王 |
+| GPT-5.4 Mini | $0.15 | $0.60 | OpenAI 平价档 |
+| Qwen 3.7 | $0.20 | $0.60 | 编码 + 中文 |
+| GPT-5.6 Luna | $0.27 | $2.70 | 7 月 30 日降价 80% 后 |
+| DeepSeek V4 Pro | $0.28 | $0.84 | 旗舰最佳价值 |
+| GLM-5 | $0.30 | $1.00 | 中文优化 |
+| Kimi K3 | $0.50 | $2.00 | 256K 上下文 |
+| MiniMax M3 | $0.80 | $2.40 | 创意类任务 |
+| Claude Sonnet 4 | $3.00 | $15.00 | 高端推理 |
+| GPT-5.6 Sol | $13.50 | $60.00 | 旗舰标杆 |
+
+先看差距再看新闻:DeepSeek V4 Flash 输入价比 GPT-5.6 Sol 便宜 **96%**($0.14 vs $13.50)。每月 10 万次请求的生产负载,V4 Flash 约 **$52/月**,旗舰档要 **$4,200/月**。无论头条怎么喊涨,这个差距就是平价模型持续吃掉真实工作负载的原因。
+
+---
+
+## 双速市场:2025–2026 时间线
+
+2026 让人困惑的地方在于:价格在同一时间有涨有跌,只是发生在市场两端。
+
+| 日期 | 事件 |
+|------|------|
+| 2024.04 | DeepSeek-V2 上线,"价格屠夫"时代开始 |
+| 2024–2025 | DeepSeek 降价 10 多次,多次幅度 50–90%(V3、R1、V3.1、V3.2-Exp) |
+| 2025.09 | V3.2-Exp 永久降价约 80%——价格战的最低点 |
+| 2026.04 | DeepSeek V4 系列发布,伴随促销定价 |
+| 2026.06 | V4 官方定价落地:V4-Flash 国内输入价 ¥0.04/1M |
+| 2026.07.30 | **OpenAI 将 GPT-5.6 Luna 降价 80%**,输入 $0.27,明确设平价档 |
+| 2026.07.31 | DeepSeek V4 Flash-0731 发布,迅速成为全球调用量最大的模型之一 |
+| 2026.08.06 | **DeepSeek 宣布 API 价格将整体显著上调** |
+| 2026.09 | TokenPAPA 价格表未变——DeepSeek 接入依旧稳定 |
+
+时间线里其实是两个故事。**故事一:**OpenAI 决定不再只给旗舰降价,而是搭一把梯子——Luna $0.27、Terra $2.70、Sol $13.50,再用 80% 的降幅把高流量任务推到 Luna。**故事二:**靠一轮轮降价收割了整整一代开发者心智的 DeepSeek,在 8 月 6 日宣布了定价策略的首次大转向。最便宜前沿模型的时代正在收尾,问题是什么会取代它。
+
+---
+
+## DeepSeek 为何转向:补贴定价的终结
+
+8 月 6 日的公告没有给出具体价格和生效日期,但原因在官方表态与行业报道里已经很清楚:
+
+1. **需求激增。** V4 Flash 上线几周就成为全球调用量最大的模型之一,瓶颈从获客变成了算力。
+2. **算力成本。** 以 $0.14/1M 输入(缓存命中价更低)支撑高流量 API,本就是为了抢用户而非赚钱。
+3. **高峰承压。** DeepSeek 早已试过按时段定价(北京 14:00–18:00),这次涨价是把负载定价正式化。
+4. **行业转向价值定价。** 国内 AI 媒体描述的是同一个转折:从纯粹价格战转向按能力分层定价。
+
+方向比数字更重要:多年降价之后,头部玩家的下一步是向上。把"官方价格不会涨"当成默认假设的开发者,现在真的在承担风险。
+
+---
+
+## 信号指向的下半年
+
+基于时间线做三个判断——是概率,不是确定:
+
+- **平价档继续降,旗舰档不再降。** Luna 降 80%、Mimo V2.5 卖 $0.08,说明低端仍有补贴与竞争的空间。$0.05–$0.30 区间会继续拥挤,新玩家会以低于 DeepSeek V4 Flash 的价格入场。
+- **形成护城河的地方会选择性涨价。** DeepSeek 是赢得心智后才涨的。盯着 Qwen、Kimi、MiniMax:谁在某条赛道(编码、长上下文、音频)拿到领先,谁就可能试同样的动作。
+- **价格稳定本身变成产品能力。** 当一家厂商可以在一个周二改价,拥有稳定定价和秒级换模型的聚合平台就不再是便利,而是保险。2026 年的 LLM API 成本对比,越来越多人会多问一行:"如果供应商明天改价,我的账单会怎样?"
+
+---
+
+## 开发者现在该做什么
+
+你预测不了下一条公告,但可以让它与你无关:
+
+1. **默认用平价档。** DeepSeek V4 Flash($0.14/$0.42)Terminal Bench 2.1 得分 **82.7**,首 token 约 **0.4s**,智能体编码胜过贵 50 倍的模型。聊天、抽取、RAG、代码——都该默认选它。
+2. **走稳定网关,别只绑一家。** 一个 TokenPAPA Key 就能调用 30+ 模型(DeepSeek、GPT-5.6、Claude、Gemini、Qwen、Kimi、Mimo)。DeepSeek 官方涨价落地时,你只需改一行 `model=`——不换 SDK、不换 Key、不搞迁移项目。
+3. **每次输出都设上限。** 所有模型的输出单价都是输入的 3–10 倍,设好 `max_tokens`,一次失控的生成就吃不掉一周省下的钱。
+4. **开启缓存。** DeepSeek 自动上下文缓存把重复输入成本降低约 90%。系统提示和对话历史每一轮都一样,别付两次钱。
+5. **按 Key 盯用量。** 按 Key 的消费上限能把"价格突变"变成仪表盘上的告警,而不是月底的账单惊吓。
+
+---
+
+## 常见问题
+
+**问:2026 年 LLM API 价格还会继续降吗?**
+
+答:不会全线下降——市场已经分成两个速度。平价档仍在降:OpenAI 在 7 月 30 日把 GPT-5.6 Luna 降价 80%,Mimo V2.5 输入价只要 $0.08/1M。与此同时,自 2024 年以来降价十多次的 DeepSeek,在 2026 年 8 月 6 日宣布 API 价格将显著上调。预计平价端继续下探,而握有开发者心智的厂商会选择性涨价。
+
+**问:DeepSeek 为什么在多年降价后突然涨价?**
+
+答:官方给出的原因是需求激增、算力成本上升和高峰时段承压。V4 Flash 上线几周就成为全球调用量最大的模型之一,以 $0.14/1M 输入的价格支撑这么大的流量很难持续。这次涨价标志着靠补贴维持的最便宜前沿模型时代结束。TokenPAPA 上 `deepseek-v4-flash` 仍稳定在 $0.14/$0.42、`deepseek-v4-pro` 稳定在 $0.28/$0.84(每 1M tokens)。
+
+**问:2026 年的 LLM API 成本对比里谁最划算?**
+
+答:DeepSeek V4 Flash($0.14/$0.42 每 1M)仍是性价比之王:Terminal Bench 2.1 得分 82.7,首 token 约 0.4 秒,输入价比 GPT-5.6 Sol 便宜 96%。绝对最低价是 Mimo V2.5($0.08/$0.24);OpenAI 生态里的平价首选是 GPT-5.6 Luna($0.27/$2.70)。
+
+**问:开发者如何应对 LLM API 价格波动?**
+
+答:走一个价格稳定的多模型网关:一个 TokenPAPA Key 就能调用 30+ 模型,某家涨价时只需改一行 `model=`,不需要迁移。按任务分层选模型,每次调用设置 `max_tokens`(输出单价是输入的 3–10 倍),并开启自动上下文缓存,重复输入成本可降低约 90%。
+
+---
+
+## 快速开始
+
+1. **注册** [tokenpapa.ai](https://tokenpapa.ai) —— 仅需邮箱,无需中国手机号。
+2. **创建 API Key** —— OpenAI 兼容,一个 Key 调用 30+ 模型。
+3. **在稳定定价上开发** —— 先用 $0.14/$0.42 的 `deepseek-v4-flash`,任何厂商改价,一行 `model=` 即可切换。
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://tokenpapa.ai/v1", api_key="your-key")
+
+resp = client.chat.completions.create(
+    model="deepseek-v4-flash",        # $0.14/$0.42 每 1M —— TokenPAPA 价格稳定
+    max_tokens=300,                   # 输出单价是输入 3-10 倍,务必设上限
+    messages=[{"role": "user", "content": "用 3 条要点总结本周的 LLM 定价新闻。"}]
+)
+print(resp.choices[0].message.content)
+```
+
+降价潮造就了 2026 年的 LLM 市场,价格稳定才能让它跑下去。一个 Key,30+ 模型,账单不随新闻起舞。
