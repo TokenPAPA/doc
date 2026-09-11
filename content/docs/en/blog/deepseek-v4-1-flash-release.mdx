@@ -1,0 +1,148 @@
+---
+title: "DeepSeek V4.1 Flash Released: V4 Pro Retires September 14 with Automatic Routing (2026)"
+description: "DeepSeek V4.1 Flash is live under the model ID deepseek-flash. V4 Pro retires on September 14, 2026 at 12:00 Beijing time and auto-routes to V4.1 Flash billing. TokenPAPA group pricing, cost examples, and migration notes."
+date: 2026-09-11
+authors: [tokenpapa]
+category: "Model Update"
+keywords: ["DeepSeek V4.1 Flash", "deepseek-flash", "DeepSeek V4 Pro retirement", "deepseek v4.1 pricing", "deepseek-flash model id", "DeepSeek V4 Pro auto routing", "deepseek cache input pricing", "TokenPAPA deepseek", "deepseek api overseas", "LLM API aggregator"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-09-11 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;DeepSeek V4.1 Flash Released: V4 Pro Retires September 14 with Automatic Routing&quot;,&quot;description&quot;:&quot;DeepSeek V4.1 Flash is live under the model ID deepseek-flash. V4 Pro retires on September 14, 2026 at 12:00 Beijing time and auto-routes to V4.1 Flash billing.&quot;,&quot;datePublished&quot;:&quot;2026-09-11&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Will my V4 Pro calls break after the retirement?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;No. After 12:00 on September 14, V4 Pro requests are automatically routed to V4.1 Flash and billed at V4.1 Flash rates. No code changes are required.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;What is the model ID for DeepSeek V4.1 Flash?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;The model ID is deepseek-flash. It is live on the TokenPAPA model marketplace and ready to call.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Is V4.1 Flash cheaper or more expensive than V4 Pro?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;According to the official testing, V4.1 Flash beats V4 Pro on cost as well as performance, speed, and total time. Re-check your usage budget against the V4.1 Flash rates on TokenPAPA before September 14.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How does the 0.006 per 1M cache input price work?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;When the prefix of your request (system prompt, few-shot examples, and so on) hits the cache, that portion of input is billed at 0.006 dollars per 1M tokens, about 1/50 of the standard input rate. Apps with heavy repetition save the most.&quot;}}]}" />
+
+# DeepSeek V4.1 Flash Released: V4 Pro Retires September 14 with Automatic Routing
+
+DeepSeek has announced **DeepSeek V4.1 Flash**. At the same time, **the V4 Pro service is being retired on September 14, 2026 at 12:00 Beijing time** — from that moment, every request sent to V4 Pro is **automatically routed to V4.1 Flash** and billed at V4.1 Flash rates. No code changes on your side.
+
+Per the official note, after internal and external testing, **V4.1 Flash has comprehensively surpassed V4 Pro across performance, cost, speed, and total time**.
+
+The model ID is **`deepseek-flash`**. It is already live on the [TokenPAPA](https://tokenpapa.ai) model marketplace, so one API key is all you need to call it today.
+
+---
+
+## What is changing
+
+| Item | Detail |
+|---|---|
+| Model name | DeepSeek V4.1 Flash |
+| **Model ID** | **`deepseek-flash`** |
+| V4 Pro retirement | September 14, 2026, 12:00 Beijing time |
+| After retirement | V4 Pro requests auto-route to V4.1 Flash |
+| Billing | Charged at V4.1 Flash rates |
+| Official result | Beats V4 Pro on performance, cost, speed, and total time |
+
+The only thing to watch: **routing is automatic, but the price changes**. If your budget was built on the old V4 Pro rates, re-run the numbers before September 14.
+
+---
+
+## Why V4.1 Flash "comprehensively surpasses" V4 Pro
+
+The four dimensions in the official comparison:
+
+| Dimension | V4.1 Flash vs V4 Pro |
+|---|---|
+| **Performance** | Benchmark scores at least on par with V4 Pro |
+| **Cost** | Lower per-token cost |
+| **Speed** | Faster generation |
+| **Total time** | Shorter end-to-end task completion time |
+
+In practice you notice two things: faster replies to the same prompt, and shorter waits on long tasks. If you run cost-sensitive batch jobs or latency-sensitive features, this upgrade moves in the right direction on both.
+
+---
+
+## TokenPAPA pricing
+
+Base rates for V4.1 Flash (`deepseek-flash`) on TokenPAPA:
+
+| Item | Price (per 1M tokens) |
+|---|---|
+| Input | **$0.30** |
+| Output | **$1.20** |
+| Cache input | **$0.006** |
+
+Different account groups get different multipliers:
+
+| Group | Multiplier | Input (/1M) | Output (/1M) | Cache input (/1M) |
+|---|---|---|---|---|
+| default | 1x | $0.30 | $1.20 | $0.006 |
+| Enterprise | 0.5x | $0.15 | $0.60 | $0.003 |
+| Pro | 0.8x | $0.24 | $0.96 | $0.0048 |
+| Starter | 0.9x | $0.27 | $1.08 | $0.0054 |
+
+Two things stand out:
+
+- **Cache input is $0.006/1M**, about **1/50** of the standard input rate. If your app reuses a system prompt or a fixed prefix, cached input becomes almost free.
+- **The group spread is significant**: Enterprise at 50% off, Pro at 20% off, Starter at 10% off. The higher your tier and the more you use, the lower your unit price.
+
+### Cost example
+
+Assume 100,000 requests per month, each around 1,500 tokens (1,000 input + 500 output):
+
+| Group | Input cost | Output cost | Total / month |
+|---|---|---|---|
+| default (1x) | $30 | $60 | **$90** |
+| Enterprise (0.5x) | $15 | $30 | **$45** |
+
+If most of the input hits the cache, the input side drops by another order of magnitude.
+
+---
+
+## What this means if you use V4 Pro
+
+1. **No code changes** — keep calling V4 Pro; requests land on V4.1 Flash automatically;
+2. **Re-check your budget** — run the cost comparison against the new V4.1 Flash rates;
+3. **Lean on caching** — keep stable system prompts and fixed prefixes so they hit the cache and input drops to $0.006/1M;
+4. **Share findings** — DeepSeek welcomes feedback from anyone comparing V4 Pro and V4.1 Flash in testing.
+
+---
+
+## Quick start
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-tokenpapa-key",
+    base_url="https://tokenpapa.ai/v1"
+)
+
+resp = client.chat.completions.create(
+    model="deepseek-flash",   # DeepSeek V4.1 Flash
+    messages=[{"role": "user", "content": "Explain the difference between V4.1 Flash and V4 Pro in one sentence."}]
+)
+print(resp.choices[0].message.content)
+```
+
+One API key covers DeepSeek V4.1 Flash, V4 Pro, plus GPT, Claude, Gemini, Qwen, Kimi, and 30+ more models — all through a single OpenAI-compatible endpoint. No Chinese phone number required, and switching models is a one-line `model=` change.
+
+---
+
+## FAQ
+
+**Q: Will my V4 Pro calls break after the retirement?**
+A: No. After 12:00 on September 14, V4 Pro requests are automatically routed to V4.1 Flash and billed at V4.1 Flash rates. No code changes are required.
+
+**Q: What is the model ID for DeepSeek V4.1 Flash?**
+A: The model ID is **`deepseek-flash`**, now live on the TokenPAPA model marketplace.
+
+**Q: Is V4.1 Flash cheaper or more expensive than V4 Pro?**
+A: Per the official results, V4.1 Flash beats V4 Pro on cost. Re-check your usage budget against the V4.1 Flash rates on TokenPAPA before September 14.
+
+**Q: How does the $0.006/1M cache input price work?**
+A: When the prefix of your request (system prompt, few-shot examples, and so on) hits the cache, that portion of input is billed at $0.006/1M — about 1/50 of the standard input rate. Repetition-heavy apps save the most.
+
+---
+
+## Get Started
+
+1. Sign up at [tokenpapa.ai](https://tokenpapa.ai);
+2. Create an API key (no Chinese phone number needed);
+3. Point your base_url to `https://tokenpapa.ai/v1` and send your first request with the model ID `deepseek-flash`.
+
+V4 Pro retires on September 14 at 12:00 — the migration is automatic, but the budget is worth checking early.

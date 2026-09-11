@@ -1,0 +1,148 @@
+---
+title: "DeepSeek V4.1 Flash 发布：V4 Pro 将于 9 月 14 日下线自动路由 (2026)"
+description: "DeepSeek V4.1 Flash 正式发布，模型 ID 为 deepseek-flash。V4 Pro 将于北京时间 2026 年 9 月 14 日 12:00 下线，并自动路由至 V4.1 Flash 计费。含 TokenPAPA 分组定价、成本示例与迁移指南。"
+date: 2026-09-11
+authors: [tokenpapa]
+category: "模型更新"
+keywords: ["DeepSeek V4.1 Flash", "deepseek-flash", "DeepSeek V4 Pro 下线", "deepseek v4.1 定价", "deepseek-flash 模型 ID", "DeepSeek V4 Pro 自动路由", "deepseek 缓存输入价格", "TokenPAPA deepseek", "deepseek api 海外", "LLM API 聚合平台"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-09-11 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;DeepSeek V4.1 Flash 发布：V4 Pro 将于 9 月 14 日下线自动路由&quot;,&quot;description&quot;:&quot;DeepSeek V4.1 Flash 正式发布，模型 ID 为 deepseek-flash。V4 Pro 将于北京时间 2026 年 9 月 14 日 12:00 下线并自动路由至 V4.1 Flash 计费。&quot;,&quot;datePublished&quot;:&quot;2026-09-11&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;V4 Pro 下线后，我的调用会失败吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;不会。9 月 14 日 12:00 后，V4 Pro 请求会自动路由到 V4.1 Flash 并按 V4.1 Flash 计费，代码无需改动。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;DeepSeek V4.1 Flash 的模型 ID 是什么？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;模型 ID 为 deepseek-flash，现已上线 TokenPAPA 模型广场，可直接调用。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;V4.1 Flash 比 V4 Pro 更贵还是更便宜？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;按官方口径，V4.1 Flash 在费用上全面超越 V4 Pro。建议在 9 月 14 日前按 TokenPAPA 的 V4.1 Flash 费率重新核算用量预算。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;缓存输入 0.006 美元每 1M 是怎么计算的？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;当请求前缀（系统提示词、少样本示例等）命中缓存时，这部分输入按 0.006 美元每 1M tokens 计费，约为标准输入价的五十分之一，重复度高的应用节省最明显。&quot;}}]}" />
+
+# DeepSeek V4.1 Flash 发布：V4 Pro 将于 9 月 14 日下线自动路由
+
+DeepSeek 官宣：**DeepSeek V4.1 Flash** 正式发布。与此同时，**V4 Pro 服务将于北京时间 2026 年 9 月 14 日 12:00 下线**——届时所有发往 V4 Pro 的请求会**自动路由到 V4.1 Flash**，并按 V4.1 Flash 的价格计费。调用方无需改动代码。
+
+据官方说明，经内部与外部多方测试，**V4.1 Flash 在性能、费用、速度、总用时等各项指标上已全面超越 V4 Pro**。
+
+模型 ID 为 **`deepseek-flash`**，现已上线 [TokenPAPA](https://tokenpapa.ai) 模型广场，一个 API Key 即可直接调用。
+
+---
+
+## 本次变更要点
+
+| 项目 | 说明 |
+|---|---|
+| 模型名称 | DeepSeek V4.1 Flash |
+| **模型 ID** | **`deepseek-flash`** |
+| V4 Pro 下线时间 | 北京时间 2026 年 9 月 14 日 12:00 |
+| 下线后路由 | V4 Pro 请求自动路由至 V4.1 Flash |
+| 计费方式 | 按 V4.1 Flash 费率计费 |
+| 官方测试结论 | 性能、费用、速度、总用时全面超越 V4 Pro |
+
+唯一需要留意的是：**路由自动、价格会变**。如果你的预算是按旧 V4 Pro 费率做的，建议在 9 月 14 日之前按新价格重新核算。
+
+---
+
+## 为什么 V4.1 Flash "全面超越" V4 Pro
+
+官方给出的四维对比：
+
+| 维度 | V4.1 Flash 相对 V4 Pro |
+|---|---|
+| **性能** | 多项基准测试不低于 V4 Pro |
+| **费用** | 单 token 成本更低 |
+| **速度** | 生成更快 |
+| **总用时** | 端到端完成同一任务时间更短 |
+
+对开发者最直接的体感是两点：同样的 prompt 回复更快，长任务的等待时间更短。如果你正在做成本敏感的批量任务，或对响应延迟敏感，这次升级都是正向的。
+
+---
+
+## TokenPAPA 定价
+
+V4.1 Flash（`deepseek-flash`）在 TokenPAPA 上的基础价格为：
+
+| 项目 | 价格（每 1M tokens） |
+|---|---|
+| 输入 | **$0.30** |
+| 输出 | **$1.20** |
+| 缓存输入 | **$0.006** |
+
+不同用户分组享受不同倍率折扣：
+
+| 分组 | 倍率 | 输入（/1M） | 输出（/1M） | 缓存输入（/1M） |
+|---|---|---|---|---|
+| default | 1x | $0.30 | $1.20 | $0.006 |
+| Enterprise | 0.5x | $0.15 | $0.60 | $0.003 |
+| Pro | 0.8x | $0.24 | $0.96 | $0.0048 |
+| Starter | 0.9x | $0.27 | $1.08 | $0.0054 |
+
+两个值得注意的点：
+
+- **缓存输入仅 $0.006/1M**，约为标准输入价的 **1/50**。系统提示词、少样本示例、固定前缀较多的应用，缓存命中后输入成本几乎可以忽略。
+- **分组倍率差异明显**：Enterprise 五折、Pro 八折、Starter 九折——用量越大、档位越高，单价越低。
+
+### 成本示例
+
+假设每月 10 万次请求，每次约 1,500 tokens（1,000 输入 + 500 输出）：
+
+| 分组 | 输入成本 | 输出成本 | 合计/月 |
+|---|---|---|---|
+| default（1x） | $30 | $60 | **$90** |
+| Enterprise（0.5x） | $15 | $30 | **$45** |
+
+若输入大部分命中缓存，输入侧还能再降一个量级。
+
+---
+
+## 对 V4 Pro 用户意味着什么
+
+1. **无需改代码** —— 继续调用 V4 Pro，请求会自动落到 V4.1 Flash；
+2. **重新核算预算** —— 按 V4.1 Flash 新费率做一次成本对比；
+3. **重点用好缓存** —— 把稳定的系统提示词、固定前缀沉淀下来，让缓存命中，输入压到 $0.006/1M；
+4. **反馈差异** —— 官方欢迎用户反馈 V4 Pro 与 V4.1 Flash 的对比测试结果。
+
+---
+
+## 快速开始
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-tokenpapa-key",
+    base_url="https://tokenpapa.ai/v1"
+)
+
+resp = client.chat.completions.create(
+    model="deepseek-flash",   # DeepSeek V4.1 Flash
+    messages=[{"role": "user", "content": "用一句话解释 V4.1 Flash 和 V4 Pro 的区别。"}]
+)
+print(resp.choices[0].message.content)
+```
+
+一个 API Key 即可调用 DeepSeek V4.1 Flash、V4 Pro，以及 GPT、Claude、Gemini、Qwen、Kimi 等 30+ 模型，全部走同一个 OpenAI 兼容端点——无需中国手机号，切换模型只改一行 `model=`。
+
+---
+
+## 常见问题
+
+**Q：V4 Pro 下线后，我的调用会失败吗？**
+A：不会。9 月 14 日 12:00 后，V4 Pro 请求会自动路由到 V4.1 Flash 并按 V4.1 Flash 计费，代码无需改动。
+
+**Q：DeepSeek V4.1 Flash 的模型 ID 是什么？**
+A：模型 ID 为 **`deepseek-flash`**，现已上线 TokenPAPA 模型广场。
+
+**Q：V4.1 Flash 比 V4 Pro 更贵还是更便宜？**
+A：按官方口径，V4.1 Flash 在费用上全面超越 V4 Pro。建议在 9 月 14 日前按 TokenPAPA 的 V4.1 Flash 费率重新核算用量预算。
+
+**Q：缓存输入 $0.006/1M 是怎么算的？**
+A：当请求前缀（系统提示词、少样本示例等）命中缓存时，这部分输入按 $0.006/1M 计费，约为标准输入价的 1/50，重复度高的应用节省最明显。
+
+---
+
+## 开始使用
+
+1. 在 [tokenpapa.ai](https://tokenpapa.ai) 注册账号；
+2. 创建一个 API Key（无需中国手机号）；
+3. 把 base_url 指向 `https://tokenpapa.ai/v1`，用模型 ID `deepseek-flash` 发送第一个请求。
+
+V4 Pro 将于 9 月 14 日 12:00 下线——迁移是自动的，但预算要提前算。
