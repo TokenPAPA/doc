@@ -1,0 +1,233 @@
+---
+title: "Quick Start: Your First API Call to Qwen in 5 Minutes"
+description: "Send your first Qwen API call in five minutes: install the OpenAI SDK, grab a key, call qwen3.7-plus, and parse the response — no Chinese phone number needed."
+date: 2026-09-18
+authors: [tokenpapa]
+category: "Tutorial"
+keywords: ["Qwen API quick start", "qwen3 api", "qwen api python", "qwen api key", "TokenPAPA qwen", "Alibaba Qwen API", "qwen3.7-plus", "qwen api tutorial", "qwen api without chinese phone", "qwen api pricing"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-09-18 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;Quick Start: Your First API Call to Qwen in 5 Minutes&quot;,&quot;description&quot;:&quot;Send your first Qwen API call in about five minutes: install the OpenAI SDK, grab a key, call qwen3.7-plus, and parse the response. No Chinese phone number required.&quot;,&quot;datePublished&quot;:&quot;2026-09-18&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;What is the fastest way to get a Qwen API key?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Sign up at tokenpapa.ai with an email address or Google and GitHub one-click login, which auto-creates the account on first use. Then open the console and generate an API key. No Chinese phone number, SMS code, or Alibaba Cloud account is required, so the whole step usually takes under two minutes.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Which Python SDK do I need for the Qwen API?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;The standard OpenAI Python SDK. TokenPAPA exposes an OpenAI-compatible endpoint at https://tokenpapa.ai/v1, so you install openai, set base_url to that endpoint, and pass a Qwen model ID such as qwen3.7-plus as the model parameter. No Alibaba-specific SDK or client is needed.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How much does the Qwen API cost on TokenPAPA?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Qwen 3.7, called with the model ID qwen3.7-plus, is listed at 0.20 dollars per 1M input tokens and 0.60 dollars per 1M output tokens with a 256K context window. That is about one and a half times the input price of DeepSeek V4 Flash at 0.14 dollars, and roughly 1 percent of a frontier model such as GPT-5.6 Sol at 13.50 dollars per 1M input. Confirm current rates at tokenpapa.ai/pricing before budgeting.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Can I call Qwen and DeepSeek from the same API key?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Yes. One TokenPAPA key reaches Qwen, DeepSeek, Kimi, GLM, MiniMax, GPT, Claude, and Gemini family models through the same OpenAI-compatible endpoint. Switching models is a one-line change to the model parameter, so you can benchmark Qwen 3.7 against DeepSeek V4 Flash on your own workload without new accounts or new SDKs.&quot;}}]}" />
+
+# Quick Start: Your First API Call to Qwen in 5 Minutes
+
+Qwen is Alibaba's flagship open-weight model family, and the current general-purpose release is **Qwen 3.7**, exposed on TokenPAPA as `qwen3.7-plus`. It is strong at code generation, structured output, and Chinese-language work, and it sits in the cheap tier of the market — which makes it a natural second model next to DeepSeek.
+
+The barrier is rarely the model. It is the account layer. Alibaba Cloud Model Studio expects a verified Alibaba Cloud account and, for most overseas developers, a domestic payment method before you can call anything.
+
+> **Qwen API quick start in one line**: install the OpenAI SDK, set `base_url` to `https://tokenpapa.ai/v1`, set `model` to `qwen3.7-plus`, and send a chat completion request. That is the entire integration — about five minutes from zero to a response.
+
+This is the shortest path, with no Alibaba Cloud account and no Chinese phone number.
+
+---
+
+## What you need
+
+| Requirement | Detail |
+|---|---|
+| Python | 3.8 or newer (or Node 18+ for the JavaScript version below) |
+| Package | `openai` — the standard OpenAI SDK |
+| Account | [tokenpapa.ai](https://tokenpapa.ai) — email, Google, or GitHub |
+| Payment | International card, Apple Pay, or Google Pay (minimum top-up $10) |
+| Base URL | `https://tokenpapa.ai/v1` |
+| Model ID | `qwen3.7-plus` |
+
+Nothing Alibaba-specific is on that list. The Qwen API is OpenAI-compatible on TokenPAPA, so the client you already use for OpenAI or DeepSeek works unchanged.
+
+---
+
+## Step 1 — Install the SDK (30 seconds)
+
+```bash
+pip install --upgrade openai
+```
+
+That is the only dependency. If you already have `openai` installed for another provider, skip this step entirely.
+
+## Step 2 — Get a Qwen API key (about 2 minutes)
+
+1. Sign up at [tokenpapa.ai](https://tokenpapa.ai) using an email address, or use Google / GitHub one-click login (a first-time OAuth login creates the account automatically).
+2. Open the console and generate an API key.
+3. Store it as an environment variable — never hard-code it in a repository.
+
+```bash
+export TOKENPAPA_API_KEY="your-tokenpapa-key"
+```
+
+No Chinese phone number, no SMS verification code, no Alibaba Cloud account, and no domestic bank card are involved at any point.
+
+## Step 3 — Send your first request (30 seconds)
+
+```python
+from openai import OpenAI
+import os
+
+client = OpenAI(
+    api_key=os.environ["TOKENPAPA_API_KEY"],
+    base_url="https://tokenpapa.ai/v1"
+)
+
+response = client.chat.completions.create(
+    model="qwen3.7-plus",              # Qwen 3.7 — 256K context
+    messages=[
+        {"role": "system", "content": "You are a concise technical assistant."},
+        {"role": "user", "content": "Explain what a KV cache is in two sentences."}
+    ],
+    max_tokens=300                     # always cap output: output tokens cost more than input
+)
+
+print(response.choices[0].message.content)
+print("tokens:", response.usage.total_tokens)
+```
+
+Run it and you should see the answer followed by a token count. If you get a `401`, re-copy the key — a trailing newline in the environment variable is the usual culprit.
+
+> **Key takeaway**: The Qwen API on TokenPAPA is a drop-in replacement for the OpenAI API. Only three values change — `base_url`, `api_key`, and `model`. Every other line of your existing code, including retries, streaming, and tool calling, stays exactly as it is.
+
+## Step 4 — Parse the response properly
+
+The response object mirrors OpenAI's shape, so you can read structured fields instead of the raw string:
+
+```python
+choice = response.choices[0]
+
+print(choice.message.content)   # the model's answer
+print(choice.finish_reason)     # "stop" = completed, "length" = hit max_tokens
+print(response.usage.prompt_tokens, response.usage.completion_tokens)
+```
+
+Two practical notes:
+
+- **`finish_reason == "length"`** means the answer was cut off by your `max_tokens`. Raise the cap if the task needs longer output, and remember that output tokens are billed at roughly 3x the input rate on Qwen 3.7.
+- **Log `usage` from day one.** It is the only reliable way to attribute cost per feature once you have more than one caller.
+
+---
+
+## Bonus: streaming and JavaScript
+
+Streaming is a one-flag change:
+
+```python
+stream = client.chat.completions.create(
+    model="qwen3.7-plus",
+    messages=[{"role": "user", "content": "Write a haiku about rate limits."}],
+    stream=True,
+    max_tokens=200
+)
+
+for chunk in stream:
+    delta = chunk.choices[0].delta.content
+    if delta:
+        print(delta, end="", flush=True)
+```
+
+The same endpoint works from Node:
+
+```javascript
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  apiKey: process.env.TOKENPAPA_API_KEY,
+  baseURL: 'https://tokenpapa.ai/v1',
+});
+
+const res = await client.chat.completions.create({
+  model: 'qwen3.7-plus',
+  messages: [{ role: 'user', content: 'Hello Qwen.' }],
+  max_tokens: 200,
+});
+
+console.log(res.choices[0].message.content);
+```
+
+---
+
+## Direct Alibaba Cloud vs TokenPAPA
+
+Both routes reach the same model. The difference is entirely on the account and operations side.
+
+| Dimension | Alibaba Cloud Model Studio (direct) | TokenPAPA |
+|---|---|---|
+| Account requirement | Verified Alibaba Cloud account | Email, Google, or GitHub |
+| Phone / identity check | Domestic identity and payment expected | None |
+| Payment method | Domestic rails in most regions | International cards, Apple Pay, Google Pay |
+| Minimum top-up | Varies by channel | $10 |
+| Model coverage | Qwen family | Qwen, DeepSeek, Kimi, GLM, MiniMax, GPT, Claude, Gemini |
+| Model switching | Separate integrations per vendor | One-line `model=` change |
+| API format | OpenAI-compatible (region-dependent endpoints) | OpenAI-compatible, single endpoint |
+| Setup time | Account verification can take hours to days | About 5 minutes |
+
+> **When a gateway is the right call**: if you are outside mainland China, need to bill on an international card, or want Qwen alongside non-Alibaba models in the same codebase, a gateway removes the account friction entirely and keeps one integration surface.
+
+The honest caveat: direct access can be the better choice if you are inside China, already have enterprise Alibaba Cloud billing, or need Alibaba-specific features such as private model deployment or dedicated throughput. Gateway routing adds a hop, and for teams with an existing enterprise agreement that hop has no upside.
+
+---
+
+## Qwen models you can reach with the same key
+
+| Model ID | Good at | Context |
+|---|---|---|
+| `qwen3.7-plus` | General flagship — chat, coding, agents, structured output | 256K |
+| `qwen3.7-max` | Larger Qwen 3.7 tier for heavier reasoning | see [pricing page](https://tokenpapa.ai/pricing) |
+| `qwen3.8-flash` | Fast, low-cost Qwen tier for high-volume calls | see [pricing page](https://tokenpapa.ai/pricing) |
+
+For a cost baseline, Qwen 3.7 (`qwen3.7-plus`) is listed at **$0.20 per 1M input** and **$0.60 per 1M output** tokens, while DeepSeek V4 Flash is listed at **$0.14 / $0.42** with a 128K window. Rates change — confirm current numbers on the [pricing page](https://tokenpapa.ai/pricing) before you build a budget on them.
+
+---
+
+## Common errors and fixes
+
+| Error | Meaning | Fix |
+|---|---|---|
+| `401 Invalid token` | Key is wrong, revoked, or has whitespace | Re-copy the key; check for a trailing newline in the env var |
+| `402 Insufficient balance` | Balance exhausted | Top up in the console (minimum $10) |
+| `404 model not found` | Model ID does not exist | Use a live ID such as `qwen3.7-plus` |
+| `429 Too many requests` | Rate limit hit | Add exponential backoff with jitter |
+| `400 context length exceeded` | Prompt plus `max_tokens` exceeds the window | Trim history or move to a longer-context model |
+
+The `404` case is the most common first-day mistake, because marketing names and API model IDs rarely match. The model people call "Qwen 3.7" is called with the ID `qwen3.7-plus` — always confirm the exact ID before shipping.
+
+---
+
+## FAQ
+
+**Q: What is the fastest way to get a Qwen API key?**
+A: Sign up at [tokenpapa.ai](https://tokenpapa.ai) with an email address or Google/GitHub one-click login, then generate a key in the console. No Chinese phone number, SMS code, or Alibaba Cloud account is required — the step usually takes under two minutes.
+
+**Q: Which Python SDK do I need for the Qwen API?**
+A: The standard `openai` SDK. The endpoint at `https://tokenpapa.ai/v1` is OpenAI-compatible, so you set `base_url` and pass a Qwen model ID such as `qwen3.7-plus`. No Alibaba-specific client is needed.
+
+**Q: How much does the Qwen API cost on TokenPAPA?**
+A: Qwen 3.7 (`qwen3.7-plus`) is listed at $0.20 per 1M input and $0.60 per 1M output tokens with a 256K context window — about 1% of a frontier model like GPT-5.6 Sol on input price. Confirm current rates at [tokenpapa.ai/pricing](https://tokenpapa.ai/pricing) before budgeting.
+
+**Q: Can I call Qwen and DeepSeek from the same API key?**
+A: Yes. One TokenPAPA key reaches the Qwen, DeepSeek, Kimi, GLM, MiniMax, GPT, Claude, and Gemini families through the same endpoint. Switching is a one-line change to the `model` parameter.
+
+---
+
+## Get Started
+
+1. Sign up at [tokenpapa.ai](https://tokenpapa.ai) — email, Google, or GitHub. No Chinese phone number.
+2. Create an API key in the console.
+3. Point the OpenAI SDK at `https://tokenpapa.ai/v1` and call `qwen3.7-plus`.
+
+```python
+from openai import OpenAI
+
+client = OpenAI(api_key="your-tokenpapa-key", base_url="https://tokenpapa.ai/v1")
+
+print(client.chat.completions.create(
+    model="qwen3.7-plus",
+    messages=[{"role": "user", "content": "Hello Qwen."}],
+    max_tokens=100
+).choices[0].message.content)
+```
+
+Five minutes of setup, one key, and Qwen 3.7 is reachable from anywhere — with DeepSeek, Kimi, GLM, GPT, Claude, and Gemini on the same endpoint whenever you want to compare.

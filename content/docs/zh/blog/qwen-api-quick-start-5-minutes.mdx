@@ -1,0 +1,233 @@
+---
+title: "5 分钟上手:完成你的第一次 Qwen API 调用"
+description: "约 5 分钟完成第一次 Qwen API 调用:安装 OpenAI SDK、拿到 API Key、调用 qwen3.7-plus、解析响应,全程不需要中国手机号与阿里云账号。"
+date: 2026-09-18
+authors: [tokenpapa]
+category: "教程"
+keywords: ["Qwen API 快速上手", "qwen3 api", "qwen api python", "Qwen API Key", "TokenPAPA Qwen", "阿里云 Qwen API", "qwen3.7-plus", "Qwen API 教程", "无需中国手机号的 Qwen API", "Qwen API 价格"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-09-18 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;5 分钟上手:完成你的第一次 Qwen API 调用&quot;,&quot;description&quot;:&quot;约 5 分钟完成第一次 Qwen API 调用:安装 OpenAI SDK、拿到 API Key、调用 qwen3.7-plus、解析响应,全程不需要中国手机号与阿里云账号。&quot;,&quot;datePublished&quot;:&quot;2026-09-18&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;最快拿到 Qwen API Key 的方式是什么?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;在 tokenpapa.ai 用邮箱注册,或直接用 Google、GitHub 一键登录(首次 OAuth 登录会自动创建账号),然后在控制台生成 API Key 即可。全程不需要中国手机号、短信验证码或阿里云账号,通常两分钟内完成。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;调用 Qwen API 需要装哪个 Python SDK?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;用标准的 OpenAI Python SDK 就行。TokenPAPA 提供 OpenAI 兼容接口 https://tokenpapa.ai/v1,把 base_url 指向该地址、model 设为 qwen3.7-plus 等 Qwen 模型 ID 即可,不需要任何阿里云专用 SDK 或客户端。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;TokenPAPA 上 Qwen API 的价格是多少?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Qwen 3.7(模型 ID 为 qwen3.7-plus)标价为输入 0.20 美元/1M tokens、输出 0.60 美元/1M tokens,上下文长度 256K。这大约是 DeepSeek V4 Flash 输入价(0.14 美元)的 1.5 倍,而相对 GPT-5.6 Sol 的 13.50 美元/1M 输入只有约 1%。做预算前请以 tokenpapa.ai/pricing 的实时价格为准。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;同一个 API Key 可以同时调用 Qwen 和 DeepSeek 吗?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;可以。一个 TokenPAPA Key 通过同一个 OpenAI 兼容接口即可访问 Qwen、DeepSeek、Kimi、GLM、MiniMax、GPT、Claude、Gemini 等模型家族,切换模型只需改一行 model 参数,不需要新账号或新 SDK。&quot;}}]}" />
+
+# 5 分钟上手:完成你的第一次 Qwen API 调用
+
+Qwen 是阿里巴巴的旗舰开源模型家族,当前通用版本是 **Qwen 3.7**,在 TokenPAPA 上的模型 ID 为 `qwen3.7-plus`。它在代码生成、结构化输出和中文任务上表现稳定,价格处于市场的低价区间,因此很适合作为 DeepSeek 之外的第二模型。
+
+真正的门槛通常不在模型,而在账号层:阿里云百炼(Model Studio)要求经过验证的阿里云账号,对多数海外开发者来说还需要境内的支付方式,才能开始调用。
+
+> **Qwen API 快速上手一句话版**:安装 OpenAI SDK,把 `base_url` 设为 `https://tokenpapa.ai/v1`,把 `model` 设为 `qwen3.7-plus`,发一条 chat completions 请求即可。整个接入就这么多内容,从零到拿到响应大约 5 分钟。
+
+下面是这条最短路径,不需要阿里云账号,也不需要中国手机号。
+
+---
+
+## 你需要准备什么
+
+| 项目 | 说明 |
+|---|---|
+| Python 版本 | 3.8 以上(或用下面的 Node 18+ 示例) |
+| 依赖包 | `openai` —— 标准 OpenAI SDK |
+| 账号 | [tokenpapa.ai](https://tokenpapa.ai) —— 邮箱、Google 或 GitHub |
+| 支付方式 | 国际银行卡、Apple Pay、Google Pay(最低充值 $10) |
+| Base URL | `https://tokenpapa.ai/v1` |
+| 模型 ID | `qwen3.7-plus` |
+
+这份清单里没有任何阿里云专属的东西。TokenPAPA 上的 Qwen API 完全兼容 OpenAI 接口,所以你现在用于 OpenAI 或 DeepSeek 的客户端代码可以原样复用。
+
+---
+
+## 第 1 步 —— 安装 SDK(约 30 秒)
+
+```bash
+pip install --upgrade openai
+```
+
+这是唯一的依赖。如果你已经为其他模型服务商装过 `openai`,这一步可以直接跳过。
+
+## 第 2 步 —— 拿到 Qwen API Key(约 2 分钟)
+
+1. 在 [tokenpapa.ai](https://tokenpapa.ai) 用邮箱注册,或使用 Google / GitHub 一键登录(首次 OAuth 登录会自动创建账号)。
+2. 进入控制台生成 API Key。
+3. 把它存成环境变量,不要硬编码进代码仓库。
+
+```bash
+export TOKENPAPA_API_KEY="your-tokenpapa-key"
+```
+
+全程不需要中国手机号、短信验证码、阿里云账号,也不需要境内银行卡。
+
+## 第 3 步 —— 发出第一条请求(约 30 秒)
+
+```python
+from openai import OpenAI
+import os
+
+client = OpenAI(
+    api_key=os.environ["TOKENPAPA_API_KEY"],
+    base_url="https://tokenpapa.ai/v1"
+)
+
+response = client.chat.completions.create(
+    model="qwen3.7-plus",              # Qwen 3.7 —— 256K 上下文
+    messages=[
+        {"role": "system", "content": "你是一位简洁的技术助手。"},
+        {"role": "user", "content": "用两句话解释什么是 KV cache。"}
+    ],
+    max_tokens=300                     # 一定要限制输出:输出 token 比输入更贵
+)
+
+print(response.choices[0].message.content)
+print("tokens:", response.usage.total_tokens)
+```
+
+运行后应当先看到答案,再看到 token 用量。如果报 `401`,重新复制一次 Key —— 环境变量末尾多一个换行是最常见的原因。
+
+> **关键结论**:TokenPAPA 上的 Qwen API 是 OpenAI API 的直接替代品。需要改的只有三个值 —— `base_url`、`api_key`、`model`。重试逻辑、流式输出、工具调用等其余代码一行都不用动。
+
+## 第 4 步 —— 正确解析响应
+
+返回对象的结构与 OpenAI 一致,建议读取结构化字段而不是只取字符串:
+
+```python
+choice = response.choices[0]
+
+print(choice.message.content)   # 模型回答
+print(choice.finish_reason)     # "stop" = 正常结束,"length" = 被 max_tokens 截断
+print(response.usage.prompt_tokens, response.usage.completion_tokens)
+```
+
+两个实用提醒:
+
+- **`finish_reason == "length"`** 表示回答被 `max_tokens` 截断了。需要更长输出时提高上限,同时记住 Qwen 3.7 的输出计费大约是输入价格的 3 倍。
+- **从第一天就记录 `usage`。** 当调用方超过一个之后,这是唯一可靠的成本归因方式。
+
+---
+
+## 附加:流式输出与 JavaScript
+
+流式输出只需要加一个参数:
+
+```python
+stream = client.chat.completions.create(
+    model="qwen3.7-plus",
+    messages=[{"role": "user", "content": "写一首关于速率限制的短诗。"}],
+    stream=True,
+    max_tokens=200
+)
+
+for chunk in stream:
+    delta = chunk.choices[0].delta.content
+    if delta:
+        print(delta, end="", flush=True)
+```
+
+同一个接口也可以从 Node 调用:
+
+```javascript
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  apiKey: process.env.TOKENPAPA_API_KEY,
+  baseURL: 'https://tokenpapa.ai/v1',
+});
+
+const res = await client.chat.completions.create({
+  model: 'qwen3.7-plus',
+  messages: [{ role: 'user', content: '你好,Qwen。' }],
+  max_tokens: 200,
+});
+
+console.log(res.choices[0].message.content);
+```
+
+---
+
+## 直连阿里云 vs TokenPAPA
+
+两条路都能到达同一个模型,差别全部在账号与运维层面。
+
+| 维度 | 阿里云百炼(直连) | TokenPAPA |
+|---|---|---|
+| 账号要求 | 需验证的阿里云账号 | 邮箱、Google 或 GitHub |
+| 手机号 / 实名 | 通常需要境内身份与支付方式 | 不需要 |
+| 支付方式 | 多数地区走境内通道 | 国际银行卡、Apple Pay、Google Pay |
+| 最低充值 | 视渠道而定 | $10 |
+| 模型覆盖 | Qwen 家族 | Qwen、DeepSeek、Kimi、GLM、MiniMax、GPT、Claude、Gemini |
+| 切换模型 | 每个厂商一套接入 | 改一行 `model=` |
+| 接口格式 | OpenAI 兼容(端点按地区划分) | OpenAI 兼容,单端点 |
+| 上手时间 | 账号验证可能数小时到数天 | 约 5 分钟 |
+
+> **什么时候该用网关**:如果你在中国大陆以外、需要用国际信用卡付费,或者希望在同一个代码库里同时使用 Qwen 与非阿里系模型,网关可以直接消掉账号摩擦,并且只保留一套接入面。
+
+客观说明另一面:如果你在中国大陆境内、已有企业级阿里云账单,或需要私有化部署、专属吞吐量等阿里云特有功能,直连是更合适的选择。网关会多一跳,对已有企业协议的团队来说这一跳没有额外收益。
+
+---
+
+## 同一个 Key 还能调用哪些 Qwen 模型
+
+| 模型 ID | 适合场景 | 上下文 |
+|---|---|---|
+| `qwen3.7-plus` | 通用旗舰 —— 对话、编码、Agent、结构化输出 | 256K |
+| `qwen3.7-max` | Qwen 3.7 更大规格,适合更重的推理 | 见[价格页](https://tokenpapa.ai/pricing) |
+| `qwen3.8-flash` | 更快、更省的 Qwen 规格,适合高并发调用 | 见[价格页](https://tokenpapa.ai/pricing) |
+
+成本基准:Qwen 3.7(`qwen3.7-plus`)标价为输入 **$0.20/1M**、输出 **$0.60/1M** tokens;DeepSeek V4 Flash 标价为 **$0.14 / $0.42**,上下文 128K。价格会变动,做预算前请以[价格页](https://tokenpapa.ai/pricing)为准。
+
+---
+
+## 常见报错与处理
+
+| 报错 | 含义 | 处理方式 |
+|---|---|---|
+| `401 Invalid token` | Key 错误、已失效或含空白字符 | 重新复制 Key,检查环境变量末尾的换行 |
+| `402 Insufficient balance` | 余额不足 | 在控制台充值(最低 $10) |
+| `404 model not found` | 模型 ID 不存在 | 使用在线 ID,例如 `qwen3.7-plus` |
+| `429 Too many requests` | 触发速率限制 | 加入带抖动的指数退避重试 |
+| `400 context length exceeded` | 输入加 `max_tokens` 超出上下文 | 裁剪历史,或换用更长上下文的模型 |
+
+第一天最容易踩的是 `404`:宣传名和 API 模型 ID 往往不一致。大家口中的「Qwen 3.7」,调用时的 ID 是 `qwen3.7-plus` —— 上线前一定要核对准确的 ID。
+
+---
+
+## 常见问题(FAQ)
+
+**Q:最快拿到 Qwen API Key 的方式是什么?**
+A:在 [tokenpapa.ai](https://tokenpapa.ai) 用邮箱注册,或直接用 Google、GitHub 一键登录,然后在控制台生成 Key。全程不需要中国手机号、短信验证码或阿里云账号,通常两分钟内完成。
+
+**Q:调用 Qwen API 需要装哪个 Python SDK?**
+A:标准 `openai` SDK 即可。`https://tokenpapa.ai/v1` 是 OpenAI 兼容接口,设置 `base_url` 并把 `model` 设为 `qwen3.7-plus` 即可,不需要阿里云专用客户端。
+
+**Q:TokenPAPA 上 Qwen API 的价格是多少?**
+A:Qwen 3.7(`qwen3.7-plus`)标价为输入 $0.20/1M、输出 $0.60/1M tokens,上下文 256K,输入价约为 GPT-5.6 Sol($13.50/1M 输入)的 1%。做预算前请以 [tokenpapa.ai/pricing](https://tokenpapa.ai/pricing) 为准。
+
+**Q:同一个 API Key 可以同时调用 Qwen 和 DeepSeek 吗?**
+A:可以。一个 TokenPAPA Key 通过同一接口即可访问 Qwen、DeepSeek、Kimi、GLM、MiniMax、GPT、Claude、Gemini 家族,切换模型只需改一行 `model` 参数。
+
+---
+
+## 开始使用
+
+1. 在 [tokenpapa.ai](https://tokenpapa.ai) 注册 —— 邮箱、Google 或 GitHub,不需要中国手机号。
+2. 在控制台创建一个 API Key。
+3. 把 OpenAI SDK 指向 `https://tokenpapa.ai/v1`,调用 `qwen3.7-plus`。
+
+```python
+from openai import OpenAI
+
+client = OpenAI(api_key="your-tokenpapa-key", base_url="https://tokenpapa.ai/v1")
+
+print(client.chat.completions.create(
+    model="qwen3.7-plus",
+    messages=[{"role": "user", "content": "你好,Qwen。"}],
+    max_tokens=100
+).choices[0].message.content)
+```
+
+5 分钟配置、一个 Key,Qwen 3.7 在任何地区都能直接调用 —— 并且同一个端点还挂着 DeepSeek、Kimi、GLM、GPT、Claude 和 Gemini,随时可以横向对比。
