@@ -4,6 +4,7 @@
   "icon": "Newspaper",
   "root": true,
   "pages": [
+    "python-sdk-switch-60-models-one-key",
     "qwen-api-quick-start-5-minutes",
     "deepseek-api-without-chinese-phone",
     "deepseek-v4-1-flash-release",
