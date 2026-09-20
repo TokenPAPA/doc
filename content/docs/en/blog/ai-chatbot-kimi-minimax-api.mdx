@@ -1,0 +1,238 @@
+---
+title: "How to Build an AI Chatbot Using Kimi and MiniMax APIs"
+description: "Build a streaming AI chatbot with Kimi K3 and MiniMax M3: one OpenAI-compatible client, multi-turn memory, scenario routing, and per-1M-token cost math."
+date: 2026-09-20
+authors: [tokenpapa]
+category: "Tutorial"
+keywords: ["Kimi API tutorial", "MiniMax API tutorial", "build ai chatbot python", "kimi api key", "minimax api key", "kimi-k3", "minimax-m3", "openai compatible chatbot", "streaming chatbot python", "TokenPAPA Kimi MiniMax"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-09-20 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;How to Build an AI Chatbot Using Kimi and MiniMax APIs&quot;,&quot;description&quot;:&quot;Build a streaming AI chatbot with Kimi K3 and MiniMax M3: one OpenAI-compatible client, multi-turn memory, scenario routing, and per-1M-token cost math.&quot;,&quot;datePublished&quot;:&quot;2026-09-20&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Do I need a Chinese phone number to use the Kimi or MiniMax API?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;No. Sign up with an email address, Google, or GitHub and create an API key in the console. Both kimi-k3 and minimax-m3 are then reachable from the same OpenAI-compatible endpoint at https://tokenpapa.ai/v1, with no Chinese phone number and no separate vendor account.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Can I use Kimi and MiniMax with the same API key?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Yes. One key reaches both models plus dozens of others. You create the client once with base_url https://tokenpapa.ai/v1 and change the model parameter per request, for example kimi-k3 for a long document turn or minimax-m3 for a creative one. Billing comes out of a single prepaid balance.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Should a chatbot use Kimi K3 or MiniMax M3?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Use Kimi K3 when the conversation needs long context and careful reasoning over big documents, since it carries a 256K context window at $0.50 per 1M input tokens. Use MiniMax M3 for creative and expressive generation at $0.80 per 1M input tokens. Many teams route both: cheap model for routine turns, capable model for the hard ones.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How much does a Kimi and MiniMax chatbot cost per month?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;It depends on volume and on how much output each turn produces. As a worked estimate, 180,000 requests per month at roughly 1,500 input and 300 output tokens each costs about $243 on Kimi K3 alone, about $346 on MiniMax M3 alone, and roughly $97 when most turns are routed to cheaper models. Check the pricing page for current rates.&quot;}}]}" />
+
+# How to Build an AI Chatbot Using Kimi and MiniMax APIs
+
+Most chatbot tutorials assume you will pick one model and stay there. In practice the two hardest turns in a conversation are not the same turn. A user pastes a 90-page contract and asks what changed; ten messages later they ask for a friendly product description. Those two requests want different models, and rebuilding your integration to get them is where teams usually give up.
+
+This tutorial builds a working chatbot on two Chinese frontier models — **Kimi K3** for long-context reasoning and **MiniMax M3** for expressive generation — behind a single OpenAI-compatible client. One API key, one balance, one `model=` string per turn.
+
+> **Chatbot on Kimi and MiniMax in one sentence**: Kimi K3 and MiniMax M3 are both reachable through one OpenAI-compatible endpoint, so a chatbot can keep a single client, a single key and a single billing balance while choosing a different model for each turn based on what that turn needs.
+
+---
+
+## What you need
+
+| Requirement | Detail |
+|---|---|
+| Python | 3.8 or newer |
+| Package | `openai` — the standard OpenAI SDK |
+| Account | [tokenpapa.ai](https://tokenpapa.ai) — email, Google or GitHub login |
+| Key | One API key from the console, used for both models |
+| Base URL | `https://tokenpapa.ai/v1` |
+| Models | `kimi-k3`, `minimax-m3` — plus dozens more on the same key |
+
+No vendor SDK, no separate Moonshot or MiniMax account, no Chinese phone number.
+
+## Why Kimi and MiniMax, side by side
+
+| Dimension | `kimi-k3` | `minimax-m3` |
+|---|---|---|
+| Context window | 256K | 128K |
+| Input / 1M tokens | $0.50 | $0.80 |
+| Output / 1M tokens | $2.00 | $2.40 |
+| Best at | Long documents, reasoning, agentic tool use | Creative, expressive and marketing-style generation |
+| Typical chatbot turn | "Summarize this contract and list the risks" | "Rewrite the summary as a warm welcome email" |
+
+> **Kimi K3**: Moonshot AI's open-weight flagship, positioned for long-context reasoning and agentic work, with a 256K context window at $0.50 per million input tokens on TokenPAPA.
+
+> **MiniMax M3**: MiniMax's flagship text model, priced at $0.80 per million input tokens, and the better choice when the output needs voice, style and personality rather than strict reasoning.
+
+Because both sit behind the same endpoint, the chatbot does not care which one produced a message. History, rendering and storage code stay identical.
+
+## Step 1 — One client for both models
+
+```bash
+pip install --upgrade openai
+```
+
+```python
+import os
+from openai import OpenAI
+
+client = OpenAI(
+    api_key=os.environ["TOKENPAPA_API_KEY"],
+    base_url="https://tokenpapa.ai/v1"
+)
+
+ROUTINE_MODEL = "deepseek-v4-flash"   # cheap turns
+REASONING_MODEL = "kimi-k3"           # long context, careful answers
+CREATIVE_MODEL = "minimax-m3"         # expressive writing
+```
+
+Keep the client for the life of the process. Everything below passes a different `model` to it.
+
+## Step 2 — Multi-turn memory in fifteen lines
+
+A chatbot is a loop over a message list. Keep the list, trim it, and hand it back to the model each turn.
+
+```python
+MAX_TURNS = 12   # keep the last 6 user/assistant pairs
+
+def chat(session, user_text, model=ROUTINE_MODEL):
+    session.append({"role": "user", "content": user_text})
+
+    trimmed = session[-MAX_TURNS * 2:]
+
+    reply = client.chat.completions.create(
+        model=model,
+        messages=trimmed,
+        max_tokens=800,        # output tokens cost multiples of input
+        temperature=0.7
+    ).choices[0].message.content
+
+    session.append({"role": "assistant", "content": reply})
+    return reply
+```
+
+Two details matter more than they look. Always set `max_tokens`, because output tokens are the expensive half of your bill. And trim by turns rather than by characters, so the model never sees half an exchange.
+
+## Step 3 — Stream tokens so the UI feels alive
+
+Streaming is the difference between a chatbot that feels instant and one that feels broken. The response shape is the same for both models.
+
+```python
+def stream_reply(session, user_text, model=ROUTINE_MODEL):
+    session.append({"role": "user", "content": user_text})
+    chunks = []
+
+    stream = client.chat.completions.create(
+        model=model,
+        messages=session[-MAX_TURNS * 2:],
+        max_tokens=800,
+        stream=True
+    )
+
+    for event in stream:
+        delta = event.choices[0].delta
+        if delta and delta.content:
+            chunks.append(delta.content)
+            print(delta.content, end="", flush=True)
+
+    reply = "".join(chunks)
+    session.append({"role": "assistant", "content": reply})
+    return reply
+```
+
+Do not wrap the whole loop in one `try` that swallows errors. A 429 or a 5xx halfway through a stream leaves you with a truncated answer, so catch the exception, keep the text you already received, and retry with backoff.
+
+## Step 4 — Route each turn to the right model
+
+Routing is a small function, not a framework. Look at the turn, pick a model, log the choice.
+
+| Signal in the turn | Route to | Why |
+|---|---|---|
+| Pasted document, "summarize", "compare", "what changed" | `kimi-k3` | 256K context, careful reading |
+| "Rewrite", "make it sound friendly", marketing copy | `minimax-m3` | Expressive generation |
+| Short factual question, high volume, internal tooling | `deepseek-v4-flash` | Lowest cost per turn |
+| Tool or function calling loop | `kimi-k3` | Reliable multi-step agentic behaviour |
+
+```python
+LONG_DOC_HINTS = ("summarize", "summarise", "compare", "contract", "document")
+CREATIVE_HINTS = ("rewrite", "tone", "slogan", "friendly", "marketing")
+
+def pick_model(text: str, attached_chars: int = 0) -> str:
+    lowered = text.lower()
+    if attached_chars > 8000 or any(h in lowered for h in LONG_DOC_HINTS):
+        return REASONING_MODEL
+    if any(h in lowered for h in CREATIVE_HINTS):
+        return CREATIVE_MODEL
+    return ROUTINE_MODEL
+
+print(pick_model("Summarize the attached contract"))   # kimi-k3
+print(pick_model("Make the reply sound friendlier"))   # minimax-m3
+print(pick_model("What is the refund window?"))        # deepseek-v4-flash
+```
+
+Log which model answered every turn. Silent routing changes show up as quality complaints long before they show up in your metrics, unless you write them down.
+
+## What a chatbot actually costs
+
+Per-1M-token rates on the platform, so you can do the arithmetic yourself:
+
+| Model | Input / 1M | Output / 1M | Context |
+|---|---|---|---|
+| `deepseek-v4-flash` | $0.14 | $0.42 | 128K |
+| `kimi-k3` | $0.50 | $2.00 | 256K |
+| `minimax-m3` | $0.80 | $2.40 | 128K |
+
+Worked estimate: **1,000 conversations per day, six turns each, roughly 1,500 input and 300 output tokens per turn.** That is 180,000 requests a month, or 270M input and 54M output tokens.
+
+| Configuration | Monthly estimate |
+|---|---|
+| Everything on `kimi-k3` | ~$243 |
+| Everything on `minimax-m3` | ~$346 |
+| 80% `deepseek-v4-flash`, 20% `kimi-k3` | ~$97 |
+
+> **Key takeaway**: The routing table above is the single biggest cost lever in a chatbot. Sending only the turns that need long context to `kimi-k3` cuts the bill by more than half compared with answering everything on a flagship.
+
+Rates change, so confirm current numbers on the [pricing page](https://tokenpapa.ai/pricing) before you budget from this table.
+
+## Why one key for both models
+
+- **One bill.** Both models draw from the same prepaid balance instead of two vendor dashboards in two currencies.
+- **No phone gate.** Email, Google or GitHub login — no Chinese phone number, which is the usual blocker for Moonshot and MiniMax accounts abroad.
+- **Instant comparison.** Point `model=` at the other vendor and re-run the same prompt; no new SDK, no new auth.
+- **Fallback for free.** If one model is rate limited or degraded, the same client retries the turn on another, and the user never sees an error page.
+
+The honest caveat: if you need private deployment, dedicated throughput, or a vendor enterprise agreement, go direct. The gateway wins when you want more than one model in the same product — which is exactly what a mixed chatbot is.
+
+## FAQ
+
+**Q: Do I need a Chinese phone number to use the Kimi or MiniMax API?**
+A: No. Sign up with email, Google or GitHub, then create an API key in the console. Both `kimi-k3` and `minimax-m3` are reachable from the same OpenAI-compatible endpoint at `https://tokenpapa.ai/v1`.
+
+**Q: Can I use Kimi and MiniMax with the same API key?**
+A: Yes. One key reaches both models plus dozens of others. Build the client once with `base_url="https://tokenpapa.ai/v1"` and change only the `model` parameter per request.
+
+**Q: Should a chatbot use Kimi K3 or MiniMax M3?**
+A: Kimi K3 when the turn needs long context and careful reasoning — it carries a 256K window at $0.50 per 1M input tokens. MiniMax M3 when the output needs personality and expression, at $0.80 per 1M input tokens. Route per turn and you get both without choosing.
+
+**Q: How much does a Kimi and MiniMax chatbot cost per month?**
+A: At 180,000 requests a month with 1,500 input and 300 output tokens per turn, roughly $243 on Kimi K3 alone, about $346 on MiniMax M3 alone, and about $97 when most turns are routed to a cheaper model. Verify current rates on the [pricing page](https://tokenpapa.ai/pricing).
+
+---
+
+## Get Started
+
+1. Sign up at [tokenpapa.ai](https://tokenpapa.ai) — email, Google or GitHub, no Chinese phone number.
+2. Create an API key in the console at [/console/token](https://tokenpapa.ai/console/token).
+3. Point the OpenAI SDK at `https://tokenpapa.ai/v1` and call both models in the same loop.
+
+```python
+from openai import OpenAI
+
+client = OpenAI(api_key="your-tokenpapa-key", base_url="https://tokenpapa.ai/v1")
+
+session = [{"role": "system", "content": "You are a helpful support assistant."}]
+session.append({"role": "user", "content": "Summarize this contract in five bullets."})
+
+for model in ["kimi-k3", "minimax-m3"]:
+    reply = client.chat.completions.create(
+        model=model,
+        messages=session,
+        max_tokens=400
+    ).choices[0].message.content
+    print(model, "->", reply[:120])
+```
+
+One client, two frontier models, and a routing rule you can tune as your traffic grows.
+
+---
+
+*Last updated: 2026-09-20. Model IDs and rates change frequently — verify them on [tokenpapa.ai/pricing](https://tokenpapa.ai/pricing) before relying on any figure in this article.*

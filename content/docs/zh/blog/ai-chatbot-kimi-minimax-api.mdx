@@ -1,0 +1,237 @@
+---
+title: "用 Kimi 和 MiniMax API 搭建一个 AI 聊天机器人"
+description: "用 Kimi K3 与 MiniMax M3 搭建流式 AI 聊天机器人:一个 OpenAI 兼容客户端、多轮记忆、按场景路由,以及每 1M token 的成本估算。"
+date: 2026-09-20
+authors: [tokenpapa]
+category: "教程"
+keywords: ["Kimi API 教程", "MiniMax API 教程", "Python 搭建 AI 聊天机器人", "kimi api key", "minimax api key", "kimi-k3", "minimax-m3", "OpenAI 兼容 聊天机器人", "流式输出 聊天机器人", "TokenPAPA Kimi MiniMax"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-09-20 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;用 Kimi 和 MiniMax API 搭建一个 AI 聊天机器人&quot;,&quot;description&quot;:&quot;用 Kimi K3 与 MiniMax M3 搭建流式 AI 聊天机器人:一个 OpenAI 兼容客户端、多轮记忆、按场景路由,以及每 1M token 的成本估算。&quot;,&quot;datePublished&quot;:&quot;2026-09-20&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;使用 Kimi 或 MiniMax API 需要中国手机号吗?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;不需要。用邮箱、Google 或 GitHub 注册,在控制台生成 API Key 即可。kimi-k3 与 minimax-m3 都可以通过同一个 OpenAI 兼容接口 https://tokenpapa.ai/v1 调用,无需中国手机号,也不需要单独注册 Moonshot 或 MiniMax 账号。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Kimi 和 MiniMax 能共用同一个 API Key 吗?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;可以。一个 Key 同时覆盖这两个模型以及数十个其他模型:只需用 base_url https://tokenpapa.ai/v1 创建一次客户端,之后每次请求修改 model 参数即可,例如处理长文档时用 kimi-k3、需要创意表达时用 minimax-m3,费用统一从一份预付余额中扣除。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;聊天机器人应该选 Kimi K3 还是 MiniMax M3?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;需要长上下文、需要认真阅读大文档时用 Kimi K3,它提供 256K 上下文窗口,输入价格为每 1M token $0.50;需要创意与表达、文案风格化时用 MiniMax M3,输入价格为每 1M token $0.80。更常见的做法是两者混用:常规轮次交给便宜模型,难题交给能力更强的模型。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;用 Kimi 和 MiniMax 搭聊天机器人每月大概花多少钱?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;取决于调用量和每轮输出的长度。按一个可核算的估算:每月 18 万次请求、每次约 1500 输入 token 与 300 输出 token,全部用 Kimi K3 约 $243,全部用 MiniMax M3 约 $346,而把大部分轮次路由到更便宜的模型后约为 $97。具体价格请以价格页面为准。&quot;}}]}" />
+
+# 用 Kimi 和 MiniMax API 搭建一个 AI 聊天机器人
+
+大多数聊天机器人教程默认你只会用一个模型。但真实对话里最难的两轮往往不是同一件事:用户先粘贴一份 90 页合同问「哪里改了」,十轮之后又要你写一段温柔的产品介绍。这两个请求想要的模型完全不同,而团队通常就是在「为它重做一套集成」这一步放弃的。
+
+这篇教程用两个中国前沿模型搭一个可用的聊天机器人:**Kimi K3** 负责长上下文推理,**MiniMax M3** 负责有表现力的生成,而它们共用一个 OpenAI 兼容客户端。一个 API Key、一份余额、每轮只改一个 `model=` 字符串。
+
+> **用 Kimi 和 MiniMax 做聊天机器人的一句话解释**:Kimi K3 与 MiniMax M3 都可以通过同一个 OpenAI 兼容接口调用,因此聊天机器人可以只保留一个客户端、一个 Key、一份账单余额,同时按每一轮的实际需求选择不同的模型。
+
+---
+
+## 你需要准备什么
+
+| 项目 | 说明 |
+|---|---|
+| Python | 3.8 或更高版本 |
+| 依赖包 | `openai` —— 标准 OpenAI SDK |
+| 账号 | [tokenpapa.ai](https://tokenpapa.ai) —— 邮箱、Google 或 GitHub 登录 |
+| Key | 在控制台生成的一个 API Key,两个模型共用 |
+| Base URL | `https://tokenpapa.ai/v1` |
+| 模型 | `kimi-k3`、`minimax-m3`,同一个 Key 背后还有数十个模型 |
+
+不需要厂商专用 SDK,不需要单独注册 Moonshot 或 MiniMax 账号,也不需要中国手机号。
+
+## 为什么把 Kimi 和 MiniMax 放在一起用
+
+| 维度 | `kimi-k3` | `minimax-m3` |
+|---|---|---|
+| 上下文窗口 | 256K | 128K |
+| 输入 / 1M token | $0.50 | $0.80 |
+| 输出 / 1M token | $2.00 | $2.40 |
+| 擅长的方向 | 长文档、推理、Agent 工具调用 | 创意生成、表达力强的文案 |
+| 典型对话轮次 | 「总结这份合同并列出风险点」 | 「把这份总结改写成一段温暖的欢迎邮件」 |
+
+> **Kimi K3**:Moonshot AI 的开源权重旗舰,定位长上下文推理与 Agent 场景,在 TokenPAPA 上提供 256K 上下文窗口,输入价格为每 1M token $0.50。
+
+> **MiniMax M3**:MiniMax 的旗舰文本模型,输入价格为每 1M token $0.80,当输出需要语气、风格与个性而不是严格推理时更合适。
+
+因为两者在同一个接口后面,聊天机器人并不关心某条消息由谁生成。历史记录、前端渲染与存储逻辑完全相同。
+
+## 第一步 —— 一个客户端同时接两个模型
+
+```bash
+pip install --upgrade openai
+```
+
+```python
+import os
+from openai import OpenAI
+
+client = OpenAI(
+    api_key=os.environ["TOKENPAPA_API_KEY"],
+    base_url="https://tokenpapa.ai/v1"
+)
+
+ROUTINE_MODEL = "deepseek-v4-flash"   # 常规、量大的轮次
+REASONING_MODEL = "kimi-k3"           # 长上下文、需要仔细思考
+CREATIVE_MODEL = "minimax-m3"         # 需要表达力的写作
+```
+
+客户端在整个进程生命周期内只创建一次,下面所有调用都只是给它传不同的 `model`。
+
+## 第二步 —— 十五行代码实现多轮记忆
+
+聊天机器人的本质就是对消息列表的循环:保存列表、裁剪列表、每轮交回给模型。
+
+```python
+MAX_TURNS = 12   # 保留最近 6 组「用户 + 助手」
+
+def chat(session, user_text, model=ROUTINE_MODEL):
+    session.append({"role": "user", "content": user_text})
+
+    trimmed = session[-MAX_TURNS * 2:]
+
+    reply = client.chat.completions.create(
+        model=model,
+        messages=trimmed,
+        max_tokens=800,        # 输出 token 的单价是输入的数倍
+        temperature=0.7
+    ).choices[0].message.content
+
+    session.append({"role": "assistant", "content": reply})
+    return reply
+```
+
+有两个细节比看起来更重要。第一,永远设置 `max_tokens`,因为输出 token 才是账单里贵的那一半。第二,按「轮」而不是按字符数裁剪,否则模型会看到被截断的半截对话。
+
+## 第三步 —— 流式输出,让界面「活着」
+
+流式与否,决定了聊天机器人是「秒回」还是「像坏了」。两个模型的流式响应结构完全一致。
+
+```python
+def stream_reply(session, user_text, model=ROUTINE_MODEL):
+    session.append({"role": "user", "content": user_text})
+    chunks = []
+
+    stream = client.chat.completions.create(
+        model=model,
+        messages=session[-MAX_TURNS * 2:],
+        max_tokens=800,
+        stream=True
+    )
+
+    for event in stream:
+        delta = event.choices[0].delta
+        if delta and delta.content:
+            chunks.append(delta.content)
+            print(delta.content, end="", flush=True)
+
+    reply = "".join(chunks)
+    session.append({"role": "assistant", "content": reply})
+    return reply
+```
+
+不要用一个 `try` 把整个循环包住然后吞掉异常。流中途遇到 429 或 5xx 会留下一个被截断的回答,正确做法是捕获异常、保留已经收到的文本,然后带退避重试。
+
+## 第四步 —— 把每一轮路由到合适的模型
+
+路由是一个小函数,不是一套框架。看一眼这一轮的内容,选模型,并记录选择结果。
+
+| 这一轮的特征 | 路由到 | 原因 |
+|---|---|---|
+| 粘贴了文档,出现「总结」「对比」「哪里改了」 | `kimi-k3` | 256K 上下文,读得细 |
+| 「改写」「换个语气」「写文案」「写得亲切些」 | `minimax-m3` | 表达力强,擅长创意生成 |
+| 短问答、高并发、内部工具调用 | `deepseek-v4-flash` | 单轮成本最低 |
+| 工具调用 / function calling 循环 | `kimi-k3` | 多步 Agent 行为更稳定 |
+
+```python
+LONG_DOC_HINTS = ("总结", "摘要", "对比", "合同", "文档")
+CREATIVE_HINTS = ("改写", "语气", "文案", "亲切", "营销")
+
+def pick_model(text: str, attached_chars: int = 0) -> str:
+    if attached_chars > 8000 or any(h in text for h in LONG_DOC_HINTS):
+        return REASONING_MODEL
+    if any(h in text for h in CREATIVE_HINTS):
+        return CREATIVE_MODEL
+    return ROUTINE_MODEL
+
+print(pick_model("总结一下附件里的合同"))   # kimi-k3
+print(pick_model("把这条回复改得亲切一些")) # minimax-m3
+print(pick_model("退款期限是多久?"))       # deepseek-v4-flash
+```
+
+请记录每一轮是哪个模型回答的。路由悄悄变化时,你先收到的是用户的质量投诉,而不是监控指标——除非你把选择写进了日志。
+
+## 一个聊天机器人实际要花多少钱
+
+下面是平台上的每 1M token 价格,方便你自己算账:
+
+| 模型 | 输入 / 1M | 输出 / 1M | 上下文 |
+|---|---|---|---|
+| `deepseek-v4-flash` | $0.14 | $0.42 | 128K |
+| `kimi-k3` | $0.50 | $2.00 | 256K |
+| `minimax-m3` | $0.80 | $2.40 | 128K |
+
+按一个可核算的场景估算:**每天 1,000 个会话、每个会话 6 轮,每轮约 1,500 输入 token 与 300 输出 token。** 即每月 18 万次请求,共 2.7 亿输入 token 与 5,400 万输出 token。
+
+| 配置方式 | 每月估算 |
+|---|---|
+| 全部用 `kimi-k3` | 约 $243 |
+| 全部用 `minimax-m3` | 约 $346 |
+| 80% 走 `deepseek-v4-flash`,20% 走 `kimi-k3` | 约 $97 |
+
+> **关键结论**:上面那张路由表是聊天机器人最大的成本杠杆。只把真正需要长上下文的轮次交给 `kimi-k3`,账单就能比「全程旗舰模型」减少一半以上。
+
+价格会变,做预算前请以[价格页面](https://tokenpapa.ai/pricing)上的实时数字为准。
+
+## 为什么两个模型共用一个 Key
+
+- **一份账单。** 两个模型从同一份预付余额扣费,而不是在两个厂商后台、两种货币之间对账。
+- **没有手机号门槛。** 邮箱、Google 或 GitHub 登录即可,无需中国手机号——这通常是海外开发者注册 Moonshot、MiniMax 时最先卡住的地方。
+- **对比零成本。** 把 `model=` 换成另一家,同一个 prompt 立刻重跑,不需要新 SDK、不需要重新鉴权。
+- **顺带拿到降级能力。** 某个模型限流或质量波动时,同一个客户端可以换模型重试这一轮,用户不会看到报错页。
+
+诚实的说明:如果你需要私有化部署、独享吞吐或已有的厂商企业协议,那么直连官方更合适。而当你希望在同一个产品里使用多个模型——混用型聊天机器人正是这种情况——网关的优势最明显。
+
+## 常见问题
+
+**Q:Kimi 或 MiniMax API 需要中国手机号吗?**
+A:不需要。用邮箱、Google 或 GitHub 注册后在控制台生成 API Key,`kimi-k3` 与 `minimax-m3` 都可以通过同一个 OpenAI 兼容接口 `https://tokenpapa.ai/v1` 调用。
+
+**Q:Kimi 和 MiniMax 能共用一个 API Key 吗?**
+A:可以。一个 Key 同时覆盖这两个模型以及数十个其他模型。客户端只需用 `base_url="https://tokenpapa.ai/v1"` 创建一次,每次请求只改 `model` 参数。
+
+**Q:聊天机器人该选 Kimi K3 还是 MiniMax M3?**
+A:需要长上下文与严谨推理的轮次用 Kimi K3,它提供 256K 窗口,输入 $0.50/1M token;需要个性与表达力的轮次用 MiniMax M3,输入 $0.80/1M token。按轮路由,就不必二选一。
+
+**Q:用 Kimi 和 MiniMax 搭聊天机器人每月大概花多少钱?**
+A:按每月 18 万次请求、每次约 1,500 输入 token 与 300 输出 token 估算:全部用 Kimi K3 约 $243,全部用 MiniMax M3 约 $346,把大部分轮次路由到更便宜的模型后约 $97。最新价格请见[价格页面](https://tokenpapa.ai/pricing)。
+
+---
+
+## 开始使用
+
+1. 在 [tokenpapa.ai](https://tokenpapa.ai) 注册 —— 邮箱、Google 或 GitHub 均可,不需要中国手机号。
+2. 在控制台创建 API Key:[/console/token](https://tokenpapa.ai/console/token)。
+3. 把 OpenAI SDK 指向 `https://tokenpapa.ai/v1`,在同一个循环里调用两个模型。
+
+```python
+from openai import OpenAI
+
+client = OpenAI(api_key="your-tokenpapa-key", base_url="https://tokenpapa.ai/v1")
+
+session = [{"role": "system", "content": "你是一个耐心的客服助手。"}]
+session.append({"role": "user", "content": "把这份合同总结成五点。"})
+
+for model in ["kimi-k3", "minimax-m3"]:
+    reply = client.chat.completions.create(
+        model=model,
+        messages=session,
+        max_tokens=400
+    ).choices[0].message.content
+    print(model, "->", reply[:120])
+```
+
+一个客户端、两个前沿模型,外加一条可以随流量增长不断调整的路由规则。
+
+---
+
+*最后更新:2026-09-20。模型 ID 与价格变动频繁,引用本文任何数字前请先在 [tokenpapa.ai/pricing](https://tokenpapa.ai/pricing) 核实。*
