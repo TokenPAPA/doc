@@ -1,0 +1,287 @@
+---
+title: "在 LangChain 中接入 TokenPAPA:完整指南"
+description: "用 ChatOpenAI + base_url 把 LangChain 指向 TokenPAPA:覆盖 LCEL 链、流式输出、工具调用、Agent 与 RAG,一个 API Key 访问 65 个模型。"
+date: 2026-09-21
+authors: [tokenpapa]
+category: "教程"
+keywords: ["TokenPAPA LangChain 集成", "langchain openai 兼容", "langchain base_url", "langchain 自定义 llm", "TokenPAPA langchain", "LangChain 接入大模型", "langchain 多模型切换", "langchain agent 教程", "langchain RAG 实践", "OpenAI 兼容接口"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-09-21 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;在 LangChain 中接入 TokenPAPA:完整指南&quot;,&quot;description&quot;:&quot;用 ChatOpenAI 加 base_url 把 LangChain 指向 TokenPAPA,覆盖 LCEL 链、流式输出、工具调用、Agent 与 RAG,一个 API Key 访问 65 个模型。&quot;,&quot;datePublished&quot;:&quot;2026-09-21&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;LangChain 能直接接入 TokenPAPA 吗?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;可以,而且不需要任何专用插件。TokenPAPA 提供 OpenAI 兼容接口 https://tokenpapa.ai/v1,直接使用标准 ChatOpenAI 类,把 Key 和 base_url 传进去即可,账号下的所有模型只需改 model 字符串就能调用。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;LangChain 里怎么设置自定义 base_url?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;作为构造参数传入即可:ChatOpenAI(model=..., api_key=..., base_url=https://tokenpapa.ai/v1)。HTTP 请求、流式输出与重试都会继承该地址,所以每个模型对象只需设置一次。如果偏好用配置而非代码,也可以设置 OPENAI_BASE_URL 环境变量。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;哪些 LangChain 组件可以和 TokenPAPA 配合使用?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;所有以对话模型为输入的部分都可以:提示词模板、LCEL 链、输出解析器、消息历史、流式输出、工具调用,以及 LangGraph 这类 Agent 编排。例外是向量化环节:平台目前提供的是对话、图像与语音合成模型,并未提供 embedding 接口,因此向量化需要使用其他服务商或本地模型。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;同一条 LangChain 链里可以使用不同模型吗?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;可以,这也是把 LangChain 指向统一网关最主要的理由。每个模型创建一个 ChatOpenAI 对象,然后按输入分流、用 with_fallbacks 组成自动降级链,或者挂在同一条链的不同环节上。它们共用一份余额,也共用同一个 Key。&quot;}}]}" />
+
+# 在 LangChain 中接入 TokenPAPA:完整指南
+
+LangChain 擅长的恰好是开发者真正关心的部分:提示词编排、链式组合、检索增强、Agent 流程。真正让人烦躁的是另一端——每接一个模型厂商,就要多一个包、多一份凭据、多一套重试逻辑。小项目往往就卡在这种管道工程上。
+
+这篇指南用**一个类 + 一个关键字参数**把 LangChain 接到 TokenPAPA:给 `ChatOpenAI` 传一个自定义 `base_url`,就能访问平台上列的 65 个模型 ID——DeepSeek、GPT-5.6、Claude、Qwen、Kimi、GLM、MiniMax 等等,而接口本身说的就是 OpenAI 协议。
+
+> **一句话解释 TokenPAPA 与 LangChain 的集成**:TokenPAPA 提供 OpenAI 兼容接口 `https://tokenpapa.ai/v1`,因此 LangChain 不需要任何厂商专用集成——标准 `ChatOpenAI` 类、一个 TokenPAPA Key 和一个 `base_url` 参数就已经是全部配置,账号内所有模型仅凭修改 `model` 字符串即可调用。
+
+下面所有代码都可以直接运行。你没有需要安装的「TokenPAPA 插件」,因为一个 OpenAI 兼容接口本来就不需要插件。
+
+---
+
+## 你需要准备什么
+
+| 项目 | 说明 |
+|---|---|
+| Python | 3.9 或更高版本 |
+| LangChain 依赖 | `langchain-openai`(会一并带上 `langchain-core`) |
+| 账号 | [tokenpapa.ai](https://tokenpapa.ai) —— 邮箱、Google 或 GitHub 注册 |
+| Key | 在控制台生成的一个 API Key |
+| `base_url` | `https://tokenpapa.ai/v1` |
+| 模型 | 截至 2026 年 9 月共 65 个模型 ID,可用 `GET https://tokenpapa.ai/v1/models` 查看 |
+| Embedding | 平台暂未提供,做 RAG 时请搭配其他向量化服务或本地模型 |
+
+```bash
+pip install -U langchain-openai langchain-core
+```
+
+```python
+import os
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(
+    model="deepseek-v4-flash",                      # 平台上任意真实模型 ID
+    api_key=os.environ["TOKENPAPA_API_KEY"],
+    base_url="https://tokenpapa.ai/v1",             # 集成的全部内容
+    temperature=0.2,
+    max_tokens=800,                                  # 输出 token 一定要封顶
+)
+
+print(llm.invoke("用两句话解释什么是 LangChain 的链。").content)
+```
+
+能打印出结果,集成就算完成了。本文剩下的部分,都是 LangChain 在做它自己的事。
+
+> **关键提示**:在 `ChatOpenAI` 上设置 `base_url` 会重定向该模型对象发出的所有 HTTP 调用——invoke、stream、batch、工具调用在内——所以网关配置是「每个模型对象一次」,而不是「每次请求一次」。
+
+## 为什么 `base_url` 就是全部集成工作
+
+`langchain-openai` 本质上是 OpenAI HTTP API 的一层类型化薄封装:组装请求体、发往 `<base_url>/chat/completions`、解析响应。TokenPAPA 实现的是同一套契约,包括流式 SSE 分片、工具调用和标准错误结构,因此封装层一行都不用改。
+
+由此得到一个值得写清楚的结论:**你为 TokenPAPA 写的 LangChain 代码,和写给 OpenAI 的代码完全一样。** 如果以后想测试 TokenPAPA 尚未收录的厂商,只需要改两个值——`api_key` 与 `base_url`——整条链可以原样保留。
+
+| 接入方式 | 配置成本 | 切换模型 | 需要管理的凭据 |
+|---|---|---|---|
+| 每个厂商装一个包 | 新类、新认证、各自的小坑 | 重写链 | 每家一个 Key |
+| 自己写 `BaseChatModel` 子类 | 自己实现 `_generate` 与 `_stream` | 手动 | 每家一个 Key |
+| `ChatOpenAI` + `base_url` | 一个关键字参数 | 改 `model` 字符串 | 仅一个 Key |
+
+第三行就是这篇指南存在的理由。
+
+## 链式组合:提示词、模型、解析器
+
+LCEL 的组合方式和官方文档完全一致,唯一特殊的一行是 `base_url`。
+
+```python
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "你是一位简洁的技术作者,回答控制在 120 字以内。"),
+    ("human", "向一位后端开发者解释 {topic}。"),
+])
+
+chain = prompt | llm | StrOutputParser()
+print(chain.invoke({"topic": "LLM API 的 token 缓存"}))
+```
+
+因为 `llm` 就是一个普通的对话模型对象,同一条链可以直接换成 TokenPAPA 背后的任意模型。把模型重建为 `model="qwen3.7-plus"` 或 `model="claude-sonnet-4-6"`,提示词部分一行都不用动。
+
+## 流式输出、记忆与批处理
+
+验证接口行为是否与 OpenAI 一致,最快的办法是流式输出:只要 token 是逐段到达的,说明 SSE 正常,其余接口面基本也可信。
+
+```python
+for chunk in llm.stream("列出三种降低 LLM API 成本的方法。"):
+    print(chunk.content, end="", flush=True)
+```
+
+多轮记忆使用 LangChain 自带的消息历史对象,它们与 TokenPAPA 无关:
+
+```python
+from langchain_core.chat_history import InMemoryChatMessageHistory
+from langchain_core.runnables.history import RunnableWithMessageHistory
+
+store = {}
+
+def history_for(session_id: str):
+    if session_id not in store:
+        store[session_id] = InMemoryChatMessageHistory()
+    return store[session_id]
+
+chat = RunnableWithMessageHistory(llm, history_for)
+
+cfg = {"configurable": {"session_id": "demo-1"}}
+chat.invoke({"input": "我的服务每天处理 200 万次请求。"}, config=cfg)
+print(chat.invoke({"input": "我刚刚告诉了你什么?"}, config=cfg).content)
+```
+
+> **记忆要点**:消息历史是纯 Python 容器,与厂商无关,因此无论由哪个模型 ID 来回答,裁剪、摘要或落库到 Redis 的做法都完全一样。
+
+批处理与朴素循环有一个关键区别:`batch` 会并发发请求,这就是你不必自己写线程池也能拿到吞吐量的原因。新版 `langchain-openai` 可以在模型对象上设置 `max_concurrent_requests`,也可以直接 `llm.batch(inputs, config={"max_concurrency": 4})`。
+
+## 工具调用与 Agent
+
+工具调用是「聊天机器人」与「Agent」的分界线,也是最容易暴露厂商兼容问题的地方。在 TokenPAPA 上,只要模型本身支持就可以用——`deepseek-v4-flash`、`gpt-5.6-luna`、`qwen3.7-plus`、`claude-sonnet-4-6` 都支持。
+
+```python
+from langchain_core.tools import tool
+
+@tool
+def usd_to_tokens(amount: float) -> str:
+    """估算某个美元金额能买到多少 DeepSeek V4 Flash 输出 token。"""
+    rate_per_million = 0.42          # 每 1M 输出 token 的美元单价
+    tokens = int(amount / rate_per_million * 1_000_000)
+    return f"约 {tokens:,} 个输出 token"
+
+llm_with_tools = llm.bind_tools([usd_to_tokens])
+print(llm_with_tools.invoke("5 美元能买多少 token?").tool_calls)
+```
+
+把 Agent 跑在网关上有两条实战经验:
+
+1. **执行工具前先校验参数。** 长于文笔的模型也可能给出「看起来很合理但其实是错的」参数。在 `@tool` 函数上写类型标注并加一层校验,比事后回滚便宜得多。
+2. **给 Agent 的每一步都限制输出 token。** Agent 循环会把调用次数成倍放大,不设 `max_tokens` 时,一次不顺利的推理轨迹可能比整个工作流的其他部分都贵。
+
+> **Agent 注意事项**:如果使用 LangGraph 这类图编排框架,状态存储(checkpointer)和工具执行器请留在自己的进程里。只有模型调用需要走网络,也只有这些调用会产生计费。
+
+## RAG:哪一步放在哪里
+
+检索增强生成涉及四个环节,其中只有一个是对话补全。把职责分清楚,是让 RAG 管线在「不卖 embedding 的网关」上正常工作的关键。
+
+| RAG 环节 | 组件 | 运行位置 |
+|---|---|---|
+| 文档加载与切分 | `langchain-community` 加载器、`RecursiveCharacterTextSplitter` | 你的进程 |
+| 向量化 | 任意 embedding 服务或本地模型 | 你的进程 / 该服务 |
+| 向量库 | Chroma、FAISS、pgvector、Qdrant | 你的数据库 |
+| 答案生成 | `ChatOpenAI`,`base_url` 指向 TokenPAPA | TokenPAPA |
+
+```python
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+
+retriever = vectorstore.as_retriever(search_kwargs={"k": 4})   # 你自己的向量库
+
+answer_prompt = ChatPromptTemplate.from_messages([
+    ("system", "只依据给定上下文回答;上下文没有提到就直说没有。"),
+    ("human", "上下文:\n{context}\n\n问题:{question}"),
+])
+
+rag_chain = (
+    {"context": retriever, "question": RunnablePassthrough()}
+    | answer_prompt
+    | llm
+)
+print(rag_chain.invoke("我们的退款窗口是多久?"))
+```
+
+> **把 RAG 放在网关上的实话**:TokenPAPA 目前提供的是对话、图像与语音合成模型,没有 embedding 接口,因此向量化继续用你向量库原本的服务商(或本地 `sentence-transformers` 模型),只把生成这一步交给 TokenPAPA。
+
+## 在同一条链里做模型路由与降级
+
+当一个应用开始使用不止一个模型,网关的价值就体现出来了。两种模式能覆盖大多数场景。
+
+**便宜优先路由。** 常规流量交给 `deepseek-v4-flash`(每 1M 输入 token $0.14),只有难请求才升级到更大的模型。下表为平台价格,便于你自己算账:
+
+| 模型 | 输入 / 1M | 输出 / 1M | 适合场景 |
+|---|---|---|---|
+| `deepseek-v4-flash` | $0.14 | $0.42 | 高并发摘要、分类、抽取 |
+| `qwen3.7-plus` | $0.20 | $0.60 | 编码辅助、通用推理 |
+| `kimi-k3` | $0.50 | $2.00 | 长文档,256K 上下文 |
+| `gpt-5.6-luna` | $0.27 | $2.70 | 需要 OpenAI 系风格的回答 |
+
+**自动降级。** 一行代码绑定降级列表,LangChain 会在首个模型报错或限流时依次尝试:
+
+```python
+fast = ChatOpenAI(model="deepseek-v4-flash", api_key=os.environ["TOKENPAPA_API_KEY"],
+                  base_url="https://tokenpapa.ai/v1", max_tokens=600)
+frontier = ChatOpenAI(model="claude-sonnet-4-6", api_key=os.environ["TOKENPAPA_API_KEY"],
+                      base_url="https://tokenpapa.ai/v1", max_tokens=600)
+
+resilient = fast.with_fallbacks([frontier, llm])
+print(resilient.invoke("为一次延迟优化写一段发布说明。").content)
+```
+
+由于两个模型共用同一个 Key 和同一份余额,这条降级链在运维上几乎不产生额外成本——不需要第二个厂商账号、第二张账单,也不需要故障时再去翻另一个控制台。
+
+> **成本结论**:路由是 LLM 账单上最大的单一杠杆。只把真正需要的请求交给旗舰模型、其余交给 `deepseek-v4-flash`,在常规流量上通常能省掉一半以上的费用,而输出质量几乎无差别。
+
+价格会变动,做预算前请先在[价格页面](https://tokenpapa.ai/pricing)确认当前费率。
+
+## 把 LangChain 指向网关时的五个常见坑
+
+| 现象 | 可能原因 | 处理方式 |
+|---|---|---|
+| `AuthenticationError` / HTTP 401 | 未传 Key,或复制时带上了空格 | 从环境变量读取并去掉首尾空白 |
+| `NotFoundError` / HTTP 404(模型) | 猜模型名,例如写成 `gpt-4o` | 先列出真实模型 ID;用 `deepseek-v4-flash`、`qwen3.7-plus`、`kimi-k3` |
+| `ImportError: langchain_openai` | 装的是旧的整体包 `langchain` | `pip install -U langchain-openai` |
+| 流式输出没有内容 | `stream()` 被消费了两次,或代理缓冲了 SSE | 只迭代一次;关闭响应缓冲 |
+| 回答被截断 | 没设 `max_tokens`,被默认值截断 | 每个模型对象都显式设置 `max_tokens` |
+
+在怀疑 LangChain 之前,先确认账号侧是否正常:
+
+```bash
+curl -s https://tokenpapa.ai/v1/models -H "Authorization: Bearer YOUR_KEY_HERE" | head -c 400
+```
+
+如果能返回一段模型 ID 的 JSON 数组,说明 Key 与接口都没问题,问题在你的链配置里。
+
+## 常见问题
+
+**Q:LangChain 能直接接入 TokenPAPA 吗?**
+A:可以,而且不需要插件。TokenPAPA 提供 OpenAI 兼容接口 `https://tokenpapa.ai/v1`,使用标准 `ChatOpenAI` 类,传入 Key 与 `base_url` 即可;账号下的所有模型只需改 `model` 字符串就能调用。
+
+**Q:LangChain 里怎么设置自定义 `base_url`?**
+A:作为构造参数传入——`ChatOpenAI(model=..., api_key=..., base_url="https://tokenpapa.ai/v1")`。HTTP 请求、流式输出与重试都会继承该地址,所以每个模型对象设置一次即可。偏好配置化的话,也可以使用 `OPENAI_BASE_URL` 环境变量。
+
+**Q:哪些 LangChain 组件可以和 TokenPAPA 配合使用?**
+A:所有以对话模型为输入的部分都可以:提示词模板、LCEL 链、输出解析器、消息历史、流式输出、工具调用,以及 LangGraph 这类 Agent 编排。例外是向量化与向量库——平台提供的是对话、图像与语音合成模型,没有 embedding 接口,请用其他服务商或本地模型完成向量化。
+
+**Q:同一条 LangChain 链里可以使用不同模型吗?**
+A:可以,这也是把 LangChain 指向网关最主要的理由。每个模型创建一个 `ChatOpenAI` 对象,然后按输入分流、用 `with_fallbacks` 组成自动降级链,或挂到同一条链的不同环节。它们共用一份余额与同一个 Key。
+
+---
+
+## 快速开始
+
+1. 在 [tokenpapa.ai](https://tokenpapa.ai) 注册——邮箱、Google 或 GitHub,不需要中国手机号。
+2. 在控制台 [/console/token](https://tokenpapa.ai/console/token) 创建 API Key,并把它导出为环境变量 `TOKENPAPA_API_KEY`。
+3. 安装 `langchain-openai`,把 `ChatOpenAI` 指向 `https://tokenpapa.ai/v1`,然后换 `model` 字符串即可访问其他模型。
+
+```python
+import os
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+
+llm = ChatOpenAI(
+    model="deepseek-v4-flash",
+    api_key=os.environ["TOKENPAPA_API_KEY"],
+    base_url="https://tokenpapa.ai/v1",
+    max_tokens=700,
+)
+
+chain = (
+    ChatPromptTemplate.from_template("用三条要点总结下面的内容:\n\n{text}")
+    | llm
+    | StrOutputParser()
+)
+
+print(chain.invoke({"text": "在这里放入你的文档。"}))
+```
+
+把 `model="deepseek-v4-flash"` 换成 `qwen3.7-plus`、`kimi-k3` 或 `claude-sonnet-4-6`,同一条链照常工作——这正是让 LangChain 走统一 OpenAI 兼容接口的全部意义。
+
+---
+
+*最后更新:2026-09-21。模型 ID 与价格变动频繁,引用本文数字前请先在 [tokenpapa.ai/pricing](https://tokenpapa.ai/pricing) 以及 `GET https://tokenpapa.ai/v1/models` 确认。*

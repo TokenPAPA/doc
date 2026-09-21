@@ -1,0 +1,287 @@
+---
+title: "Setting Up TokenPAPA with LangChain: A Complete Guide"
+description: "Wire LangChain to TokenPAPA through one OpenAI-compatible base_url: LCEL chains, streaming, tool calling, agents and RAG across 65 models on one API key."
+date: 2026-09-21
+authors: [tokenpapa]
+category: "Tutorial"
+keywords: ["TokenPAPA LangChain integration", "langchain openai compatible", "langchain base_url", "langchain custom llm", "TokenPAPA langchain", "langchain ChatOpenAI base_url", "langchain with deepseek", "langchain model routing", "langchain agent tools", "multi model langchain"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-09-21 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;Setting Up TokenPAPA with LangChain: A Complete Guide&quot;,&quot;description&quot;:&quot;Wire LangChain to TokenPAPA through one OpenAI-compatible base_url: LCEL chains, streaming, tool calling, agents and RAG across 65 models on one API key.&quot;,&quot;datePublished&quot;:&quot;2026-09-21&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Does LangChain work with TokenPAPA?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Yes. TokenPAPA serves an OpenAI-compatible API at https://tokenpapa.ai/v1, so LangChain ships no special integration for it and needs none. Use the standard ChatOpenAI class from the langchain-openai package, pass your TokenPAPA key and set base_url to https://tokenpapa.ai/v1. Every model in the account becomes reachable by changing the model string.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How do I set a custom base_url in LangChain?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Pass it to the model constructor as a keyword argument: ChatOpenAI(model=..., api_key=..., base_url=https://tokenpapa.ai/v1). HTTP clients, streaming and retries all inherit that endpoint, so you set it once per model object. If you prefer configuration over code, set the OPENAI_API_BASE or OPENAI_BASE_URL environment variable instead.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Which LangChain components can I use with TokenPAPA?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Anything that consumes a chat model: prompt templates, LCEL chains, output parsers, message history, streaming, tool calling and agent graphs such as LangGraph. Embedding and vector store steps are the exception, because TokenPAPA currently lists chat, image and text to speech models rather than an embedding endpoint, so supply embeddings from another provider or a local model.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Can I use different models in the same LangChain chain?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Yes, and it is the main reason to route LangChain through a gateway. Create one ChatOpenAI object per model, then either branch on the input, bind them with with_fallbacks for automatic failover, or attach them to different steps of the same chain. All of them bill against one prepaid balance and one key.&quot;}}]}" />
+
+# Setting Up TokenPAPA with LangChain: A Complete Guide
+
+LangChain is excellent at the part of an AI application people actually care about: prompt composition, chaining, retrieval, agents. It is much less fun when every model vendor needs its own package, its own credential and its own retry behavior. That plumbing is where small projects stall.
+
+This guide wires LangChain to TokenPAPA using **one class and one keyword argument**. `ChatOpenAI` with a custom `base_url` reaches 65 listed model IDs — DeepSeek, GPT-5.6, Claude, Qwen, Kimi, GLM, MiniMax and more — through an endpoint that speaks the OpenAI protocol.
+
+> **TokenPAPA with LangChain in one sentence**: TokenPAPA exposes an OpenAI-compatible API at `https://tokenpapa.ai/v1`, so LangChain needs no vendor-specific integration — the standard `ChatOpenAI` class, a TokenPAPA key and a `base_url` argument are the entire setup, and every model on the account is available by changing the `model` string.
+
+Everything below is runnable code. There is no TokenPAPA plugin to install, because an OpenAI-compatible endpoint makes one unnecessary.
+
+---
+
+## What you need
+
+| Item | Value |
+|---|---|
+| Python | 3.9 or newer |
+| LangChain package | `langchain-openai` (brings `langchain-core` with it) |
+| Account | [tokenpapa.ai](https://tokenpapa.ai) — email, Google or GitHub login |
+| Key | One API key from the console |
+| `base_url` | `https://tokenpapa.ai/v1` |
+| Models | 65 IDs as of September 2026, per `GET https://tokenpapa.ai/v1/models` |
+| Embeddings | Not served by TokenPAPA — pair with another provider for RAG vectors |
+
+```bash
+pip install -U langchain-openai langchain-core
+```
+
+```python
+import os
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(
+    model="deepseek-v4-flash",                      # any model ID on the platform
+    api_key=os.environ["TOKENPAPA_API_KEY"],
+    base_url="https://tokenpapa.ai/v1",             # the whole integration
+    temperature=0.2,
+    max_tokens=800,                                  # always cap output tokens
+)
+
+print(llm.invoke("Explain what a LangChain chain is in two sentences.").content)
+```
+
+If that prints, the integration is done. Everything else in this guide is LangChain doing its normal job.
+
+> **Key insight**: Setting `base_url` on `ChatOpenAI` redirects every HTTP call that the model object makes — invoke, stream, batch and tool calls included — so you configure a gateway once per model object rather than per call site.
+
+## Why `base_url` is the entire integration
+
+`langchain-openai` is a thin, typed wrapper around the OpenAI HTTP API. It builds a request body, posts it to `<base_url>/chat/completions`, and parses the response. TokenPAPA implements that same contract, including streaming SSE chunks, tool calling and the standard error shapes, so nothing in the wrapper has to change.
+
+That has a practical consequence worth stating plainly: **the LangChain code you write against TokenPAPA is the same code you would write against OpenAI.** If you later want to test a vendor that TokenPAPA does not carry, you change two values — `api_key` and `base_url` — and keep the chain.
+
+| Approach | Setup cost | Model switching | Credentials to manage |
+|---|---|---|---|
+| One package per vendor | New class, new auth, per-vendor quirks | Rewrite the chain | One key per vendor |
+| Custom `BaseChatModel` subclass | Implement `_generate` and `_stream` yourself | Manual | One key per vendor |
+| `ChatOpenAI` + `base_url` | One keyword argument | Change the `model` string | One key total |
+
+The third row is why this article exists at all.
+
+## Chains: prompts, models and parsers
+
+LCEL composition works exactly as documented. The only unusual line is the `base_url`.
+
+```python
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a concise technical writer. Answer in under 120 words."),
+    ("human", "Explain {topic} to a backend developer."),
+])
+
+chain = prompt | llm | StrOutputParser()
+print(chain.invoke({"topic": "token caching in LLM APIs"}))
+```
+
+Because `llm` is a normal chat model object, the same chain accepts any model ID behind TokenPAPA. Rebuild the chain with `model="qwen3.7-plus"` or `model="claude-sonnet-4-6"` and the prompt work is untouched.
+
+## Streaming, memory and batching
+
+Streaming is the fastest way to confirm the endpoint behaves like OpenAI: if you see tokens arrive incrementally, SSE is fine and so is the rest of the surface.
+
+```python
+for chunk in llm.stream("List three ways to reduce LLM API cost."):
+    print(chunk.content, end="", flush=True)
+```
+
+Multi-turn memory uses LangChain message history objects. Nothing about them is TokenPAPA-specific:
+
+```python
+from langchain_core.chat_history import InMemoryChatMessageHistory
+from langchain_core.runnables.history import RunnableWithMessageHistory
+
+store = {}
+
+def history_for(session_id: str):
+    if session_id not in store:
+        store[session_id] = InMemoryChatMessageHistory()
+    return store[session_id]
+
+chat = RunnableWithMessageHistory(llm, history_for)
+
+cfg = {"configurable": {"session_id": "demo-1"}}
+chat.invoke({"input": "My service handles 2 million requests a day."}, config=cfg)
+print(chat.invoke({"input": "What did I just tell you?"}, config=cfg).content)
+```
+
+> **Memory note**: history objects are pure Python containers and are provider-agnostic, so trimming, summarising or persisting them to Redis works the same way whichever model ID answers the turn.
+
+Batching differs from a naive loop in one important respect: `batch` issues requests concurrently, which is how you get throughput without writing your own thread pool. Set `max_concurrent_requests` on the model object in newer `langchain-openai` releases, or use `llm.batch(inputs, config={"max_concurrency": 4})`.
+
+## Tool calling and agents
+
+Tool calling is the feature that separates a chatbot from an agent, and it is where provider compatibility usually breaks. It works here for any model on the platform that supports it — `deepseek-v4-flash`, `gpt-5.6-luna`, `qwen3.7-plus` and `claude-sonnet-4-6` all do.
+
+```python
+from langchain_core.tools import tool
+
+@tool
+def convert_usd_to_tokens(amount: float) -> str:
+    """Estimate how many DeepSeek V4 Flash output tokens a USD amount buys."""
+    rate_per_million = 0.42          # USD per 1M output tokens
+    tokens = int(amount / rate_per_million * 1_000_000)
+    return f"about {tokens:,} output tokens"
+
+llm_with_tools = llm.bind_tools([convert_usd_to_tokens])
+print(llm_with_tools.invoke("How many tokens does $5 buy?").tool_calls)
+```
+
+Two practical rules from running agents through a gateway:
+
+1. **Validate tool arguments before executing them.** A model that is excellent at prose can still emit a plausible-but-wrong argument. Type hints on the `@tool` function plus a validation step are cheaper than a rollback.
+2. **Cap output tokens on agent steps.** Agent loops multiply calls; without `max_tokens` an unlucky reasoning trace can cost more than the whole rest of the workflow.
+
+> **Agent caveat**: if you use a graph framework such as LangGraph, keep the checkpointer and the tool executor in your own process. Only the model calls need to travel over the network, and those are the only calls the gateway is billed for.
+
+## RAG: which step goes where
+
+Retrieval-augmented generation touches four steps, and only one of them is a chat completion. Splitting them correctly is what keeps a RAG pipeline working on a gateway that does not sell embeddings.
+
+| RAG step | Component | Where it runs |
+|---|---|---|
+| Document loading and splitting | `langchain-community` loaders, `RecursiveCharacterTextSplitter` | Your process |
+| Embedding | Any embedding provider or a local model | Your process / that provider |
+| Vector store | Chroma, FAISS, pgvector, Qdrant | Your database |
+| Answer generation | `ChatOpenAI` with `base_url` pointing to TokenPAPA | TokenPAPA |
+
+```python
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+
+retriever = vectorstore.as_retriever(search_kwargs={"k": 4})   # your vector store
+
+answer_prompt = ChatPromptTemplate.from_messages([
+    ("system", "Answer only from the context. If the context is silent, say so."),
+    ("human", "Context:\n{context}\n\nQuestion: {question}"),
+])
+
+rag_chain = (
+    {"context": retriever, "question": RunnablePassthrough()}
+    | answer_prompt
+    | llm
+)
+print(rag_chain.invoke("What is our refund window?"))
+```
+
+> **RAG on a gateway, stated plainly**: TokenPAPA currently lists chat, image and text-to-speech models rather than an embedding endpoint, so keep your embeddings with whichever provider (or local `sentence-transformers` model) your vector store already uses and route only the generation step through TokenPAPA.
+
+## Model routing and fallbacks in one chain
+
+The gateway earns its place the moment a single application uses more than one model. Two patterns cover most of it.
+
+**Cheap-first routing.** Send routine traffic to `deepseek-v4-flash` at $0.14 per 1M input tokens, and escalate only the hard requests to a larger model. Per-1M-token rates below are the platform rates, so you can do the arithmetic yourself:
+
+| Model | Input / 1M | Output / 1M | Use it for |
+|---|---|---|---|
+| `deepseek-v4-flash` | $0.14 | $0.42 | High-volume summarisation, classification, extraction |
+| `qwen3.7-plus` | $0.20 | $0.60 | Coding assistance, general reasoning |
+| `kimi-k3` | $0.50 | $2.00 | Long-context documents, 256K window |
+| `gpt-5.6-luna` | $0.27 | $2.70 | When an OpenAI-family answer is required |
+
+**Automatic failover.** One line binds a fallback list, and LangChain walks it when the first model errors or rate-limits:
+
+```python
+fast = ChatOpenAI(model="deepseek-v4-flash", api_key=os.environ["TOKENPAPA_API_KEY"],
+                  base_url="https://tokenpapa.ai/v1", max_tokens=600)
+frontier = ChatOpenAI(model="claude-sonnet-4-6", api_key=os.environ["TOKENPAPA_API_KEY"],
+                      base_url="https://tokenpapa.ai/v1", max_tokens=600)
+
+resilient = fast.with_fallbacks([frontier, llm])
+print(resilient.invoke("Draft a release note for a latency improvement.").content)
+```
+
+Because both models live behind the same key and the same balance, the fallback list costs you nothing in operations — no second vendor account, no second invoice, no second console to check during an incident.
+
+> **Cost takeaway**: routing is the largest single lever on an LLM bill. Sending only the requests that need it to a frontier model, and everything else to `deepseek-v4-flash`, typically cuts spend by well over half at identical prompt quality for the routine traffic.
+
+Rates change, so confirm current numbers on the [pricing page](https://tokenpapa.ai/pricing) before you budget from these tables.
+
+## Five pitfalls when pointing LangChain at a gateway
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| `AuthenticationError` / HTTP 401 | Key not passed, or whitespace copied with it | Read from an environment variable, strip the value |
+| `NotFoundError` / HTTP 404 on the model | Model ID guesswork, for example `gpt-4o` | List real IDs first; use `deepseek-v4-flash`, `qwen3.7-plus`, `kimi-k3` |
+| `ImportError: langchain_openai` | The old monolithic `langchain` package is installed | `pip install -U langchain-openai` |
+| Streaming returns nothing | `stream()` consumed twice, or a proxy buffering SSE | Iterate once; disable response buffering |
+| Truncated answers | No `max_tokens` set, so the default cut the reply | Set `max_tokens` explicitly on every model object |
+
+A quick way to confirm the account side before blaming LangChain:
+
+```bash
+curl -s https://tokenpapa.ai/v1/models -H "Authorization: Bearer YOUR_KEY_HERE" | head -c 400
+```
+
+If that returns a JSON list of model IDs, the key and endpoint are fine and the problem is in your chain configuration.
+
+## FAQ
+
+**Q: Does LangChain work with TokenPAPA?**
+A: Yes, with no plugin. TokenPAPA serves an OpenAI-compatible API at `https://tokenpapa.ai/v1`, so use the standard `ChatOpenAI` class, pass your TokenPAPA key and set `base_url`. Every model on the account is then reachable by changing the `model` string.
+
+**Q: How do I set a custom `base_url` in LangChain?**
+A: Pass it as a constructor keyword argument — `ChatOpenAI(model=..., api_key=..., base_url="https://tokenpapa.ai/v1")`. HTTP calls, streaming and retries all inherit that endpoint, so you set it once per model object. Environment variables such as `OPENAI_BASE_URL` work too if you prefer configuration over code.
+
+**Q: Which LangChain components can I use with TokenPAPA?**
+A: Anything that consumes a chat model: prompt templates, LCEL chains, output parsers, message history, streaming, tool calling and agent graphs. Embeddings and vector stores are the exception — TokenPAPA lists chat, image and text-to-speech models rather than an embedding endpoint, so supply embeddings from another provider or a local model.
+
+**Q: Can I use different models in the same LangChain chain?**
+A: Yes, and that is the strongest reason to route LangChain through a gateway. Create one `ChatOpenAI` object per model, then branch on the input, chain them with `with_fallbacks` for automatic failover, or attach them to different steps. Everything bills against one prepaid balance.
+
+---
+
+## Get Started
+
+1. Sign up at [tokenpapa.ai](https://tokenpapa.ai) — email, Google or GitHub, no Chinese phone number required.
+2. Create an API key in the console at [/console/token](https://tokenpapa.ai/console/token), then export it as `TOKENPAPA_API_KEY`.
+3. Install `langchain-openai`, point `ChatOpenAI` at `https://tokenpapa.ai/v1` and swap the `model` string to reach any other model.
+
+```python
+import os
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+
+llm = ChatOpenAI(
+    model="deepseek-v4-flash",
+    api_key=os.environ["TOKENPAPA_API_KEY"],
+    base_url="https://tokenpapa.ai/v1",
+    max_tokens=700,
+)
+
+chain = (
+    ChatPromptTemplate.from_template("Summarise this in three bullets:\n\n{text}")
+    | llm
+    | StrOutputParser()
+)
+
+print(chain.invoke({"text": "Your document goes here."}))
+```
+
+Change `model="deepseek-v4-flash"` to `qwen3.7-plus`, `kimi-k3` or `claude-sonnet-4-6` and the same chain keeps working — that is the entire point of running LangChain through one OpenAI-compatible endpoint.
+
+---
+
+*Last updated: 2026-09-21. Model IDs and rates change frequently — verify them on [tokenpapa.ai/pricing](https://tokenpapa.ai/pricing) and in `GET https://tokenpapa.ai/v1/models` before relying on any figure in this article.*

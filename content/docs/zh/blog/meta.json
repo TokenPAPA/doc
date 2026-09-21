@@ -4,6 +4,7 @@
   "icon": "Newspaper",
   "root": true,
   "pages": [
+    "tokenpapa-langchain-integration",
     "ai-chatbot-kimi-minimax-api",
     "python-sdk-switch-60-models-one-key",
     "qwen-api-quick-start-5-minutes",
