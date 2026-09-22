@@ -1,0 +1,210 @@
+---
+title: "DeepSeek vs Qwen vs GPT-5:2026 性价比全面对比"
+description: "DeepSeek、Qwen 与 GPT-5.6 的每百万 token 价格、基准分数与真实工作负载成本逐项对比,含 2026 年选型建议与一个 Key 接入方式。"
+date: 2026-09-22
+authors: [tokenpapa]
+category: "模型对比"
+keywords: ["DeepSeek vs Qwen vs GPT-5", "2026 大模型性价比", "deepseek v4 价格", "qwen 对比 gpt5", "最便宜旗舰模型", "deepseek v4 flash 价格", "qwen 3.7 价格", "gpt-5.6 luna 价格", "大模型 API 成本对比", "TokenPAPA 模型对比"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-09-22 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;DeepSeek vs Qwen vs GPT-5:2026 性价比全面对比&quot;,&quot;description&quot;:&quot;DeepSeek、Qwen 与 GPT-5.6 的每百万 token 价格、基准分数与真实工作负载成本逐项对比,含 2026 年选型建议与一个 Key 接入方式。&quot;,&quot;datePublished&quot;:&quot;2026-09-22&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;DeepSeek V4、Qwen 3.7 和 GPT-5.6 哪个更便宜?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;DeepSeek V4 Flash 三家最便宜,输入每百万 token 0.14 美元,输出 0.42 美元。Qwen 3.7 次之,为 0.20 与 0.60 美元;GPT-5.6 Luna 为 0.27 与 2.70 美元。顶配端差距进一步拉大:GPT-5.6 Sol 为 13.50 与 60.00 美元,DeepSeek V4 Flash 的输入价格比它便宜 96%。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;便宜模型够用吗,是否必须上 GPT-5.6?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;大多数线上流量用便宜层就足够。DeepSeek V4 Flash 在 Terminal Bench 2.1(智能体编码基准)上得 82.7 分,Qwen 3.7 得 80.1 分,均领先每 token 价格高出数十倍的模型。只有当输出质量本身就是产品时,才需要 GPT-5.6 Terra 或 Sol:深度推理、长文档分析与高风险生成。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;能用同一个 API Key 调用 DeepSeek、Qwen 和 GPT-5.6 吗?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;可以。TokenPAPA 提供统一的 OpenAI 兼容接口 https://tokenpapa.ai/v1,覆盖 65 个模型 ID,包括 deepseek-v4-flash、deepseek-v4-pro、qwen3.7-plus、qwen3.7-max、gpt-5.6-luna、gpt-5.6-terra 与 gpt-5.6-sol。切换厂商只需改一行 model 参数,同一把 Key 通用,无需中国手机号,账单合并为一份。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;2026 年写代码该选哪个模型?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;智能体编码建议以 DeepSeek V4 Flash 起步:Terminal Bench 2.1 得分 82.7 领先,输入每百万 token 仅 0.14 美元。用 Qwen 3.7(输入 0.20 美元)做第二意见与降级兜底,把个别难题单独升级到旗舰模型,而不是把所有流量都路由到旗舰。&quot;}}]}" />
+
+# DeepSeek vs Qwen vs GPT-5:2026 性价比全面对比
+
+2026 年模型市场有一个最核心的特征:便宜层与旗舰层之间的价格差,已经超过了它们之间的能力差。DeepSeek V4 Flash 读入一百万 token 收 **0.14 美元**,GPT-5.6 Sol 收 **13.50 美元**。两者都能写代码、都能遵循指令、都通过同一套 OpenAI 兼容协议流式输出。
+
+这篇对比把 DeepSeek、Qwen 和 GPT-5.6 系列放在同一张桌子上,只比两个真正决定技术选型的数字——每百万 token 的价格与实测表现,再把每个模型映射到它真正擅长的场景。
+
+> **一句话总结 DeepSeek vs Qwen vs GPT-5**:DeepSeek V4 Flash 是便宜层里最有能力的选项,每百万 token 0.14/0.42 美元,Terminal Bench 2.1 得 82.7 分;Qwen 3.7 高一个价位(0.20/0.60 美元)得 80.1 分,多语言更稳;GPT-5.6 系列横跨 0.27/2.70(Luna)到 13.50/60.00(Sol),只有深度推理与长上下文场景才值这个价。
+
+---
+
+## 价格对比(每百万 token)
+
+下表均为 2026 年 9 月的 TokenPAPA 平台价格,单位美元,全部走同一个 OpenAI 兼容接口。
+
+| 模型 | 输入 /1M | 输出 /1M | 上下文 | 阵营 |
+|---|---|---|---|---|
+| **DeepSeek V4 Flash** | **$0.14** | **$0.42** | 128K | DeepSeek |
+| Qwen 3.7 | $0.20 | $0.60 | 128K | Qwen |
+| GPT-5.6 Luna | $0.27 | $2.70 | 1M | OpenAI |
+| DeepSeek V4 Pro | $0.28 | $0.84 | 128K | DeepSeek |
+| GPT-5.6 Terra | $2.70 | $13.50 | 2M | OpenAI |
+| GPT-5.6 Sol | $13.50 | $60.00 | — | OpenAI |
+| Mimo V2.5 *(价格地板参考)* | $0.08 | $0.24 | 128K | 小米 |
+
+> **关键结论**:这三个阵营不是三个价格点,而是三个层级。DeepSeek V4 Flash 与 Qwen 3.7 的输入价差只有 0.06 美元;GPT-5.6 Luna 紧随其后;而 GPT-5.6 Terra 与 Sol 在同样的 token 上要贵 10 到 96 倍。
+
+比表格本身更重要的两个比例:
+
+- **便宜层内部**:DeepSeek V4 Flash 的输入价比 Qwen 3.7 低 **30%**,输出价同样低 **30%**(0.42 vs 0.60 美元)。
+- **跨层之间**:DeepSeek V4 Flash 的输入价比 GPT-5.6 Sol 便宜 **96%**;输出端是 0.42 对 60.00 美元,相差 **143 倍**。
+
+所有模型的输出 token 都比输入 token 贵,这也是为什么对某些业务来说,控制 `max_tokens` 比挑选模型更影响账单。预算定型前建议先看一遍[最新价格页](https://tokenpapa.ai/pricing)。
+
+---
+
+## 换算成生产流量是什么概念
+
+只讲每百万 token 的价格很难有体感。换成一个具体负载形状就清楚了:**每月 1 亿输入 token + 5000 万输出 token**——大约相当于 10 万次请求,每次 1000 输入、500 输出 token,这是典型的客服机器人、摘要流水线或编码助手的量级。
+
+| 模型 | 输入成本 | 输出成本 | 月总计 |
+|---|---|---|---|
+| Mimo V2.5 | $8.00 | $12.00 | **$20.00** |
+| DeepSeek V4 Flash | $14.00 | $21.00 | **$35.00** |
+| Qwen 3.7 | $20.00 | $30.00 | **$50.00** |
+| DeepSeek V4 Pro | $28.00 | $42.00 | **$70.00** |
+| GPT-5.6 Luna | $27.00 | $135.00 | **$162.00** |
+| GPT-5.6 Terra | $270.00 | $675.00 | **$945.00** |
+| GPT-5.6 Sol | $1,350.00 | $3,000.00 | **$4,350.00** |
+
+同一个负载,只因为 `model` 字符串不同,月成本从 **20 美元到 4350 美元**。请求密集、输出很短的业务差距会小一些;而任何需要生成大段答案的场景,输出价格都会主导账单,旗舰层也就不再是可以默认使用的选项。
+
+另一个参考口径:模拟「每月 10 万次请求、每次约 1.5K token」的生产负载,DeepSeek V4 Flash 约 **52 美元/月**,GPT-5.6 Sol 约 **4200 美元/月**,这还没算缓存带来的节省。(数据来源:TokenPAPA 平台价格,2026 年 9 月。)
+
+### Qwen 3.7 的位置
+
+Qwen 3.7 是最有意思的中间选项。它的输入价比 DeepSeek V4 Flash 高 43%,在大规模下确实是笔真金白银;但它仍比 GPT-5.6 Sol 便宜 26 倍、比 GPT-5.6 Terra 便宜 13 倍。对于希望在便宜层里放一个「第二厂商兜底」又不碰旗舰价格的团队,它刚好合适。
+
+---
+
+## 基准与速度:便宜模型真的够用吗
+
+只有能力接近时,价格才决定选型。在开发者真正能感受到的智能体编码基准 Terminal Bench 2.1(测试多步骤仓库任务,而不是知识问答)上,便宜层并不落后。
+
+| 模型 | Terminal Bench 2.1 | 首 token 延迟 | 完整响应 | 上下文 |
+|---|---|---|---|---|
+| DeepSeek V4 Flash | **82.7** | ~0.4s | ~1.2s | 128K |
+| Qwen 3.7 | 80.1 | — | — | 128K |
+| DeepSeek V4 Pro | — | ~0.8s | ~2.1s | 128K |
+| GPT-5.6 Luna | — | ~0.6s | ~1.8s | 1M |
+| GPT-5.6 Sol | — | ~1.2s | ~3.5s | — |
+
+计时使用同一句提示词("用三句话解释量子计算")以保证可比性。标「—」表示厂商未公布该模型的可比数据,应视为未知而非表现差——最稳妥的做法是通过同一把 Key 在自己的负载上实测。
+
+> **关键结论**:DeepSeek V4 Flash 在 Terminal Bench 2.1 得 82.7 分,Qwen 3.7 得 80.1 分,2.6 分的差距落在「要看具体任务才能定胜负」的区间内。与此同时 V4 Flash 的首 token 延迟约 0.4 秒,而 GPT-5.6 Sol 约 1.2 秒——更便宜的模型在交互场景里反而更快。
+
+把这两组数字放在一起读,价格叙事就被反转了:旗舰层卖的不是「通用能力」,而是「便宜层暂时做不对的那部分任务上的余量」。如果你说不出自己的业务具体需要哪种余量,那你很可能在为一份永远用不上的余量付费。
+
+---
+
+## 按场景选型
+
+| 场景 | 推荐模型 | 理由 |
+|---|---|---|
+| 高并发分类、抽取、摘要 | **DeepSeek V4 Flash** | 0.14/0.42 美元,常开流水线也扛得住 |
+| 智能体编码、仓库级任务、编码助手 | **DeepSeek V4 Flash** | Terminal Bench 2.1 得 82.7,首 token 约 0.4s |
+| 中文内容与多语言任务 | **Qwen 3.7** | 中日韩与指令遵循更稳,0.20/0.60 美元 |
+| 便宜层内的多厂商降级兜底 | **Qwen 3.7** | 上游链路独立,价格接近 DeepSeek |
+| 必须使用 OpenAI 系行为、需要 1M 上下文 | **GPT-5.6 Luna** | 2026 年 7 月降价后最便宜的 OpenAI 档位 |
+| 长文档分析、高难推理、需要 2M 上下文 | **GPT-5.6 Terra** | 便宜层够不到的上下文天花板 |
+| 输出质量本身就是产品 | **GPT-5.6 Sol** | 旗舰输出,输出 60 美元/1M,请谨慎使用 |
+| 批量元数据、打标、SEO 文案 | **Mimo V2.5** | 0.08/0.24 美元的绝对地板价 |
+
+大多数团队最终会收敛到**分层路由**:一个便宜默认模型承接大部分流量,第二个便宜层模型负责兜底与「第二意见」,再让一小部分确实需要旗舰的请求可以触达旗舰。三条路由可以共用同一把 Key。
+
+### 不改模型也能降账单
+
+1. **每个请求都设 `max_tokens`。** 输出单价是输入的 3 到 10 倍,不加限制的生成长度是账单失控最常见的原因。
+2. **用足自动上下文缓存。** DeepSeek 的缓存能把重复输入成本降低约 90%,且无需改代码——保持系统提示词与文档前缀稳定,让它们命中缓存。
+3. **按难度路由,而不是按习惯路由。** 大多数产品里大多数请求都是常规请求;把它们交给旗舰模型是一种惯性,不是一个决策。
+4. **能批处理就批处理。** 批量调用可以摊薄提示词开销,并让你用更便宜的档位完成同样的工作。
+
+---
+
+## 快速开始:三家模型,一把 Key
+
+上表中所有模型都通过 TokenPAPA 的同一个 OpenAI 兼容接口提供:不需要中国手机号,不需要为每个厂商单独注册,一份美元账单。
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-tokenpapa-key",
+    base_url="https://tokenpapa.ai/v1",
+)
+
+QUESTION = "用 3 条要点总结分层模型路由的取舍。"
+
+# 便宜层:最省钱的默认选项
+cheap = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": QUESTION}],
+    max_tokens=400,
+)
+
+# 便宜层内的第二意见 / 兜底
+qwen = client.chat.completions.create(
+    model="qwen3.7-plus",
+    messages=[{"role": "user", "content": QUESTION}],
+    max_tokens=400,
+)
+
+# 只有确实需要旗舰余量时才升级
+frontier = client.chat.completions.create(
+    model="gpt-5.6-luna",
+    messages=[{"role": "user", "content": QUESTION}],
+    max_tokens=400,
+)
+
+print(cheap.choices[0].message.content)
+```
+
+三个厂商、同一套客户端、同一把 Key。它们之间唯一的差别就是 `model=` 这一行——这意味着你可以在自己的真实流量上衡量质量与成本,而不是相信任何一张对比表,包括这一张。
+
+> **核心要点**:2026 年「DeepSeek、Qwen 还是 GPT-5」的答案不是某一个模型,而是一套路由策略。有了 `https://tokenpapa.ai/v1` 上的这把 Key,调整路由策略只是改一行参数,而不是一次迁移工程。
+
+---
+
+## 常见问题
+
+### Q:DeepSeek V4、Qwen 3.7 和 GPT-5.6 哪个更便宜?
+
+**A:**DeepSeek V4 Flash 三家最便宜:输入每百万 token 0.14 美元,输出 0.42 美元。Qwen 3.7 次之,为 0.20 与 0.60 美元;GPT-5.6 Luna 为 0.27 与 2.70 美元。顶配端差距进一步拉大:GPT-5.6 Sol 为 13.50 与 60.00 美元,DeepSeek V4 Flash 的输入价格比它便宜 96%。
+
+### Q:便宜模型够用吗,是否必须上 GPT-5.6?
+
+**A:**大多数线上流量用便宜层就足够。DeepSeek V4 Flash 在 Terminal Bench 2.1 得 82.7 分,Qwen 3.7 得 80.1 分,都领先每 token 价格高出数十倍的模型。只有当输出质量本身就是产品时,才需要 GPT-5.6 Terra 或 Sol:深度推理、长文档分析、高风险生成。
+
+### Q:能用同一个 API Key 调用 DeepSeek、Qwen 和 GPT-5.6 吗?
+
+**A:**可以。TokenPAPA 提供统一的 OpenAI 兼容接口 `https://tokenpapa.ai/v1`,覆盖 65 个模型 ID——包括 `deepseek-v4-flash`、`deepseek-v4-pro`、`qwen3.7-plus`、`qwen3.7-max`、`gpt-5.6-luna`、`gpt-5.6-terra` 与 `gpt-5.6-sol`。切换厂商只需改一行 `model=` 参数,同一把 Key 通用,无需中国手机号,账单合并为一份。
+
+### Q:2026 年写代码该选哪个模型?
+
+**A:**建议以 DeepSeek V4 Flash 起步:Terminal Bench 2.1 得 82.7 分领先,输入每百万 token 仅 0.14 美元。用 Qwen 3.7(输入 0.20 美元)做第二意见与降级兜底,把个别难题单独升级到旗舰模型,而不是把所有流量都路由到旗舰。
+
+---
+
+## 快速开始
+
+1. **注册**:前往 [tokenpapa.ai](https://tokenpapa.ai)——邮箱、Google 或 GitHub 均可,无需中国手机号。
+2. **创建 API Key**:在控制台生成 Key 并充值,按量计费,以美元结算。
+3. **把任意 OpenAI 兼容客户端指向该接口**,然后选择档位:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(api_key="your-key", base_url="https://tokenpapa.ai/v1")
+
+response = client.chat.completions.create(
+    model="deepseek-v4-flash",   # 也可换成 qwen3.7-plus、gpt-5.6-luna、gpt-5.6-sol
+    messages=[{"role": "user", "content": "你好!"}],
+    max_tokens=400,              # 始终限制输出长度
+)
+
+print(response.choices[0].message.content)
+```
+
+完整价格表:[tokenpapa.ai/pricing](https://tokenpapa.ai/pricing)。模型列表:`GET https://tokenpapa.ai/v1/models`。
+
+---
+
+*以上价格均为 2026 年 9 月的 TokenPAPA 平台价格,可能随时调整,做预算前请以价格页为准。基准分数来自厂商公布数据,建议仅作为方向性参考,最终以自身负载实测为准。*

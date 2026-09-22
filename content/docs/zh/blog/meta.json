@@ -4,6 +4,7 @@
   "icon": "Newspaper",
   "root": true,
   "pages": [
+    "deepseek-vs-qwen-vs-gpt5-price-performance-2026",
     "tokenpapa-langchain-integration",
     "ai-chatbot-kimi-minimax-api",
     "python-sdk-switch-60-models-one-key",
