@@ -1,6 +1,6 @@
 import { source } from '@/lib/source';
 import { DocsLayout } from 'fumadocs-ui/layouts/docs';
-import { baseOptions, linkItems } from '@/lib/layout.shared';
+import { baseOptions, getLinkItems } from '@/lib/layout.shared';
 import { BackToHome } from '@/components/back-to-home';
 // AI feature temporarily disabled
 // import { AISearchTrigger } from '@/components/search';
@@ -29,7 +29,7 @@ export default async function Layout({
       {...base}
       tabMode="top"
       tree={source.pageTree[lang]}
-      links={linkItems.filter((item) => item.type === 'icon')}
+      links={getLinkItems(lang)}
       sidebar={{
         defaultOpenLevel: 0,
         tabs: {

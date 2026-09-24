@@ -10,6 +10,7 @@ import { getMDXComponents } from '@/mdx-components';
 import type { Metadata } from 'next';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
 import { Feedback } from '@/components/feedback';
+import { DocsCta } from '@/components/docs-cta';
 import { LLMCopyButton, ViewOptions } from '@/components/page-actions';
 import { onRateAction } from '@/lib/github';
 
@@ -103,6 +104,11 @@ export default async function Page(props: {
           })}
         />
       </DocsBody>
+      {/* Blog posts already carry their own end-of-article CTA, so only add
+          the footer CTA to the rest of the docs (API reference, guides, apps). */}
+      {page.slugs[0] !== 'blog' && (
+        <DocsCta lang={lang} slug={page.slugs.join('/')} />
+      )}
       <Feedback lang={lang} onRateAction={onRateAction} />
     </DocsPage>
     </>
