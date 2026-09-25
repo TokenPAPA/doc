@@ -4,6 +4,7 @@
   "icon": "Newspaper",
   "root": true,
   "pages": [
+    "tokenpapa-vs-direct-api-gateway",
     "best-chinese-llm-api-international-developers-2026",
     "deepseek-vs-qwen-vs-gpt5-price-performance-2026",
     "tokenpapa-langchain-integration",
