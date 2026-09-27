@@ -4,6 +4,7 @@
   "icon": "Newspaper",
   "root": true,
   "pages": [
+    "routing-1m-api-calls-daily-60-models",
     "cheapest-gpt5-claude4-deepseek-v4",
     "tokenpapa-vs-direct-api-gateway",
     "best-chinese-llm-api-international-developers-2026",
