@@ -1,0 +1,262 @@
+---
+title: "The State of Chinese AI Models: A Developer's Guide"
+description: "A developer guide to Chinese AI models in 2026: DeepSeek, Qwen, Kimi, MiniMax, GLM and Mimo compared on price, capability and how overseas teams access them."
+date: 2026-09-28
+authors: [tokenpapa]
+category: "Guide"
+keywords: ["Chinese AI models guide", "deepseek qwen kimi comparison", "china llm landscape 2026", "open weights models china", "TokenPAPA", "chinese llm api", "deepseek v4 pricing", "qwen 3.7", "kimi k3 api", "glm 5"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-09-28 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;The State of Chinese AI Models: A Developer Guide&quot;,&quot;description&quot;:&quot;A developer guide to Chinese AI models in 2026: DeepSeek, Qwen, Kimi, MiniMax, GLM and Mimo compared on price, capability and how overseas teams access them.&quot;,&quot;datePublished&quot;:&quot;2026-09-28&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Which Chinese AI model should a developer start with in 2026?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Start with DeepSeek V4 Flash. At $0.14 per 1M input tokens and $0.42 per 1M output tokens it is cheap enough to use as a default for almost any workload, and it posts 82.7 on Terminal Bench 2.1 for agentic coding, which is competitive with models costing fifty times more. Add Qwen 3.7 when you need stronger multilingual or coding breadth, and Kimi K3 when a 256K context window matters more than price.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Can I use Chinese AI models from outside China without a local phone number?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Not directly. First-party Chinese platforms such as DeepSeek, Alibaba DashScope and Moonshot verify new accounts with a mainland Chinese phone number, and billing expects domestic payment methods. Overseas developers use an OpenAI-compatible relay instead: one key, one base_url, card or Stripe billing, no Chinese number. The underlying models are the same.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How much cheaper are Chinese models than Western frontier models?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;The gap is roughly two orders of magnitude at the budget end. Mimo V2.5 starts at $0.08 per 1M input tokens and DeepSeek V4 Flash at $0.14, against $13.50 for GPT-5.6 Sol and $15.00 for Claude Opus 4. A simulated production workload of 100K requests per month at about 1.5K tokens each costs roughly $52 on V4 Flash versus roughly $4,200 on a frontier Western model.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Do open-weight Chinese models mean I can self-host instead of paying for an API?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;You can, but the economics rarely favour it. Open weights remove vendor lock-in and allow air-gapped deployment, which matters for regulated data. They do not remove the cost of GPUs, serving infrastructure, quantization work and on-call. For most teams, the open-weight release is a bargaining chip and a fallback plan, while day-to-day traffic goes through a hosted API priced per token.&quot;}}]}" />
+
+# The State of Chinese AI Models: A Developer's Guide
+
+Two years ago, evaluating a Chinese model was an act of faith. Documentation was partial, benchmarks were self-reported and unverifiable, and the models were treated as cheaper copies of Western flagships. In 2026 that framing is out of date.
+
+Chinese labs now ship frontier-class models on their own release cadence, publish weights for most of them, and compete primarily on price and context length rather than on parity. For a developer choosing a model today, the interesting question is no longer whether a Chinese model is good enough — it is which one, at what price, and how you actually get a key without a mainland phone number.
+
+This guide maps the landscape: the labs that matter, the price and capability tiers, what open weights really buy you, and the four access frictions that still trip up overseas teams.
+
+| Dimension | 2026 status |
+|---|---|
+| Labs worth integrating | DeepSeek, Alibaba (Qwen), Moonshot (Kimi), Zhipu (GLM), MiniMax, Xiaomi (Mimo), Tencent (Hunyuan) |
+| Price floor | $0.08 per 1M input tokens (Mimo V2.5) |
+| Best-value flagship | DeepSeek V4 Pro at $0.28 input / $0.84 output per 1M tokens |
+| Longest practical context | 256K (Kimi K3, Hunyuan HY3) |
+| Open weights | Shipped for most 2026 Chinese flagships, unlike US frontier releases |
+| First-party access friction | Mainland phone number plus domestic payment |
+| Models reachable on one OpenAI-compatible key | 65 live model IDs on TokenPAPA |
+
+> **Key insight**: the Chinese model market has consolidated into roughly seven labs, and almost all of them now publish weights. That combination — frontier-adjacent capability, open weights and price floors near $0.10 per million input tokens — is what makes the sector structurally different from the Western market rather than merely cheaper.
+
+---
+
+## Why the landscape shifted
+
+Three things changed, and only one of them was capability.
+
+**Price became the primary axis of competition.** Chinese labs are not competing to be the single best model. They are competing to be the best model per dollar, and they undercut each other aggressively. DeepSeek V4 Flash sits at $0.14 per 1M input tokens while scoring 82.7 on Terminal Bench 2.1, an agentic coding benchmark where several models costing fifty times more score lower. Xiaomi's Mimo V2.5 goes lower still at $0.08. At those prices, routing decisions stop being architecture decisions and become product decisions — you can afford to run a model per feature instead of one model for everything.
+
+**Open weights became the norm rather than the exception.** DeepSeek, Qwen, GLM and Mimo all release weights. That has two practical consequences: you can self-host for compliance reasons, and no single vendor can hold your workload hostage with a price change. The strategic value of the release is often larger than the operational value of actually running it.
+
+**Context windows stretched.** Kimi K3 and Hunyuan HY3 both work at 256K tokens, and long-context handling is now a normal expectation rather than a premium feature. For document-heavy applications — contract review, codebase analysis, research synthesis — that changes what is buildable without a retrieval layer.
+
+What did *not* change is the access model. Which brings us to the part that actually blocks developers.
+
+---
+
+## The labs, mapped
+
+Each lab has a distinct centre of gravity. Treat these as positioning, not as benchmark claims — the honest way to choose is to run your own evaluation set through two or three candidates.
+
+| Lab | Flagship line | Where it tends to win | First-party friction |
+|---|---|---|---|
+| DeepSeek | V4 Flash, V4 Pro | Price-to-capability, agentic coding, tool use | Mainland phone + payment |
+| Alibaba | Qwen 3.7 | Breadth of sizes, multilingual, strong code generation | Mainland phone + payment, DashScope console |
+| Moonshot | Kimi K3 | Long-context document work, 256K window | Mainland phone + payment |
+| Zhipu | GLM-5 | Chinese-language fluency, enterprise tooling | Mainland phone + payment |
+| MiniMax | MiniMax M3 | Creative generation, speech and multimodal | Mainland phone + payment |
+| Xiaomi | Mimo V2.5 | Absolute cost floor, high-volume classification | Newest entrant, thinner English documentation |
+| Tencent | Hunyuan HY3 | 256K context, enterprise integration stacks | Mainland phone + payment |
+
+> **Chinese LLM landscape in 2026**: seven labs — DeepSeek, Alibaba, Moonshot, Zhipu, MiniMax, Xiaomi and Tencent — cover the market that matters for most applications. Their flagships range from $0.08 to $1.00 per 1M input tokens, and every one of them is reachable through an OpenAI-compatible endpoint.
+
+Two observations that do not appear in marketing material:
+
+1. **The labs are not interchangeable at the edge.** DeepSeek is the default for reasoning and code, Kimi for long documents, MiniMax for anything involving voice or media. Picking one model for all traffic is the most common avoidable cost in a Chinese-model stack.
+2. **Documentation quality is uneven.** DeepSeek and Qwen have mature English documentation. Newer entrants often have API references that assume Chinese-language familiarity. An aggregator that normalises error codes and request shapes removes a real, unglamorous chunk of integration work.
+
+---
+
+## Open weights: what they actually buy you
+
+The open-weight release is the most misunderstood part of the Chinese model story.
+
+**What it genuinely provides:**
+
+- *Deployment sovereignty.* Weights you can run inside your own perimeter satisfy data-residency requirements that a hosted API cannot, regardless of contract terms. For healthcare, legal and public-sector workloads in jurisdictions with strict rules, this is often the deciding factor.
+- *Price leverage.* A credible self-host path is a negotiating position. When a vendor knows you can run the previous generation on your own hardware, list price stops being an ultimatum.
+- *Continuity.* A model that exists as downloadable weights cannot be silently deprecated out from under a production system the way a hosted endpoint can.
+
+**What it does not provide:**
+
+The idea that open weights make inference free. Serving a large model yourself means GPUs, quantisation work, a serving stack, autoscaling, and someone on call when the endpoint wedges. Unless your utilisation is high and steady, the amortised cost per token usually exceeds what a hosted API charges — before you count engineering time.
+
+> **Key takeaway**: for most teams the open-weight release is a fallback plan and a bargaining chip, not a production deployment. Day-to-day traffic belongs on a hosted, per-token API; the weights are what you reach for when compliance or vendor risk demands it.
+
+---
+
+## The price picture
+
+These are platform rates per 1M tokens as of September 2026. Treat them as a shape, not a promise — verify current numbers before you commit a budget.
+
+| Model | Input / 1M | Output / 1M | Context | Positioning |
+|---|---|---|---|---|
+| Mimo V2.5 | $0.08 | $0.24 | 128K | Absolute price floor |
+| Mimo V2.5 Pro | $0.12 | $0.36 | 128K | Slightly higher tier |
+| DeepSeek V4 Flash | $0.14 | $0.42 | 128K | Cost-effectiveness king |
+| Qwen 3.7 | $0.20 | $0.60 | 128K | Coding plus fallback breadth |
+| DeepSeek V4 Pro | $0.28 | $0.84 | 128K | Best-value flagship |
+| GLM-5 | $0.30 | $1.00 | 128K | Chinese-language optimisation |
+| Kimi K3 | $0.50 | $2.00 | 256K | Long context |
+| MiniMax M3 | $0.80 | $2.40 | 128K | Creative and multimodal |
+| Hunyuan HY3 | $1.00 | $4.00 | 256K | Long context, enterprise stack |
+
+Two rules govern real bills more than list price does:
+
+1. **Output tokens cost 3x to 10x input tokens.** Across every model in the table, the output column is the expensive one. An uncapped generation is not just a latency risk, it is an unbounded cost risk. Always set `max_tokens`.
+2. **Automatic context caching cuts repeat-input cost by roughly 90%.** If your prompt prefix is byte-stable — same system prompt, same instructions, same few-shot block — the cached portion is billed at a fraction of the input rate. Prompt hygiene is the single highest-leverage cost optimisation available, and it is free.
+
+> **Key insight**: the difference between a $50 monthly bill and a $500 monthly bill is usually not the model choice. It is whether output tokens are capped, whether the prompt prefix is cacheable, and whether every request is being sent to a frontier model when a budget tier would do.
+
+---
+
+## Capability tiers and where each model wins
+
+Forget universal rankings. The useful question is which model is appropriate for which request class.
+
+| Request class | Sensible default | Why |
+|---|---|---|
+| High-volume classification, extraction, routing | Mimo V2.5, DeepSeek V4 Flash | Deterministic short outputs; cost dominates |
+| Application coding, refactors, agentic tool loops | DeepSeek V4 Flash, Qwen 3.7 | Strong agentic coding per dollar |
+| Complex reasoning, architecture review | DeepSeek V4 Pro | Flagship reasoning at a mid-tier price |
+| Long document and codebase analysis | Kimi K3, Hunyuan HY3 | 256K context removes the retrieval layer |
+| Chinese-language generation and localisation | GLM-5, Qwen 3.7 | Native fluency, idiomatic output |
+| Voice, media, creative generation | MiniMax M3 | Purpose-built multimodal |
+| Customer-facing quality-sensitive answers | Escalate to a frontier Western model | Reserve spend where users notice |
+
+This table encodes the single most valuable architectural decision in a Chinese-model stack: tiering. Route the bulk of traffic to a budget tier, escalate only the requests that need it. A simulated production workload of 100K requests per month at roughly 1.5K tokens each costs about $52 on DeepSeek V4 Flash versus roughly $4,200 on a frontier Western flagship — and the majority of those requests never needed the expensive model.
+
+---
+
+## The four access frictions
+
+This is where overseas teams actually get stuck, and none of it is about model quality.
+
+**1. Phone verification.** DeepSeek, Alibaba DashScope and Moonshot all verify new accounts with a mainland Chinese phone number. Without one, registration does not complete — there is no email-only path on the first-party platforms.
+
+**2. Payment.** Domestic billing expects mainland payment methods. An international card is frequently rejected at the top-up step even when registration succeeds.
+
+**3. Language.** Console interfaces and error messages are Chinese-first. This is workable with translation, but error strings lose meaning in translation precisely when you need them most.
+
+**4. Latency.** Calls originating outside East Asia cross a long path. This is not a blocker for batch workloads and matters little for long generations, but it is noticeable on interactive applications — and it is a *network* property, not a model property.
+
+**5. Deprecation notices.** New model versions, price changes and deprecations are announced in Chinese-language channels first. An integration that assumes a stable model ID can break without warning.
+
+The pattern across all five is the same: the friction is administrative, not technical. The models speak OpenAI's wire protocol — what blocks developers is everything around the protocol.
+
+---
+
+## Getting all of them with one key
+
+A relay or gateway removes the administrative friction without changing the models. [TokenPAPA](https://tokenpapa.ai) exposes 65 live model IDs across DeepSeek, Qwen, Moonshot, Zhipu, MiniMax, Tencent and Xiaomi behind one OpenAI-compatible endpoint.
+
+What that means concretely:
+
+| Friction | With a unified key |
+|---|---|
+| Phone verification | Email, Google or GitHub sign-in — no Chinese number |
+| Payment | Card and Stripe billing, pay-as-you-go in USD, from $10 |
+| Language | English documentation and English error responses |
+| Deprecation notices | One rate card and one model list to track |
+| Vendor sprawl | One credential, one balance, one invoice |
+| Switching models | Change the `model=` string, no code change |
+
+The last row is the one that compounds. Evaluating a new Chinese model should cost one line of code, not an afternoon of SDK work:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-tokenpapa-key",
+    base_url="https://tokenpapa.ai/v1",
+)
+
+def ask(prompt: str, model: str = "deepseek-v4-flash") -> str:
+    resp = client.chat.completions.create(
+        model=model,   # or qwen3.7-plus, kimi-k3, deepseek-v4-pro
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=600,   # cap output: output tokens cost 3x to 10x input
+    )
+    return resp.choices[0].message.content
+
+print(ask("Explain Mixture-of-Experts routing in three sentences."))
+```
+
+Because every Chinese model in the table speaks the same protocol, an A/B evaluation across four labs is a loop over model IDs rather than four separate integrations:
+
+```python
+candidates = ["deepseek-v4-flash", "deepseek-v4-pro", "qwen3.7-plus", "kimi-k3"]
+prompt = "Summarise this contract clause in plain English: ..."
+
+for model in candidates:
+    print(model, "->", ask(prompt, model)[:120])
+```
+
+> **Key takeaway**: the value of a unified endpoint is not the discount. It is that switching cost drops to one string, which makes model evaluation cheap enough to do continuously instead of once.
+
+---
+
+## How to choose: a decision path
+
+1. **Start with a budget tier, not a frontier model.** DeepSeek V4 Flash at $0.14 input covers the large majority of production requests. Escalating later is easier than economising later.
+2. **Build a 30-example evaluation set from your own traffic.** Public benchmarks measure the models someone else cares about. Thirty real inputs with expected outputs will tell you more than any leaderboard.
+3. **Tier by request class.** Cheap model for classification and extraction, mid-tier for reasoning, long-context model only for documents that need it, frontier model only for user-visible quality.
+4. **Cap output tokens everywhere.** It is the highest-leverage cost control and takes one parameter.
+5. **Keep the prompt prefix stable.** Byte-identical prefixes unlock the roughly 90% cached-input discount. Do not inject timestamps or request IDs near the top of the prompt.
+6. **Measure before migrating.** Latency, cost and quality per request class — not per model — should drive the decision.
+
+---
+
+## FAQ
+
+### Q: Which Chinese AI model should a developer start with in 2026?
+
+**A:** Start with DeepSeek V4 Flash. At $0.14 per 1M input tokens and $0.42 per 1M output tokens it is cheap enough to use as a default for almost any workload, and it posts 82.7 on Terminal Bench 2.1 for agentic coding, which is competitive with models costing fifty times more. Add Qwen 3.7 when you need stronger multilingual or coding breadth, and Kimi K3 when a 256K context window matters more than price.
+
+### Q: Can I use Chinese AI models from outside China without a local phone number?
+
+**A:** Not directly. First-party Chinese platforms such as DeepSeek, Alibaba DashScope and Moonshot verify new accounts with a mainland Chinese phone number, and billing expects domestic payment methods. Overseas developers use an OpenAI-compatible relay instead: one key, one base URL, card or Stripe billing, no Chinese number. The underlying models are the same.
+
+### Q: How much cheaper are Chinese models than Western frontier models?
+
+**A:** The gap is roughly two orders of magnitude at the budget end. Mimo V2.5 starts at $0.08 per 1M input tokens and DeepSeek V4 Flash at $0.14, against $13.50 for GPT-5.6 Sol and $15.00 for Claude Opus 4. A simulated production workload of 100K requests per month at about 1.5K tokens each costs roughly $52 on V4 Flash versus roughly $4,200 on a frontier Western model.
+
+### Q: Do open-weight Chinese models mean I can self-host instead of paying for an API?
+
+**A:** You can, but the economics rarely favour it. Open weights remove vendor lock-in and allow air-gapped deployment, which matters for regulated data. They do not remove the cost of GPUs, serving infrastructure, quantisation work and on-call. For most teams the open-weight release is a bargaining chip and a fallback plan, while day-to-day traffic goes through a hosted API priced per token.
+
+---
+
+## Get Started
+
+1. **Sign up** at [tokenpapa.ai/register](https://tokenpapa.ai/register) with email, Google or GitHub — no Chinese phone number required.
+2. **Create an API key** at [tokenpapa.ai/keys](https://tokenpapa.ai/keys) and top up from $10 with an international card. Billing is pay-as-you-go in USD.
+3. **Point any OpenAI-compatible client at the endpoint** and compare the labs on your own traffic:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(api_key="your-key", base_url="https://tokenpapa.ai/v1")
+
+response = client.chat.completions.create(
+    model="deepseek-v4-flash",   # or deepseek-v4-pro, qwen3.7-plus, kimi-k3
+    messages=[{"role": "user", "content": "Hello!"}],
+    max_tokens=400,              # always cap output tokens
+)
+
+print(response.choices[0].message.content)
+```
+
+Full rate card: [tokenpapa.ai/pricing](https://tokenpapa.ai/pricing). Current model list: `GET https://tokenpapa.ai/v1/models`.
+
+---
+
+*This guide compares publicly available models and platform rates as of September 2026. Capability descriptions are qualitative positioning, not benchmark claims; prices and model availability change frequently, so verify current rates on the pricing page before committing to a budget. Model names are the property of their respective owners, and TokenPAPA is not affiliated with the labs listed above.*
