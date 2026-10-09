@@ -4,6 +4,7 @@
   "icon": "Newspaper",
   "root": true,
   "pages": [
+    "cursor-custom-api-key-setup",
     "why-unified-ai-gateways-are-the-future",
     "state-of-chinese-ai-models-developer-guide",
     "routing-1m-api-calls-daily-60-models",

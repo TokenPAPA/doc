@@ -1,0 +1,225 @@
+---
+title: "How to Add a Custom API Key to Cursor (2026 Guide)"
+description: "Add your own API key and OpenAI-compatible base URL in Cursor: step-by-step setup, the model IDs to use, and when a custom key beats the $20 Pro plan."
+date: 2026-10-09
+authors: [tokenpapa]
+category: "Tutorial"
+keywords: ["cursor custom api key", "cursor openai base url", "cursor custom endpoint", "cursor api key setup", "use deepseek in cursor", "cursor cheaper than pro", "cursor openai compatible api", "tokenpapa cursor", "cursor add model id", "cursor byok 2026"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-10-09 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;How to Add a Custom API Key to Cursor (2026 Guide)&quot;,&quot;description&quot;:&quot;Add your own API key and OpenAI-compatible base URL in Cursor: step-by-step setup, the model IDs to use, and when a custom key beats a flat Pro plan.&quot;,&quot;datePublished&quot;:&quot;2026-10-09&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Can I use my own API key in Cursor?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Yes. Cursor supports bringing your own key for OpenAI-compatible providers. Open Cursor Settings, go to the Models tab, paste the key into the OpenAI API Key field, and turn on Override OpenAI Base URL.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How do I set a custom OpenAI base URL in Cursor?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;In Cursor Settings open the Models tab, enable Override OpenAI Base URL, and set it to https://tokenpapa.ai/v1. Then add the model IDs you want to call, such as deepseek-v4-flash, and click Verify to confirm the endpoint answers.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Is a custom API key cheaper than a Cursor Pro plan?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;It depends on volume. A flat subscription is cheaper for light use. Once monthly usage passes a few million tokens, pay-per-token access to low-cost models such as DeepSeek V4 Flash at 0.14 dollars per 1M input tokens can cost far less than a fixed monthly plan.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Which model ID should I add in Cursor?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Any OpenAI-compatible model ID that your endpoint exposes by name. On TokenPAPA that includes deepseek-v4-flash, deepseek-v4-pro, qwen3.7-plus, kimi-k3 and gpt-5.6-luna, all reachable through one key and one base URL.&quot;}}]}" />
+
+# How to Add a Custom API Key to Cursor (2026 Guide)
+
+Cursor ships with bundled model access on a flat monthly plan, and for most people that is the right default. But two groups keep asking how to bring their own key: developers who already hold OpenAI-compatible API credit they would rather spend, and heavy users who burn through the plan's included usage and do not want to keep buying top-ups.
+
+Cursor answers both with a single setting — **Override OpenAI Base URL** — which points the editor at any OpenAI-compatible endpoint instead of Cursor's own backend. Once that toggle is on, you are paying your provider per token, choosing your own models, and no longer bounded by a subscription quota.
+
+This guide walks the full setup: what you need, the exact steps, which model IDs to add, a cost comparison against a flat plan, and the problems people actually hit.
+
+> **Cursor custom API key in one paragraph**: open **Cursor Settings → Models**, paste your key into the **OpenAI API Key** field, enable **Override OpenAI Base URL**, and set it to an OpenAI-compatible endpoint such as `https://tokenpapa.ai/v1`. Add the model IDs you want (for example `deepseek-v4-flash`), click **Verify**, and Cursor will route chat requests to that endpoint — billed per token by your provider, not by Cursor.
+
+---
+
+## What you need before you start
+
+| Requirement | Detail |
+|---|---|
+| Cursor | Any recent version (the Models tab is where the control lives) |
+| Endpoint | Any OpenAI-compatible base URL, e.g. `https://tokenpapa.ai/v1` |
+| Key | An API key from that provider |
+| Model IDs | The exact model identifiers the endpoint exposes |
+| Payment | Whatever the provider accepts — for TokenPAPA, an international card or wallet, USD, $10 minimum top-up |
+
+One caveat up front, because it saves confusion later: **a custom key covers chat and completion requests**. Some Cursor-native features — notably Tab autocomplete and the agent/Composer flows — are tightly coupled to Cursor's own backend and may keep asking for a Cursor plan even after you set a base URL. Adding your own key is about routing the model calls you pay for, not about unlocking every Cursor feature.
+
+---
+
+## Step by step: adding a custom API key and base URL
+
+### Step 1 — Get an API key
+
+If you are using TokenPAPA, sign up at [tokenpapa.ai](https://tokenpapa.ai) with an email address or Google/GitHub one-click login, then create a key on the [API keys page](https://tokenpapa.ai/keys). No Chinese phone number or local payment method is required. Store the key somewhere safe; treat it like a password.
+
+### Step 2 — Open Cursor Settings
+
+Open the command palette or press the settings shortcut (**Ctrl+Shift+J** on Windows/Linux, **Cmd+Shift+J** on macOS), then select the **Models** tab. This is the panel that holds both Cursor's own model list and the bring-your-own-key fields.
+
+### Step 3 — Paste your key
+
+Find the **OpenAI API Key** field and paste your key. Cursor groups third-party OpenAI-compatible keys under this one field, so a DeepSeek, Qwen or Kimi key from an aggregator goes in exactly the same box.
+
+### Step 4 — Enable "Override OpenAI Base URL"
+
+Toggle **Override OpenAI Base URL** on and enter your endpoint:
+
+```
+https://tokenpapa.ai/v1
+```
+
+The `/v1` suffix matters — Cursor appends `/chat/completions` to whatever you type, so a base URL that already includes the API version is correct, and one that omits it will produce 404s.
+
+Click **Verify** next to the key. A green confirmation means the endpoint authenticated correctly; a red one almost always means a wrong key, a missing `/v1`, or a base URL pointing at the wrong host.
+
+### Step 5 — Add the model IDs you want
+
+Cursor will not guess your provider's catalogue. Use **Add model** and type the exact identifiers your endpoint exposes. On TokenPAPA, real IDs include:
+
+- `deepseek-v4-flash` — the cheap, fast default
+- `deepseek-v4-pro` — the stronger DeepSeek tier
+- `qwen3.7-plus` — coding and structured output
+- `kimi-k3` — long-context work
+- `gpt-5.6-luna` — a low-cost OpenAI-family option
+
+Then disable the models you do not want to pay for and select your new ones in the chat model picker.
+
+### Step 6 — Test it
+
+Send a one-line prompt in Cursor chat and confirm a response comes back. If you want to sanity-check the endpoint outside the editor first, the same request in `curl` or Python isolates whether the problem is the key or the editor:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-tokenpapa-key",
+    base_url="https://tokenpapa.ai/v1"
+)
+
+response = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": "Say hello in one sentence."}],
+    max_tokens=64
+)
+print(response.choices[0].message.content)
+```
+
+If that prints a sentence but Cursor does not, the key and endpoint are fine — the issue is inside Cursor's configuration (usually the base URL or the model ID).
+
+---
+
+## Which models should you add?
+
+Model choice in Cursor matters more than in most apps, because an editor sends a lot of context with every request. A 128K-window model at a low per-token price is the sweet spot for routine edits, with a stronger model kept for hard reasoning.
+
+| Model ID | Input / 1M | Output / 1M | Context | Best for in Cursor |
+|---|:---:|:---:|:---:|---|
+| `mimo-v2.5` | $0.08 | $0.24 | 128K | Bulk refactors, throwaway edits |
+| `deepseek-v4-flash` | $0.14 | $0.42 | 128K | Default chat and code edits |
+| `qwen3.7-plus` | $0.20 | $0.60 | 128K | Code generation, structured output |
+| `gpt-5.6-luna` | $0.27 | $2.70 | 1M | Long files, large-context reads |
+| `deepseek-v4-pro` | $0.28 | $0.84 | 128K | Hard debugging, architecture questions |
+| `kimi-k3` | $0.50 | $2.00 | 256K | Repo-scale context |
+
+> **Key insight**: for an editor, *context window ÷ price* is the number that decides your monthly bill — not raw benchmark score. A 128K model at $0.14 per 1M input tokens lets you paste half a module into the prompt for about a fifth of a cent.
+
+A practical pattern is to add two models: `deepseek-v4-flash` as the everyday driver and `deepseek-v4-pro` for the requests where flash is not good enough. Switching between them is a dropdown change, not a reconfiguration — both go through the same key and the same base URL.
+
+---
+
+## Custom API key vs Cursor Pro: which is cheaper?
+
+Cursor's bundled plans are flat-rate: you pay a fixed monthly fee (around $20/month for the Pro tier at the time of writing — confirm current pricing at [cursor.com](https://cursor.com/pricing)) and Cursor manages model access, quotas and billing for you. A custom key inverts that: no flat fee, but you pay your provider per token, and your ceiling is your own spending.
+
+The crossover depends on how much you actually send. Model the same workload both ways:
+
+| Scenario | Flat plan | Custom key on TokenPAPA |
+|---|---|---|
+| Light use (a few prompts a day) | Fixed monthly fee, unused quota is lost | Pennies per month |
+| Moderate use (daily coding, ~1M tokens/mo) | Fixed monthly fee | Low single-digit dollars on `deepseek-v4-flash` |
+| Heavy use (agentic sessions, tens of millions of tokens) | Fixed fee plus usage add-ons | Scales with tokens at the model's rate |
+| Predictable budgeting | Easiest — one flat line item | Requires monitoring your provider dashboard |
+
+The arithmetic that makes custom keys compelling is the price spread between tiers. According to TokenPAPA's published rates, DeepSeek V4 Flash input is **96% cheaper** than a frontier model such as GPT-5.6 Sol ($0.14 vs $13.50 per 1M input tokens). On a simulated production workload of 100K requests per month at roughly 1.5K tokens each, V4 Flash lands near **$52/month** versus roughly **$4,200/month** on the frontier tier. For editor traffic — smaller, more frequent requests — the absolute numbers are lower, but the ratio holds.
+
+> **Is a custom API key cheaper than Cursor Pro?**: Not automatically. A flat plan wins for light, occasional use. A custom key wins once your monthly token volume is high enough that the per-token cost of a cheap model drops below the subscription fee — which, on a low-cost model like DeepSeek V4 Flash, can happen surprisingly early.
+
+The honest recommendation: keep a bundled plan if you use Cursor daily and want zero billing overhead, and switch the base URL to your own key if you have API credit to spend, want access to models Cursor does not list, or your usage has outgrown the quota.
+
+---
+
+## Why use TokenPAPA as the Cursor custom endpoint?
+
+Cursor's custom base URL works with any OpenAI-compatible host. TokenPAPA is a reasonable pick for a specific reason: it collapses several model families behind **one key and one base URL**, so you are not juggling a DeepSeek key, a Qwen key and a Kimi key in the same editor.
+
+| Feature | What it means for Cursor |
+|---|---|
+| OpenAI-compatible API | Same `base_url` + `model` pattern Cursor already expects |
+| 65 live model IDs | DeepSeek, Qwen, Kimi, GLM, MiniMax, plus GPT, Claude and Gemini tiers |
+| One key, one endpoint | Add models by ID; no per-vendor credentials in the editor |
+| No Chinese phone number | Email or Google/GitHub signup from anywhere |
+| USD billing, $10 minimum | International cards and wallets, pay-as-you-go |
+| Model switch by string | Change `deepseek-v4-flash` to `kimi-k3` without touching the client |
+
+Because the endpoint speaks the same protocol as OpenAI, anything that works with OpenAI works here — which is exactly the assumption Cursor's "Override OpenAI Base URL" setting is built on. If you want a broader comparison of aggregators before committing, see [OpenRouter vs TokenPAPA](https://doc.tokenpapa.ai/en/docs/blog/openrouter-vs-tokenpapa).
+
+---
+
+## Common problems and fixes
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| Verify fails / "Invalid API key" | Wrong key, or extra whitespace when pasting | Re-copy the key; check for a trailing newline |
+| 404 on every request | Base URL missing `/v1` | Use `https://tokenpapa.ai/v1` |
+| "Model not found" | Model ID typed wrong or not on the endpoint | Use the exact ID (e.g. `deepseek-v4-flash`), not a display name |
+| Requests still hit Cursor's models | Override toggle off, or the model not selected in the picker | Enable the override and select your model in chat |
+| Tab autocomplete or agent asks for a plan | Those features are tied to Cursor's backend | Keep a Cursor plan for them; the custom key covers chat requests |
+| Unexpected spend | Large context on every edit | Set a lower `max_tokens`, and note that output tokens cost 3–10x input tokens |
+
+Two habits prevent most of these. First, always test the endpoint outside Cursor with the Python snippet above before blaming the editor. Second, keep the model ID string identical everywhere — the same string in Cursor's model list, in your code, and in your provider dashboard.
+
+---
+
+## FAQ
+
+### Can I use my own API key in Cursor?
+
+Yes. Cursor supports bringing your own key for OpenAI-compatible providers. Open **Cursor Settings**, go to the **Models** tab, paste the key into the **OpenAI API Key** field, and turn on **Override OpenAI Base URL**.
+
+### How do I set a custom OpenAI base URL in Cursor?
+
+In Cursor Settings open the Models tab, enable **Override OpenAI Base URL**, and set it to `https://tokenpapa.ai/v1`. Then add the model IDs you want to call, such as `deepseek-v4-flash`, and click **Verify** to confirm the endpoint answers.
+
+### Is a custom API key cheaper than a Cursor Pro plan?
+
+It depends on volume. A flat subscription is cheaper for light use. Once monthly usage passes a few million tokens, pay-per-token access to low-cost models such as DeepSeek V4 Flash at $0.14 per 1M input tokens can cost far less than a fixed monthly plan.
+
+### Which model ID should I add in Cursor?
+
+Any OpenAI-compatible model ID that your endpoint exposes by name. On TokenPAPA that includes `deepseek-v4-flash`, `deepseek-v4-pro`, `qwen3.7-plus`, `kimi-k3` and `gpt-5.6-luna`, all reachable through one key and one base URL.
+
+---
+
+## Get Started
+
+1. **Sign up** at [tokenpapa.ai/register](https://tokenpapa.ai/register) — email, Google or GitHub, no Chinese phone number.
+2. **Create a key** on the [API keys page](https://tokenpapa.ai/keys) and top up (minimum $10, international cards and wallets).
+3. **Point Cursor at it**: Cursor Settings → Models → paste the key → enable **Override OpenAI Base URL** → `https://tokenpapa.ai/v1` → add `deepseek-v4-flash` → **Verify**.
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-tokenpapa-key",
+    base_url="https://tokenpapa.ai/v1"
+)
+
+response = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": "Refactor this function for readability."}],
+    max_tokens=512
+)
+print(response.choices[0].message.content)
+```
+
+Want to compare models before choosing a default? See the [pricing page](https://tokenpapa.ai/pricing) for current per-1M-token rates, and [DeepSeek V4 vs GPT-5.6](https://doc.tokenpapa.ai/en/docs/blog/deepseek-v4-vs-gpt-5-6) for a head-to-head on coding tasks.
+
+---
+
+*Model prices shown are TokenPAPA platform rates as of 2026-10-09 and may change; confirm current rates at [tokenpapa.ai/pricing](https://tokenpapa.ai/pricing). Cursor's UI and plan pricing are set by Cursor and can change between versions.*

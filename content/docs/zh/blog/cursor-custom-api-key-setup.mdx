@@ -1,0 +1,223 @@
+---
+title: "如何在 Cursor 里配置自己的 API Key（自定义 Base URL 教程）"
+description: "在 Cursor 中填入自己的 API Key 并覆盖 OpenAI Base URL：分步设置、该添加哪些模型 ID，以及自定义 Key 与 $20 Pro 订阅谁更划算。"
+date: 2026-10-09
+authors: [tokenpapa]
+category: "教程"
+keywords: ["cursor 自定义 api key", "cursor base url 设置", "cursor 自定义 endpoint", "cursor 用自己的 key", "cursor 用 deepseek", "cursor 比订阅便宜", "cursor openai 兼容", "tokenpapa cursor", "cursor 添加模型", "cursor byok 教程"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-10-09 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;如何在 Cursor 里配置自己的 API Key（自定义 Base URL 教程）&quot;,&quot;description&quot;:&quot;在 Cursor 中填入自己的 API Key 并覆盖 OpenAI Base URL：分步设置、该添加哪些模型 ID，以及自定义 Key 与固定订阅谁更划算。&quot;,&quot;datePublished&quot;:&quot;2026-10-09&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Cursor 可以填自己的 API Key 吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;可以。Cursor 支持接入任何 OpenAI 兼容的服务商。打开 Cursor Settings，进入 Models 面板，把 Key 粘进 OpenAI API Key 输入框，再打开 Override OpenAI Base URL 开关即可。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Cursor 的 Base URL 要怎么填？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;在 Cursor Settings 的 Models 面板里打开 Override OpenAI Base URL，填入 https://tokenpapa.ai/v1（必须带 /v1）。然后逐个添加要调用的模型 ID（例如 deepseek-v4-flash），点 Verify 验证连通。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;自定义 API Key 比 Cursor Pro 订阅更便宜吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;取决于用量。轻度使用固定订阅更省心；当月用量到几百万 token 以后，按量调用便宜模型（如 DeepSeek V4 Flash 输入 0.14 美元 / 1M token）往往比固定月费更划算。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Cursor 里该添加哪个模型 ID？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;填服务商真实暴露的 OpenAI 兼容模型 ID，而不是显示名。TokenPAPA 上包括 deepseek-v4-flash、deepseek-v4-pro、qwen3.7-plus、kimi-k3、gpt-5.6-luna，一个 Key、一个 Base URL 全部可达。&quot;}}]}" />
+
+# 如何在 Cursor 里配置自己的 API Key（自定义 Base URL 教程）
+
+Cursor 默认自带套餐内的模型额度，按月固定收费，大多数人用它就够了。但有两类人一直在找「怎么换成自己的 Key」：手里已经有 OpenAI 兼容 API 余额、想直接花掉的人；以及用量大、套餐额度不够、又不想一直加钱买额度的人。
+
+Cursor 用一个开关同时解决了这两类需求 —— **Override OpenAI Base URL**。打开它之后，编辑器会把请求发到任意 OpenAI 兼容的端点，而不再走 Cursor 自己的后端。此时你按 token 付钱给服务商、自己决定用哪些模型，也不再受订阅额度约束。
+
+本文给出完整流程：需要准备什么、每一步怎么操作、该填哪些模型 ID、和固定订阅的成本对比，以及最容易踩的坑。
+
+> **一句话概括**：打开 **Cursor Settings → Models**，把 Key 粘进 **OpenAI API Key**，打开 **Override OpenAI Base URL** 并填 `https://tokenpapa.ai/v1`，再添加模型 ID（如 `deepseek-v4-flash`），点 **Verify** 即可。此后 Cursor 的对话请求会走你自己的端点，按 token 计费，而不是走 Cursor 的额度。
+
+---
+
+## 开始前需要准备什么
+
+| 项目 | 说明 |
+|---|---|
+| Cursor | 任意较新版本（控制在 Models 面板里） |
+| 端点 | 任意 OpenAI 兼容 Base URL，如 `https://tokenpapa.ai/v1` |
+| Key | 该服务商的 API Key |
+| 模型 ID | 端点真实暴露的模型标识符 |
+| 付费方式 | 服务商支持的即可；TokenPAPA 支持国际卡与电子钱包，美元计费，最低充值 $10 |
+
+先说一个能省很多困惑的前提：**自定义 Key 覆盖的是对话 / 补全请求**。Cursor 一部分原生功能（尤其是 Tab 自动补全和 agent / Composer 流程）和它自己的后端深度绑定，即便你填了 Base URL，这些功能仍可能提示需要订阅。用自带 Key 解决的是「我为每次模型调用付钱」这件事，不是解锁 Cursor 的全部功能。
+
+---
+
+## 分步操作
+
+### 第 1 步 —— 拿到 API Key
+
+如果用 TokenPAPA，直接用邮箱或 Google / GitHub 一键登录注册 [tokenpapa.ai](https://tokenpapa.ai)，然后在 [API Key 页面](https://tokenpapa.ai/keys) 创建一个 Key。全程不需要中国手机号，也不需要本地支付方式。Key 请当密码一样保管。
+
+### 第 2 步 —— 打开 Cursor Settings
+
+用命令面板或快捷键打开设置（Windows / Linux 为 **Ctrl+Shift+J**，macOS 为 **Cmd+Shift+J**），选择 **Models** 面板。Cursor 自带的模型列表和自定义 Key 的输入框都在这里。
+
+### 第 3 步 —— 粘贴 Key
+
+找到 **OpenAI API Key** 输入框，把 Key 粘进去。Cursor 把第三方 OpenAI 兼容的 Key 统一放在这一个框里，所以来自聚合平台的 DeepSeek、Qwen、Kimi Key 都是填同一处。
+
+### 第 4 步 —— 打开 Override OpenAI Base URL
+
+打开 **Override OpenAI Base URL** 开关，填入端点：
+
+```
+https://tokenpapa.ai/v1
+```
+
+`/v1` 后缀很关键：Cursor 会在这个地址后面拼接 `/chat/completions`，所以 Base URL 必须已经带上 API 版本号；漏掉就会 404。填完点 Key 旁边的 **Verify**，绿色通过说明鉴权成功，红色多半是 Key 写错、漏了 `/v1`，或者域名不对。
+
+### 第 5 步 —— 添加模型 ID
+
+Cursor 不会自动猜出你的模型目录。点 **Add model**，逐个填入端点真实存在的 ID。TokenPAPA 上真实可用的包括：
+
+- `deepseek-v4-flash` —— 便宜、快的默认选择
+- `deepseek-v4-pro` —— 更强的 DeepSeek 档
+- `qwen3.7-plus` —— 代码与结构化输出
+- `kimi-k3` —— 长上下文任务
+- `gpt-5.6-luna` —— 低价的 OpenAI 系选择
+
+添加后，把不想付费的模型关掉，在对话的模型选择器里选中你新加的模型。
+
+### 第 6 步 —— 验证
+
+在 Cursor 对话里发一句测试，确认能返回。想先排除编辑器因素，可以用下面的 Python 脚本单独验证端点：
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-tokenpapa-key",
+    base_url="https://tokenpapa.ai/v1"
+)
+
+response = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": "用一句话打个招呼。"}],
+    max_tokens=64
+)
+print(response.choices[0].message.content)
+```
+
+如果这段能打印出结果、Cursor 里却不行，说明 Key 和端点都没问题，问题在 Cursor 的配置（通常是 Base URL 或模型 ID）。
+
+---
+
+## 该添加哪些模型？
+
+在 Cursor 里选模型比其他应用更重要，因为编辑器每次都带很长的上下文。低单价 + 大窗口是关键，把强模型留给真正难的推理。
+
+| 模型 ID | 输入 /1M | 输出 /1M | 上下文 | Cursor 里适合做什么 |
+|---|:---:|:---:|:---:|---|
+| `mimo-v2.5` | $0.08 | $0.24 | 128K | 批量重构、随手改 |
+| `deepseek-v4-flash` | $0.14 | $0.42 | 128K | 日常对话与代码编辑（默认） |
+| `qwen3.7-plus` | $0.20 | $0.60 | 128K | 代码生成、结构化输出 |
+| `gpt-5.6-luna` | $0.27 | $2.70 | 1M | 长文件、大上下文读取 |
+| `deepseek-v4-pro` | $0.28 | $0.84 | 128K | 难题调试、架构问答 |
+| `kimi-k3` | $0.50 | $2.00 | 256K | 仓库级上下文 |
+
+> **关键结论**：在编辑器里，决定月账单的是「上下文窗口 ÷ 单价」，不是跑分。一个 128K 窗口、输入 $0.14 / 1M token 的模型，把大半个模块贴进 prompt 也只要零点几美分。
+
+实用做法是只加两个：`deepseek-v4-flash` 当日常主力，`deepseek-v4-pro` 应付 flash 不够用的请求。两者共用同一个 Key 和同一个 Base URL，切换只是下拉框的事。
+
+---
+
+## 自定义 Key 和 Cursor Pro 订阅，哪个更划算？
+
+Cursor 自带套餐是固定月费制：付固定费用（写作时 Pro 档约 $20/月，最新价格请以 [cursor.com](https://cursor.com/pricing) 为准），模型访问、额度和计费都由 Cursor 管。自定义 Key 正好相反：没有固定月费，但按 token 付给服务商，上限就是你自己的消费。
+
+临界点取决于你实际发多少量。把同一份工作量按两种方式估算：
+
+| 场景 | 固定订阅 | TokenPAPA 自定义 Key |
+|---|---|---|
+| 轻度（每天几句话） | 固定月费，用不完的额度浪费 | 每月几美分 |
+| 中度（每天写代码，约 1M token/月） | 固定月费 | `deepseek-v4-flash` 上几美元以内 |
+| 重度（agent 会话，数千万 token） | 固定月费 + 用量加购 | 按模型单价随 token 线性增长 |
+| 预算可控性 | 最简单，一条固定账单 | 需要自己盯服务商后台 |
+
+让自定义 Key 有吸引力的，是各档位之间的价差。按 TokenPAPA 公布的费率，DeepSeek V4 Flash 的输入价 **比 GPT-5.6 Sol 便宜 96%**（$0.14 vs $13.50 / 1M 输入 token）。按每月 10 万次请求、每次约 1.5K token 的模拟生产负载估算，V4 Flash 约 **$52/月**，而前沿档约 **$4,200/月**。编辑器流量请求更小更频繁，绝对值更低，但比例一致。
+
+> **自定义 Key 一定比 Pro 便宜吗？** 不一定。轻量、偶尔用，固定订阅更划算；只有当每月 token 量足够大、便宜模型的按量成本低于订阅费之后，自定义 Key 才更省 —— 在 DeepSeek V4 Flash 这种低价模型上，这个临界点往往来得比想象中早。
+
+诚实的建议是：每天重度使用 Cursor、又不想管账单，就保留套餐；手里有 API 余额、想用 Cursor 目录里没有的模型、或者用量已经超出配额，就把 Base URL 换成自己的 Key。
+
+---
+
+## 为什么用 TokenPAPA 作为 Cursor 的自定义端点？
+
+Cursor 的自定义 Base URL 对任何 OpenAI 兼容服务都有效。选 TokenPAPA 有一个具体理由：它把多个模型家族收在 **一个 Key、一个 Base URL** 后面，你不需要在同一个编辑器里同时维护 DeepSeek、Qwen、Kimi 三套凭证。
+
+| 特性 | 对 Cursor 的意义 |
+|---|---|
+| OpenAI 兼容 API | 就是 Cursor 期待的 `base_url` + `model` 调用方式 |
+| 65 个可用模型 ID | DeepSeek、Qwen、Kimi、GLM、MiniMax，以及 GPT、Claude、Gemini 档位 |
+| 一个 Key、一个端点 | 按 ID 添加模型，编辑器里不用存多家凭证 |
+| 无需中国手机号 | 邮箱或 Google / GitHub 注册，全球可用 |
+| 美元计费、$10 起充 | 国际卡与电子钱包，按量付费 |
+| 一行换模型 | 把 `deepseek-v4-flash` 改成 `kimi-k3`，客户端不用动 |
+
+因为端点用的是和 OpenAI 相同的协议，任何兼容 OpenAI 的客户端都能直接用 —— 这也正是 Cursor「Override OpenAI Base URL」这个设置能生效的前提。选聚合平台前想先横向对比，可以看 [OpenRouter vs TokenPAPA](https://doc.tokenpapa.ai/zh/docs/blog/openrouter-vs-tokenpapa)。
+
+---
+
+## 常见问题与修复
+
+| 现象 | 可能原因 | 修复 |
+|---|---|---|
+| Verify 失败 / "Invalid API key" | Key 错误，或粘贴时带了空格 | 重新复制，注意结尾换行符 |
+| 请求一直 404 | Base URL 漏了 `/v1` | 用 `https://tokenpapa.ai/v1` |
+| "Model not found" | 模型 ID 写错或该端点没有 | 用真实 ID（如 `deepseek-v4-flash`），别用显示名 |
+| 请求仍走 Cursor 自己的模型 | 覆盖开关没开，或对话里没选中新模型 | 打开开关并在对话模型选择器里选中 |
+| Tab 补全 / agent 提示要订阅 | 这些功能绑定 Cursor 后端 | 保留套餐给它们；自定义 Key 覆盖的是对话请求 |
+| 花费超出预期 | 每次编辑都带超大上下文 | 调低 `max_tokens`，并注意输出 token 单价是输入的 3–10 倍 |
+
+两个习惯能避免大部分问题：先用上面的 Python 脚本在编辑器外测试端点，再怀疑 Cursor；以及保证模型 ID 字符串处处一致 —— Cursor 的模型列表、代码、服务商后台里必须完全相同。
+
+---
+
+## FAQ
+
+### Cursor 可以填自己的 API Key 吗？
+
+可以。Cursor 支持接入任何 OpenAI 兼容的服务商。打开 **Cursor Settings**，进入 **Models** 面板，把 Key 粘进 **OpenAI API Key** 输入框，再打开 **Override OpenAI Base URL** 开关即可。
+
+### Cursor 的 Base URL 要怎么填？
+
+在 Cursor Settings 的 Models 面板里打开 **Override OpenAI Base URL**，填入 `https://tokenpapa.ai/v1`（必须带 `/v1`）。然后逐个添加要调用的模型 ID（例如 `deepseek-v4-flash`），点 **Verify** 验证连通。
+
+### 自定义 API Key 比 Cursor Pro 订阅更便宜吗？
+
+取决于用量。轻度使用固定订阅更省心；当月用量到几百万 token 以后，按量调用便宜模型（如 DeepSeek V4 Flash 输入 $0.14 / 1M token）往往比固定月费更划算。
+
+### Cursor 里该添加哪个模型 ID？
+
+填服务商真实暴露的 OpenAI 兼容模型 ID，而不是显示名。TokenPAPA 上包括 `deepseek-v4-flash`、`deepseek-v4-pro`、`qwen3.7-plus`、`kimi-k3`、`gpt-5.6-luna`，一个 Key、一个 Base URL 全部可达。
+
+---
+
+## 快速开始
+
+1. **注册**：在 [tokenpapa.ai/register](https://tokenpapa.ai/register) 用邮箱或 Google / GitHub 注册，无需中国手机号。
+2. **建 Key**：在 [API Key 页面](https://tokenpapa.ai/keys) 创建 Key 并充值（最低 $10，支持国际卡与电子钱包）。
+3. **接 Cursor**：Cursor Settings → Models → 粘贴 Key → 打开 **Override OpenAI Base URL** → 填 `https://tokenpapa.ai/v1` → 添加 `deepseek-v4-flash` → **Verify**。
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-tokenpapa-key",
+    base_url="https://tokenpapa.ai/v1"
+)
+
+response = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": "把这个函数重构得更易读。"}],
+    max_tokens=512
+)
+print(response.choices[0].message.content)
+```
+
+选默认模型前想先比较？看 [定价页](https://tokenpapa.ai/pricing) 上当前各模型的每 1M token 费率，以及 [DeepSeek V4 vs GPT-5.6](https://doc.tokenpapa.ai/zh/docs/blog/deepseek-v4-vs-gpt-5-6) 的编码任务实测对比。
+
+---
+
+*文中模型价格为 TokenPAPA 平台 2026-10-09 的费率，可能变动，请以 [tokenpapa.ai/pricing](https://tokenpapa.ai/pricing) 为准。Cursor 的界面与套餐价格由 Cursor 决定，可能随版本变化。*
