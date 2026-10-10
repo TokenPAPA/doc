@@ -4,6 +4,7 @@
   "icon": "Newspaper",
   "root": true,
   "pages": [
+    "cheap-llm-api-for-ai-agents",
     "cursor-custom-api-key-setup",
     "why-unified-ai-gateways-are-the-future",
     "state-of-chinese-ai-models-developer-guide",
