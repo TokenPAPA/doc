@@ -1,0 +1,194 @@
+---
+title: "2026 年结构化 JSON 输出用哪个 LLM API？最稳、最划算的模型对比"
+description: "结构化 JSON 输出既要 schema 遵守度高，又要便宜。对比 DeepSeek、Qwen、GPT、Claude 的每 1M token 费率、单次抽取成本与可靠性，一个 OpenAI 兼容 Key 全打通。"
+date: 2026-10-15
+authors: [tokenpapa]
+category: "模型对比"
+keywords: ["结构化 json 输出 用哪个模型", "llm json mode", "json 输出 api 对比", "最便宜 json 抽取 api", "结构化输出 价格 2026", "qwen json mode", "deepseek json 输出", "llm 数据抽取 api", "json schema llm", "tokenpapa json 输出"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-10-15 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;2026 年结构化 JSON 输出用哪个 LLM API？最稳、最划算的模型对比&quot;,&quot;description&quot;:&quot;结构化 JSON 输出既要 schema 遵守度高，又要便宜。对比 DeepSeek、Qwen、GPT、Claude 的每 1M token 费率、单次抽取成本与可靠性，一个 OpenAI 兼容 Key 全打通。&quot;,&quot;datePublished&quot;:&quot;2026-10-15&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;2026 年做结构化 JSON 输出用哪个 LLM API 最好？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;严格遵循 schema 选 Qwen 3.7 Plus（输入 0.20、输出 0.60 美元每 1M token）；大批量抽取最省钱选 DeepSeek V4 Flash（0.14 / 0.42 美元）；复杂嵌套 schema 且要长上下文选 GPT-5.6 Luna（0.27 / 2.70 美元）。三个模型都在 https://tokenpapa.ai/v1 后面，一个 Key 切换只需改一行 model。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;结构化 JSON 抽取一次调用要花多少钱？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;按一次典型抽取 2000 输入 token、300 输出 token 估算：DeepSeek V4 Flash 约 0.41 美元每 1000 次调用、Qwen 3.7 Plus 约 0.58 美元、GPT-5.6 Luna 约 1.35 美元、Claude Sonnet 4 约 10.50 美元。以上为按公开单价推算的估值，非实测账单。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;让大模型输出合法 JSON 需要专门的 JSON 模式吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;不需要单独端点。OpenAI 兼容 API 自带 response_format json_object（以及基于 schema 的 structured outputs），TokenPAPA 上所有模型都通过同一个 base_url 支持。但要稳定拿到合法 JSON，仍需：紧凑的 schema 提示词、显式 max_tokens、外加一层校验与重试。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;想换 JSON 模型需要改代码吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;不用。TokenPAPA 所有模型共用一个 API Key 和一个 base_url，从 DeepSeek 换到 Qwen 再到 GPT 只改一行 model 字符串。常见做法：批量抽取用 DeepSeek V4 Flash，复杂 schema 与重试用 Qwen 3.7 Plus 或 GPT-5.6 Luna。&quot;}}]}" />
+
+# 2026 年结构化 JSON 输出用哪个 LLM API？
+
+每个 agent 循环、每份 RAG 答案、每个表单自动填充、每张发票解析器，最后都卡在同一个地方：对话补全必须变成你的代码能信任的 JSON 对象。擅长聊天的模型，不等于擅长这件事的模型；最便宜的模型，也不一定第一次调用就返回合法 JSON。
+
+本文直接回答：在同一套 OpenAI 兼容 API 上按真实单价对比，算清一次真实抽取调用的成本，把「schema 遵守得好」和「只是便宜」的模型分开，并给出让每个模型都稳定输出合法 JSON 的代码。
+
+> **一句话结论**：严格遵循 schema 选 **Qwen 3.7 Plus**（$0.20 / $0.60 每 1M token）；大批量抽取最省钱选 **DeepSeek V4 Flash**（$0.14 / $0.42），按 2000 输入 + 300 输出 token 估算约 **$41 / 10 万次调用**；复杂嵌套 schema 且要长上下文选 **GPT-5.6 Luna**（$0.27 / $2.70，1M 上下文）。全部在 `https://tokenpapa.ai/v1` 后面，一个 Key 切换只改一行 `model=`。
+
+---
+
+## 关键数据：各模型费率与在 JSON 流程中的角色
+
+以下为 TokenPAPA 平台每 1M token 费率（2026-10 核实）。所有模型同一个 Key、同一个 base_url 直达，这也是横向对比而不是靠猜的原因。
+
+| 模型 ID | 输入 / 1M | 输出 / 1M | 上下文 | JSON 流程中的角色 |
+|---|:---:|:---:|:---:|---|
+| `mimo-v2.5` | $0.08 | $0.24 | 128K | 极简 schema 的海量初筛 |
+| `deepseek-v4-flash` | $0.14 | $0.42 | 128K | 大批量抽取的默认性价比之选 |
+| `gpt-5.4-mini` | $0.15 | $0.60 | 128K | 便宜的 OpenAI 系，原生 JSON mode |
+| `qwen3.7-plus` | $0.20 | $0.60 | 128K | schema 遵守度最高的便宜选项 |
+| `deepseek-v4-pro` | $0.28 | $0.84 | 128K | 预算内的嵌套 schema 场景 |
+| `gpt-5.6-luna` | $0.27 | $2.70 | 1M | OpenAI 结构化输出，超长文档 |
+| `kimi-k3` | $0.50 | $2.00 | 256K | 长文档抽取，仓库级上下文 |
+| `claude-sonnet-4-6` | $3.00 | $15.00 | 200K | 高风险、复杂校验规则的抽取 |
+| `gpt-5.6-sol` | $13.50 | $60.00 | — | 参照系，JSON 场景几乎用不上 |
+
+> **结构化 JSON 输出的定义**：模型的回复能按声明的 schema（字段名、类型、嵌套关系）解析成合法 JSON，让下游代码无需修复即可消费。生产中 AI 功能的可靠性，等于它交给系统的数据有多可靠——一个幻觉出来的字段名就是一次静默的生产事故。
+
+还有一个容易被忽略的事实：几乎所有模型**输出 token 是输入 token 的 3-10 倍价格**，而 JSON 工作恰恰是输出敏感的。两个输入价格相同的模型，真实账单可能差 3 倍。
+
+---
+
+## 为什么 JSON 输出会颠覆常规的「最强模型」排序
+
+大多数模型对比都是按聊天场景写的。结构化输出有三个特性会把排序打乱。
+
+**1. schema 遵守度是一种技能，不是副作用。** 模型可能写得一手好散文，却照样发明字段名、漏掉必填键、把合法 JSON 包在 markdown 代码块里。你需要的是一次调用返回可解析、符合 schema 的 JSON 的概率——这更接近编程能力而非聊天能力，所以 `qwen3.7-plus`、`kimi-k2.7-code` 这类编程向模型经常比散文向模型表现更好。
+
+**2. 输出 token 才是贵的 token。** 抽取调用发的是「提示词 + 文档」（输入），收的是 JSON（输出）。输出按 3-10 倍计价时，输入稍贵但输出便宜得多的模型，单次完成的成本反而更低。
+
+**3. 重试是隐形账单。** 如果 2% 的调用返回非法 JSON 需要重试，强模型的实际成本就要把重试层算进去。合法率 98% 的便宜模型，总成本经常比合法率 99.5% 的强模型便宜 5-20 倍——这就是下面两段式管线的理由。
+
+> **关键洞察**：结构化 JSON 输出这件事，**输入价格决定批量成本、schema 遵守度决定可靠性、重试决定账单上的惊喜**。按 TokenPAPA 费率，DeepSeek V4 Flash 输入比 GPT-5.6 Sol **便宜 96%**（$0.14 vs $13.50）——而抽取是输入密集负载，这个差距几乎原封不动地落到你月账单上。
+
+---
+
+## 哪个 LLM 做结构化 JSON 输出最便宜？
+
+假设一次真实的抽取调用：**2000 输入 token**（含 schema 的系统提示词 + 源文本）+ **300 输出 token**（JSON 结果）。单次成本由上方公开费率推算，非实测账单。
+
+| 模型 | 每 1000 次调用 | 每月 10 万次 | 说明 |
+|---|:---:|:---:|---|
+| `mimo-v2.5` | ~$0.23 | ~$23 | 只适合极简 schema，必须配校验器 |
+| `deepseek-v4-flash` | ~$0.41 | ~$41 | 抽取场景性价比之王 |
+| `gpt-5.4-mini` | ~$0.48 | ~$48 | 便宜的 OpenAI 系，原生 JSON mode |
+| `qwen3.7-plus` | ~$0.58 | ~$58 | 便宜档里 schema 遵守度最好 |
+| `deepseek-v4-pro` | ~$0.81 | ~$81 | Flash 顶不住时的嵌套 schema 方案 |
+| `gpt-5.6-luna` | ~$1.35 | ~$135 | 1M 上下文 + OpenAI 结构化输出 |
+| `kimi-k3` | ~$1.60 | ~$160 | 长文档抽取，256K 上下文 |
+| `claude-sonnet-4-6` | ~$10.50 | ~$1,050 | 留给高风险、复杂 schema |
+
+看最后一列：每月 10 万次调用，DeepSeek V4 Flash 约 **$41**，Claude Sonnet 4 约 **$1,050**——25 倍差距，而两者要满足的往往是同一个校验器。
+
+> **最省钱的 JSON 抽取模型一句话**：DeepSeek V4 Flash（$0.14 / $0.42 每 1M token），按每次 2000 输入 + 300 输出 token 算，约 **$41 / 10 万次调用**。Mimo V2.5 绝对值更便宜但需要更严的校验；当「schema 遵守度」成为瓶颈而不是价格时，Qwen 3.7 Plus 约 $58 / 10 万次，是更好的选择。
+
+---
+
+## 哪些模型做结构化 JSON 真正可靠？
+
+便宜只有在 JSON 能解析的前提下才有意义。四个能力决定你的 schema 能不能交给它：
+
+| 能力 | 看什么 | 哪些模型站得住 |
+|---|---|---|
+| Schema 遵守度 | 每次调用是否命中声明的字段名与类型 | `qwen3.7-plus`、`gpt-5.4-mini`、`gpt-5.6-luna` 最稳 |
+| 原生 JSON mode | 是否支持 `response_format: json_object` | 任意 OpenAI 兼容端点，含 TokenPAPA 的 `https://tokenpapa.ai/v1` |
+| 编程能力 | 看代码基准而不是聊天基准 | DeepSeek V4 Flash 在 Terminal Bench 2.1 得分 **82.7**，超过贵 50 倍的模型 |
+| 长上下文 | 窗口能否放下整份文档 | 128K 覆盖大多数场景；`kimi-k3`（256K）与 `gpt-5.6-luna`（1M）留给长文档 |
+
+实践原则：**让校验器选模型，而不是让排行榜选模型**。拿真实 schema 在 2-3 个候选上各跑一批，量一下「一次合法率」和修复成本再定。在 TokenPAPA 上这个实验一个下午就能做完——所有候选共用一个 Key，只差一个 `model=` 字符串。多模型路由与降级的机制，和 [如何用 60 个模型日路由 100 万次 API 调用](https://doc.tokenpapa.ai/zh/docs/blog/routing-1m-api-calls-daily-60-models) 里讲的是同一套模式。
+
+---
+
+## 怎么用一个 Key 让任意模型强制输出合法 JSON？
+
+不需要单独的「JSON 端点」。OpenAI 兼容 API 支持 `response_format: {"type": "json_object"}` 参数，TokenPAPA 上所有模型通过同一个 `base_url` 都接受它。两个细节决定成败：schema 写在提示词里，`max_tokens` 必须显式设置——被截断的 JSON 就是非法 JSON。
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-tokenpapa-key",
+    base_url="https://tokenpapa.ai/v1"
+)
+
+SCHEMA = """把下面邮件内容抽取为客户记录 JSON，字段必须完全一致：
+{"company": 字符串, "contact_email": 字符串, "plan": "free"|"pro"|"enterprise",
+ "annual_revenue_usd": 数字, "signup_date": "YYYY-MM-DD"}
+只输出 JSON 对象本身，不要包 markdown 代码块。"""
+
+response = client.chat.completions.create(
+    model="qwen3.7-plus",              # 可换 deepseek-v4-flash 或 gpt-5.6-luna
+    messages=[
+        {"role": "system", "content": SCHEMA},
+        {"role": "user", "content": email_text},
+    ],
+    response_format={"type": "json_object"},
+    max_tokens=400,                    # 显式限制昂贵的输出 token
+)
+
+import json
+record = json.loads(response.choices[0].message.content)
+```
+
+同样的调用形状：`deepseek-v4-flash` 当预算抽取器，`gpt-5.6-luna` 处理长文档或嵌套 schema。想走 OpenAI 风格的声明式 schema，就用 `response_format={"type": "json_schema", "json_schema": {...}}`，平台原样透传，详解见 [OpenAI 兼容性指南](https://doc.tokenpapa.ai/zh/docs/blog/openai-compatibility-guide)。
+
+两个习惯能消除绝大多数非法 JSON：第一，**提示词保持稳定**——schema 字符串固定不变，让服务端缓存把重复前缀打折（这正是 agent 循环降本的同款技巧，见 [2026 年跑 AI Agent 最便宜的大模型 API](https://doc.tokenpapa.ai/zh/docs/blog/cheap-llm-api-for-ai-agents)）；第二，**每个调用都套一层校验重试**——`json.loads` 解析失败就把校验器报错拼回去重发一次。
+
+---
+
+## 用一个模型还是两段式管线？
+
+单模型抽取在「账单」或「失败率」开始烦人之前都没问题。两段式管线不需要新基建：
+
+**第一段 —— 批量抽取（每份文档）。** `deepseek-v4-flash` 以约 $0.41 / 1000 次调用承接海量工作。因为 schema 字符串稳定且输入密集，DeepSeek 的自动上下文缓存对重复输入约打 **9 折**（详见 [DeepSeek 缓存命中优化](https://doc.tokenpapa.ai/zh/docs/blog/deepseek-cache-hit-optimization)）。
+
+**第二段 —— 修复与高风险重试。** 校验器拒绝某条记录，或文档是合同而不是发票时，把这一次重试升级到 `qwen3.7-plus`（schema 遵守度）或 `gpt-5.6-luna`（长上下文 + 结构化输出）。升级只是改一个 `model=` 字符串——和审查管线里「第三个模型做裁决」是同一套思路（[2026 年代码审查该用哪个大模型](https://doc.tokenpapa.ai/zh/docs/blog/best-llm-for-code-review-2026)）。
+
+每一段共用一个 Key、一个 base_url，这条管线本质上是一张 model 字符串字典，而不是一堆厂商集成。
+
+---
+
+## FAQ
+
+### 2026 年做结构化 JSON 输出用哪个 LLM API 最好？
+
+**Qwen 3.7 Plus** 严格遵循 schema（**$0.20 / $0.60** 每 1M token）；**DeepSeek V4 Flash**（**$0.14 / $0.42**）是大批量抽取的性价比之选；**GPT-5.6 Luna**（$0.27 / $2.70，1M 上下文）适合复杂嵌套 schema。三者都在 `https://tokenpapa.ai/v1` 后面，一个 Key 切换只需改一行。
+
+### 结构化 JSON 抽取一次调用要花多少钱？
+
+按 **2000 输入 + 300 输出 token** 估算：**DeepSeek V4 Flash 约 $0.41 / 1000 次**、Qwen 3.7 Plus 约 $0.58、GPT-5.6 Luna 约 $1.35、**Claude Sonnet 4 约 $10.50**。以上为按公开单价推算的估值，非实测账单。
+
+### 让大模型输出合法 JSON 需要专门的 JSON 模式吗？
+
+不需要单独端点。OpenAI 兼容 API 自带 `response_format: {"type": "json_object"}`（以及基于 schema 的 structured outputs），TokenPAPA 上所有模型都通过同一个 base_url 支持。但要稳定拿到合法 JSON，仍需紧凑的 schema 提示词、显式 `max_tokens`、外加一层校验与重试。
+
+### 想换 JSON 模型需要改代码吗？
+
+不用。TokenPAPA 所有模型共用一个 API Key 和一个 base_url，从 DeepSeek 换到 Qwen 再到 GPT 只改一行 `model` 字符串。常见做法：批量抽取用 DeepSeek V4 Flash，复杂 schema 与重试用 Qwen 3.7 Plus 或 GPT-5.6 Luna。
+
+---
+
+## 开始使用
+
+1. **注册**：[tokenpapa.ai/register](https://tokenpapa.ai/register)——邮箱、Google 或 GitHub 登录，不需要中国手机号。
+2. **建 Key**：[API Keys 页面](https://tokenpapa.ai/keys)创建 Key 并充值（最低 $10，支持国际卡），`base_url` 设为 `https://tokenpapa.ai/v1`。
+3. **选抽取器**：先用 `deepseek-v4-flash`，schema 需要时升级到 `qwen3.7-plus` 或 `gpt-5.6-luna`。
+
+```python
+from openai import OpenAI
+
+client = OpenAI(api_key="your-tokenpapa-key", base_url="https://tokenpapa.ai/v1")
+
+out = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": '抽取 {"title": 字符串, "price_usd": 数字}：' + ad_text}],
+    response_format={"type": "json_object"},
+    max_tokens=200,
+)
+print(out.choices[0].message.content)
+```
+
+想先算清自己的抽取量要花多少钱？看 [定价页](https://tokenpapa.ai/pricing) 的最新费率，或对照 [LLM API 价格速查表](https://doc.tokenpapa.ai/zh/docs/blog/llm-api-pricing-cheat-sheet-2026) 的完整模型表。
+
+---
+
+*文中模型价格为 TokenPAPA 平台 2026-10-15 的费率，可能变动；请以 [tokenpapa.ai/pricing](https://tokenpapa.ai/pricing) 为准。单次调用与月成本为按假设（每次 2000 输入 + 300 输出 token）与公开费率推算的估值，非实测账单。*

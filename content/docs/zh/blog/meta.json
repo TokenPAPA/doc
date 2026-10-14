@@ -4,6 +4,7 @@
   "icon": "Newspaper",
   "root": true,
   "pages": [
+    "best-llm-for-structured-json-output-2026",
     "best-llm-for-code-review-2026",
     "cheap-llm-api-for-ai-agents",
     "cursor-custom-api-key-setup",
