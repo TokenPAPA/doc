@@ -1,0 +1,163 @@
+---
+title: "5 New LLMs Landed on TokenPAPA: Kimi K3.1 Pro, GLM-5.3-FlashX, MiniMax M3.1 Flash & Hy4"
+description: "TokenPAPA added 5 new models in November 2026: Kimi K3.1 Pro, Kimi K3.1 Pro Highspeed, GLM-5.3-FlashX, MiniMax M3.1 Flash and Tencent Hy4. Pricing, context windows and use cases compared."
+date: 2026-11-06
+authors: [tokenpapa]
+category: "Model News"
+keywords: ["new llm models 2026", "kimi k3.1 pro", "kimi k3.1 pro highspeed", "glm-5.3-flashx", "minimax m3.1 flash", "hy4 hunyuan", "new ai models november 2026", "llm api new models", "cheapest new ai models", "tokenpapa new models"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-11-06 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;5 New LLMs Landed on TokenPAPA: Kimi K3.1 Pro, GLM-5.3-FlashX, MiniMax M3.1 Flash and Hy4&quot;,&quot;description&quot;:&quot;TokenPAPA added 5 new models in November 2026: Kimi K3.1 Pro, Kimi K3.1 Pro Highspeed, GLM-5.3-FlashX, MiniMax M3.1 Flash and Tencent Hy4. Pricing, context windows and use cases compared.&quot;,&quot;datePublished&quot;:&quot;2026-11-06&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Which new models were added to TokenPAPA in November 2026?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;TokenPAPA added five new models on 2026-11-05: Kimi K3.1 Pro, Kimi K3.1 Pro Highspeed, GLM-5.3-FlashX, MiniMax M3.1 Flash and Tencent Hy4. All five are reachable through the same OpenAI compatible API key at https://tokenpapa.ai/v1.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How much do the new TokenPAPA models cost?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Per 1M input and output tokens: Kimi K3.1 Pro is 2.10 and 10.60 dollars, Kimi K3.1 Pro Highspeed is 4.10 and 21.30 dollars, GLM-5.3-FlashX is 0.32 and 1.10 dollars, MiniMax M3.1 Flash is 0.16 and 0.63 dollars, and Hy4 is 1.00 and 2.80 dollars. Cached input tokens are 80 to 95 percent cheaper.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Which new model is best for high-throughput or low-latency workloads?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;GLM-5.3-FlashX delivers up to 200 tokens per second and is a strong default for speed at 0.32 dollars per 1M input tokens. MiniMax M3.1 Flash at 0.16 dollars is the cheapest high-throughput option, while Kimi K3.1 Pro Highspeed trades a higher price for a faster companion of the flagship K3.1 model.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Do I need a new API key to use the new models?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;No. On TokenPAPA every model shares one API key and the same base URL, so switching to any new model is a one-line change of the model field in your request.&quot;}}]" />
+
+# 5 New LLMs Landed on TokenPAPA: Kimi K3.1 Pro, GLM-5.3-FlashX, MiniMax M3.1 Flash & Hy4
+
+On **2026-11-05**, TokenPAPA added five new large language models to its catalog: **Kimi K3.1 Pro**, **Kimi K3.1 Pro Highspeed**, **GLM-5.3-FlashX**, **MiniMax M3.1 Flash** and **Hy4** (Tencent Hunyuan 4). Two of them are flagship-class agentic models from Moonshot and Tencent; three are fast, cheap workhorses from Zhipu and MiniMax. Every one of them is available right now through a single OpenAI-compatible API key at `https://tokenpapa.ai/v1`.
+
+This post is the quickest way to decide which of the five belongs in your stack: the exact prices, what each model is actually good at, how the new models compare with the previous generation, and the code that switches you over in one line.
+
+> **New TokenPAPA models in one paragraph**: for agentic coding and long-context reasoning, **Kimi K3.1 Pro** (1M context, 3T-class, multimodal) at **$2.10 / $10.60 per 1M input/output tokens**; for the fastest experience, **GLM-5.3-FlashX** at up to **200 tokens/s** and **$0.32 / $1.10**; for the cheapest high-throughput work, **MiniMax M3.1 Flash** at **$0.16 / $0.63**; for deep research with a 770B-class MoE and first-time vision, **Hy4** at **$1.00 / $2.80**. All five share one key, so the switch is a one-line `model=` change.
+
+---
+
+## The five new models at a glance
+
+These are the TokenPAPA platform rates per 1M tokens, taken directly from the pricing page on 2026-11-05. Cached input pricing matters more than ever because several of these models support long context reuse.
+
+| Model ID | Vendor | Input / 1M | Output / 1M | Cached input / 1M | What it is |
+|---|---|---|---|---|---|
+| `kimi-k3.1-pro` | Moonshot (Kimi) | $2.10 | $10.60 | $0.21 | 3T-class open-weight multimodal agentic model, 1M context |
+| `kimi-k3.1-pro-highspeed` | Moonshot (Kimi) | $4.10 | $21.30 | $0.21 | Faster companion of K3.1 Pro for low-latency use |
+| `glm-5.3-flashx` | Zhipu (GLM) | $0.32 | $1.10 | $0.09 | High-speed model, up to 200 tokens/s, 1M context |
+| `minimax-m3.1-flash` | MiniMax | $0.16 | $0.63 | $0.016 | Cheapest new model, high-throughput flash tier |
+| `hy4` | Tencent (Hunyuan) | $1.00 | $2.80 | $0.05 | MoE flagship, 770B-class, first official vision support |
+
+All five models accept OpenAI-style chat completions. Kimi K3.1 Pro and GLM-5.3-FlashX additionally accept image and video input, and Hy4 gains vision for the first time in the Hunyuan line.
+
+## Kimi K3.1 Pro: a 3T-class open-weight agentic model
+
+Kimi K3.1 Pro is the first model in Moonshot's new K3.1 series, released on **2026-10-24**. According to Moonshot, it is an open-weight, natively multimodal agentic model and the most capable 3T-class model the company has released, post-trained from Kimi K3 with substantially more reinforcement learning.
+
+Key facts for developers:
+
+- **Context window**: 1,048,576 tokens (1M) — the full class of "give it your whole codebase" workloads
+- **Modality**: accepts text, images and video, generates text
+- **Family**: 3T-class open-weight, available through the Kimi API platform and aggregators like TokenPAPA
+- **Price on TokenPAPA**: $2.10 per 1M input, $10.60 per 1M output, $0.21 cached input
+
+> **Key takeaway**: Kimi K3.1 Pro is priced at roughly **33% below the previous kimi-k3** ($3.125 / $15.62) on TokenPAPA, which makes a 1M-context multimodal agentic model meaningfully cheaper per token than the generation it replaces.
+
+## Kimi K3.1 Pro Highspeed: the low-latency companion
+
+Kimi K3.1 Pro Highspeed is the faster companion variant announced alongside K3.1 Pro. It targets interactive and latency-sensitive workloads where the extra output speed is worth a premium.
+
+| Comparison | kimi-k3.1-pro | kimi-k3.1-pro-highspeed |
+|---|---|---|
+| Input / 1M tokens | $2.10 | $4.10 |
+| Output / 1M tokens | $10.60 | $21.30 |
+| Best for | Deep reasoning, agentic loops, multimodal | Interactive chat, fast code completion, latency-first APIs |
+
+If your workload is dominated by long agentic loops where correctness matters more than wall-clock speed, the standard Pro is the better value. If you are building a chat product where users feel every second, Highspeed earns its premium.
+
+## GLM-5.3-FlashX: 200 tokens/s with 1M context
+
+GLM-5.3-FlashX is Zhipu's high-speed model, supplied directly by Zhipu AI. The headline numbers, per Zhipu and Alibaba Cloud Model Studio documentation:
+
+- **Inference speed**: up to **200 tokens/s**
+- **Context**: 1M tokens
+- **Input**: natively accepts image, video and file input
+- **Price on TokenPAPA**: $0.32 per 1M input, $1.10 per 1M output, $0.09 cached
+
+This is the "flash but faster" tier: more expensive than the bare `glm-5.3-flash` ($0.12 / $0.42) but dramatically cheaper than `glm-5.3` ($1.20 / $4.18), while keeping the long context and multimodal input of the newer line. For agents that stream a lot of tokens to the user, 200 tokens/s materially changes perceived quality.
+
+## MiniMax M3.1 Flash: the budget workhorse
+
+MiniMax M3.1 Flash is the flash-tier entry of MiniMax's M3.1 line. Public technical detail is still thin right after launch, so here is what is verifiable from the TokenPAPA catalog: it is the **cheapest of the five new models** at **$0.16 per 1M input and $0.63 per 1M output tokens**, with cached input at just **$0.016** — a 95% discount on cached reads.
+
+At that price it sits below `minimax-m3` ($0.328 / $1.30) and even below most previous-generation flash models. It is the natural default for high-volume extraction, classification, summarization and any pipeline where unit economics matter more than peak quality.
+
+## Hy4: Tencent's open-weight flagship gains vision
+
+Hy4 is the official release of Tencent's next-generation Hunyuan model, following the `hy4-preview` open-source debut. Tencent says Hy4 significantly expands pretraining and post-training scale, **introduces vision capability for the first time**, and substantially improves instruction following, long-document understanding, long-horizon tasks and deep research.
+
+Developer-relevant facts:
+
+- **Architecture**: mixture-of-experts flagship; the preview measured **770B total parameters with 49B active per token**, and the official release scales further
+- **Context**: exceeding 1M tokens
+- **Open weight**: released as an open-source model
+- **Price on TokenPAPA**: $1.00 per 1M input, $2.80 per 1M output, $0.05 cached
+
+Hy4 is the model to watch for research-heavy workloads: the combination of 1M+ context, native vision and open weights makes it a credible alternative to the big closed flagships at a fraction of their output price.
+
+## New vs old: how the prices moved
+
+The clearest way to read this launch is against the previous generation, all from the same TokenPAPA pricing page:
+
+| Model | Input / 1M | Output / 1M | Change |
+|---|---|---|---|
+| `kimi-k3` → `kimi-k3.1-pro` | $3.125 → $2.10 | $15.62 → $10.60 | Cheaper (~33% input) |
+| `glm-5.3` → `glm-5.3-flashx` | $1.20 → $0.32 | $4.18 → $1.10 | Cheaper (~73% input) |
+| `minimax-m3` → `minimax-m3.1-flash` | $0.328 → $0.16 | $1.30 → $0.63 | Cheaper (~51% input) |
+| `hy3` → `hy4` | $0.14 → $1.00 | $0.58 → $2.80 | More capable flagship, higher price |
+
+Three of the four upgrades moved **down** in price while adding context or speed; Hy4 is the deliberate exception, a genuine flagship price point for a model that claims to be the strongest open-weight Hunyuan yet.
+
+## Which one should you use?
+
+- **Agentic coding and long-context reasoning** → `kimi-k3.1-pro`. 1M context, multimodal input, 3T-class quality, 33% cheaper than its predecessor.
+- **Latency-sensitive products** → `kimi-k3.1-pro-highspeed` if you need flagship quality fast; `glm-5.3-flashx` if you want 200 tokens/s at a fraction of the price.
+- **High-volume, cost-first pipelines** → `minimax-m3.1-flash`. $0.16 / $0.63 is the floor of this catalog.
+- **Deep research, long documents, vision** → `hy4`. 770B-class MoE with 1M+ context and first-time vision.
+- **Fastest general default** → `glm-5.3-flashx`. Speed, 1M context and multimodal input for less than a third of the flagship tier.
+
+The practical point of an aggregator: you do not have to choose once. Wire up `https://tokenpapa.ai/v1` with one key, and let each workload pick its own model per call.
+
+## How to call the new models
+
+Every model on TokenPAPA uses the same OpenAI-compatible endpoint and the same key. Switching is one field:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://tokenpapa.ai/v1", api_key="YOUR_KEY")
+
+resp = client.chat.completions.create(
+    model="kimi-k3.1-pro",  # or glm-5.3-flashx / minimax-m3.1-flash / hy4
+    messages=[{"role": "user", "content": "Summarize this in one paragraph."}],
+)
+print(resp.choices[0].message.content)
+```
+
+The base URL is `https://tokenpapa.ai/v1`; the API key is created at `https://tokenpapa.ai/keys`. For the cheapest call, turn on prompt caching and you pay $0.21 (K3.1 Pro) or as little as $0.016 (M3.1 Flash) per 1M cached input tokens.
+
+## FAQ
+
+### Which new models were added to TokenPAPA in November 2026?
+
+TokenPAPA added five new models on 2026-11-05: **Kimi K3.1 Pro**, **Kimi K3.1 Pro Highspeed**, **GLM-5.3-FlashX**, **MiniMax M3.1 Flash** and **Tencent Hy4**. All five share one API key and the same base URL at `https://tokenpapa.ai/v1`.
+
+### How much do the new TokenPAPA models cost?
+
+Per 1M input and output tokens: **Kimi K3.1 Pro** $2.10 / $10.60; **Kimi K3.1 Pro Highspeed** $4.10 / $21.30; **GLM-5.3-FlashX** $0.32 / $1.10; **MiniMax M3.1 Flash** $0.16 / $0.63; **Hy4** $1.00 / $2.80. Cached input tokens cost 80–95% less.
+
+### Which new model is best for high-throughput or low-latency workloads?
+
+**GLM-5.3-FlashX** delivers up to **200 tokens/s** and is the speed-focused default at $0.32 / $1.10. **MiniMax M3.1 Flash** is the cheapest high-throughput option at $0.16 / $0.63. **Kimi K3.1 Pro Highspeed** is the premium low-latency companion to the flagship.
+
+### Do I need a new API key to use the new models?
+
+No. On TokenPAPA every model runs through one key and one OpenAI-compatible base URL, so switching models is a one-line change in your request — no new key, no new endpoint, no code rewrite.
+
+---
+
+## Get started in minutes
+
+All five models are live on TokenPAPA right now. Check the full catalog and per-model pricing at [https://tokenpapa.ai/pricing](https://tokenpapa.ai/pricing), create your API key at [https://tokenpapa.ai/keys](https://tokenpapa.ai/keys), and start with the model that fits today's workload — you can switch to another one tomorrow with a single line of code.
+
+*Last updated 2026-11-06. Prices verified against the TokenPAPA pricing page on 2026-11-05.*

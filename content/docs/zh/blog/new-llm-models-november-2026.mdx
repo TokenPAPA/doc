@@ -1,0 +1,154 @@
+---
+title: "TokenPAPA 上新 5 款大模型：Kimi K3.1 Pro、GLM-5.3-FlashX、MiniMax M3.1 Flash、Hy4 全面解读"
+description: "TokenPAPA 2026 年 11 月上新 5 款模型：Kimi K3.1 Pro 与 Highspeed、GLM-5.3-FlashX、MiniMax M3.1 Flash、腾讯 Hy4。价格、上下文、适用场景一次讲清，一个 Key 全调用。"
+date: 2026-11-06
+authors: [tokenpapa]
+category: "模型动态"
+keywords: ["新模型 2026", "kimi k3.1 pro", "kimi k3.1 pro highspeed", "glm-5.3-flashx", "minimax m3.1 flash", "hy4 混元", "llm api 新模型", "tokenpapa 上新", "大模型 API 价格", "国产大模型"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-11-06 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;TokenPAPA 上新 5 款大模型：Kimi K3.1 Pro、GLM-5.3-FlashX、MiniMax M3.1 Flash、Hy4 全面解读&quot;,&quot;description&quot;:&quot;TokenPAPA 2026 年 11 月上新 5 款模型：Kimi K3.1 Pro 与 Highspeed、GLM-5.3-FlashX、MiniMax M3.1 Flash、腾讯 Hy4。价格、上下文、适用场景一次讲清，一个 Key 全调用。&quot;,&quot;datePublished&quot;:&quot;2026-11-06&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;TokenPAPA 2026 年 11 月新上了哪些模型？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;2026 年 11 月 5 日上新 5 款：Kimi K3.1 Pro、Kimi K3.1 Pro Highspeed、GLM-5.3-FlashX、MiniMax M3.1 Flash 和腾讯 Hy4。全部通过同一个 OpenAI 兼容 API Key（https://tokenpapa.ai/v1）调用。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;新模型的 API 价格是多少？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;按每 100 万 tokens 输入/输出计：Kimi K3.1 Pro 为 2.10/10.60 美元，K3.1 Pro Highspeed 为 4.10/21.30 美元，GLM-5.3-FlashX 为 0.32/1.10 美元，MiniMax M3.1 Flash 为 0.16/0.63 美元，Hy4 为 1.00/2.80 美元。缓存输入价格低 80% 到 95%。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;哪款新模型最快、适合高吞吐场景？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;GLM-5.3-FlashX 推理速度最高可达每秒 200 tokens，输入仅 0.32 美元/百万 tokens，是速度优先的默认选择；MiniMax M3.1 Flash 0.16 美元最便宜，适合高吞吐批处理；Kimi K3.1 Pro Highspeed 则是旗舰模型的高速版本。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;用新模型需要重新申请 API Key 吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;不需要。TokenPAPA 上所有模型共用一个 API Key 和同一个 base URL，切换模型只需把请求里的 model 字段改一行即可。&quot;}}]" />
+
+# TokenPAPA 上新 5 款大模型：Kimi K3.1 Pro、GLM-5.3-FlashX、MiniMax M3.1 Flash、Hy4 全面解读
+
+**2026 年 11 月 5 日，TokenPAPA 一次上新 5 款大模型**：月之暗面 **Kimi K3.1 Pro**（及高速版 **K3.1 Pro Highspeed**）、智谱 **GLM-5.3-FlashX**、MiniMax **M3.1 Flash**、腾讯混元 **Hy4**。两员是旗舰级 agentic 模型，三员是高速高性价比的生力军 —— 全部已上线，一个 OpenAI 兼容 Key 即可调用（base URL `https://tokenpapa.ai/v1`）。
+
+这篇文章帮你 5 分钟定夺：每款的真实价格、各自擅长什么、相比上一代贵了还是便宜了，以及一行代码怎么切换。
+
+> **一句话总结**：agentic 编程与超长上下文选 **Kimi K3.1 Pro**（1M 上下文、3T 级、多模态，$2.10/$10.60）；要最快选 **GLM-5.3-FlashX**（最高 200 tokens/s，$0.32/$1.10）；要最便宜选 **MiniMax M3.1 Flash**（$0.16/$0.63）；做深度研究与多模态选 **Hy4**（770B 级 MoE，$1.00/$2.80）。五个模型共用一个 Key，切换只改一行 `model=`。
+
+---
+
+## 五款新模型速览
+
+以下为 TokenPAPA 定价页 2026-11-05 实测价格（每 100 万 tokens）：
+
+| 模型 ID | 厂商 | 输入 / 1M | 输出 / 1M | 缓存输入 / 1M | 定位 |
+|---|---|---|---|---|---|
+| `kimi-k3.1-pro` | 月之暗面 Kimi | $2.10 | $10.60 | $0.21 | 3T 级开源多模态 agentic，1M 上下文 |
+| `kimi-k3.1-pro-highspeed` | 月之暗面 Kimi | $4.10 | $21.30 | $0.21 | 旗舰的高速版本，低延迟场景 |
+| `glm-5.3-flashx` | 智谱 GLM | $0.32 | $1.10 | $0.09 | 高速模型，最高 200 tokens/s，1M 上下文 |
+| `minimax-m3.1-flash` | MiniMax | $0.16 | $0.63 | $0.016 | 最便宜的新模型，高吞吐主力 |
+| `hy4` | 腾讯混元 | $1.00 | $2.80 | $0.05 | MoE 旗舰，770B 级，首次支持视觉 |
+
+## Kimi K3.1 Pro：3T 级开源 agentic 模型
+
+Kimi K3.1 Pro 是月之暗面 K3.1 系列首个模型（2026-10-24 发布），官方口径为**开源权重、原生多模态的 agentic 模型**，也是目前最强的 3T 级开源模型；基于 Kimi K3 后训练并大幅强化了强化学习。
+
+开发者关心的点：
+
+- **上下文**：1,048,576 tokens（1M），够把整个代码库喂进去
+- **输入**：支持文本、图像、视频
+- **平台价**：$2.10 / $10.60（输入/输出每 1M），缓存输入 $0.21
+
+> **关键结论**：K3.1 Pro 在 TokenPAPA 上比上一代 `kimi-k3`（$3.125/$15.62）**便宜约 33%** —— 1M 上下文的旗舰级多模态模型，价格反而更低了。
+
+## Kimi K3.1 Pro Highspeed：高速伴生版
+
+与 K3.1 Pro 同期发布的高速变体，面向交互式、延迟敏感的场景。
+
+| 对比 | kimi-k3.1-pro | kimi-k3.1-pro-highspeed |
+|---|---|---|
+| 输入 / 1M | $2.10 | $4.10 |
+| 输出 / 1M | $10.60 | $21.30 |
+| 适合 | 深度推理、agent 循环、多模态 | 实时对话、快速补全、延迟优先的 API |
+
+长 agent 循环重正确性 → 标准版性价比更高；聊天产品重响应速度 → Highspeed 的溢价值得。
+
+## GLM-5.3-FlashX：200 tokens/s + 1M 上下文
+
+智谱原厂直供的高速模型，核心参数（据智谱官方与阿里云百炼文档）：
+
+- **推理速度**：最高 **200 tokens/s**
+- **上下文**：1M tokens
+- **输入**：原生支持图像、视频、文件
+- **平台价**：$0.32 / $1.10，缓存输入 $0.09
+
+它比裸 `glm-5.3-flash`（$0.12/$0.42）贵一点，但比 `glm-5.3`（$1.20/$4.18）便宜约 73%，同时保留了新系列的长上下文与多模态输入。对向用户流式输出大量 token 的 Agent 产品，200 tokens/s 的体感差异非常明显。
+
+## MiniMax M3.1 Flash：最便宜的干将
+
+MiniMax M3.1 系列的 flash 档。刚上线公开参数还不多，从 TokenPAPA 目录可确证的是：**五款新品里最便宜**，输入 $0.16、输出 $0.63，缓存输入仅 **$0.016**（打 95 折）。
+
+它比 `minimax-m3`（$0.328/$1.30）便宜约一半，是批量抽取、分类、摘要等高吞吐管线的新默认选项。
+
+## Hy4：腾讯混元旗舰，首次支持视觉
+
+Hy4 是腾讯混元新一代模型的正式版（继 `hy4-preview` 开源之后）。官方表示：预训练与后训练规模显著扩大，**首次引入视觉能力**，指令遵循、长文理解、长程任务、深度研究全面增强。
+
+- **架构**：MoE 旗舰；preview 实测 **770B 总参数、49B 每 token 激活**，正式版规模更大
+- **上下文**：超过 1M tokens
+- **开源**：以开源模型发布
+- **平台价**：$1.00 / $2.80，缓存输入 $0.05
+
+Hy4 适合研究型负载：1M+ 上下文 + 原生视觉 + 开源权重，输出价格却远低于闭源旗舰。
+
+## 新老价格对比：是升是降一目了然
+
+| 模型 | 输入 / 1M | 输出 / 1M | 变化 |
+|---|---|---|---|
+| `kimi-k3` → `kimi-k3.1-pro` | $3.125 → $2.10 | $15.62 → $10.60 | 降价（输入约 -33%） |
+| `glm-5.3` → `glm-5.3-flashx` | $1.20 → $0.32 | $4.18 → $1.10 | 降价（输入约 -73%） |
+| `minimax-m3` → `minimax-m3.1-flash` | $0.328 → $0.16 | $1.30 → $0.63 | 降价（输入约 -51%） |
+| `hy3` → `hy4` | $0.14 → $1.00 | $0.58 → $2.80 | 旗舰升级，价格上调 |
+
+四个升级里三个**降价**且加了上下文或速度；Hy4 是唯一的例外 —— 认真做旗舰定位，换来混元史上最强的开源能力。
+
+## 该怎么选？
+
+- **Agentic 编程 / 超长上下文** → `kimi-k3.1-pro`：1M 上下文 + 多模态 + 比前代便宜 33%
+- **低延迟产品** → 要旗舰质量选 `kimi-k3.1-pro-highspeed`；要高速省钱选 `glm-5.3-flashx`（200 tokens/s）
+- **高吞吐、成本优先** → `minimax-m3.1-flash`：$0.16/$0.63 是全场地板价
+- **深度研究 / 长文档 / 视觉** → `hy4`：770B 级 MoE + 1M+ 上下文 + 首次视觉
+- **通用最快默认** → `glm-5.3-flashx`
+
+聚合平台的意义就在这：**不需要一次性押注**。一个 Key 接上 `https://tokenpapa.ai/v1`，让每个负载按次选模型。
+
+## 一行代码切换
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://tokenpapa.ai/v1", api_key="你的KEY")
+
+resp = client.chat.completions.create(
+    model="kimi-k3.1-pro",  # 或 glm-5.3-flashx / minimax-m3.1-flash / hy4
+    messages=[{"role": "user", "content": "用一句话总结。"}],
+)
+print(resp.choices[0].message.content)
+```
+
+开启提示词缓存后，缓存输入最低只要 $0.016/1M（M3.1 Flash），长上下文反复读取也花不了几个钱。
+
+## FAQ
+
+### TokenPAPA 2026 年 11 月新上了哪些模型？
+
+2026 年 11 月 5 日上新 5 款：**Kimi K3.1 Pro**、**Kimi K3.1 Pro Highspeed**、**GLM-5.3-FlashX**、**MiniMax M3.1 Flash** 和**腾讯 Hy4**，全部通过同一个 OpenAI 兼容 API Key 调用（`https://tokenpapa.ai/v1`）。
+
+### 新模型的 API 价格是多少？
+
+按每 100 万 tokens 输入/输出：**K3.1 Pro** $2.10/$10.60；**K3.1 Pro Highspeed** $4.10/$21.30；**GLM-5.3-FlashX** $0.32/$1.10；**M3.1 Flash** $0.16/$0.63；**Hy4** $1.00/$2.80。缓存输入便宜 80%–95%。
+
+### 哪款新模型最快、适合高吞吐？
+
+**GLM-5.3-FlashX** 最高 200 tokens/s，$0.32/$1.10，是速度优先默认项；**MiniMax M3.1 Flash** $0.16 最便宜，适合高吞吐批处理；**K3.1 Pro Highspeed** 是旗舰高速版。
+
+### 用新模型需要重新申请 Key 吗？
+
+不需要。TokenPAPA 所有模型共用一个 Key、同一个 base URL，切换只改请求里的 `model` 字段一行。
+
+---
+
+## 立即开始
+
+5 款模型已在 TokenPAPA 上线。完整目录与价格见 [https://tokenpapa.ai/pricing](https://tokenpapa.ai/pricing)，在 [https://tokenpapa.ai/keys](https://tokenpapa.ai/keys) 创建 Key，先选今天这个负载最合适的模型 —— 明天想换，只改一行代码。
+
+*更新于 2026-11-06。价格核对自 TokenPAPA 定价页（2026-11-05）。*
