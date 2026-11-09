@@ -1,0 +1,253 @@
+---
+title: "GPT-6.1 Sol vs GPT-6 Astra: Pricing, API Quirks and Which to Pick (2026)"
+description: "gpt-6.1-sol ($1.86/$9.30 per 1M) and gpt-6-astra ($9.30/$46.50) are now live on TokenPAPA. Astra costs exactly 5x Sol. Here are the verified prices, the two API errors you will hit, and how to choose."
+date: 2026-11-09
+authors: [tokenpapa]
+category: "Model News"
+keywords: ["gpt-6.1-sol", "gpt-6-astra", "gpt-6 astra pricing", "gpt-6.1 sol price", "gpt-6 api", "max_completion_tokens", "gpt-6 vs gpt-5.6", "openai flagship model pricing", "tokenpapa gpt-6"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-11-09 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;GPT-6.1 Sol vs GPT-6 Astra: Pricing, API Quirks and Which to Pick (2026)&quot;,&quot;description&quot;:&quot;gpt-6.1-sol costs $1.86 per 1M input and $9.30 per 1M output tokens; gpt-6-astra costs $9.30 and $46.50. Astra is exactly 5x Sol. Verified pricing, API errors and selection guide.&quot;,&quot;datePublished&quot;:&quot;2026-11-09&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How much does gpt-6.1-sol cost?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;On TokenPAPA, gpt-6.1-sol costs $1.86 per 1M input tokens, $9.30 per 1M output tokens, and $0.10 per 1M cached input tokens. That is roughly 60% cheaper on input and 75% cheaper on output than gpt-5.6-sol.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How much does gpt-6-astra cost?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;gpt-6-astra costs $9.30 per 1M input tokens, $46.50 per 1M output tokens, and $0.93 per 1M cached input tokens. It is exactly 5x the price of gpt-6.1-sol on both input and output.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Why does gpt-6.1-sol reject the max_tokens parameter?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;GPT-6 models use the reasoning-style API contract. Sending max_tokens returns HTTP 400 with Unsupported parameter: max_tokens is not supported with this model. Use max_completion_tokens instead.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Can I set temperature on GPT-6 models?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;No. Passing any temperature other than the default 1 returns HTTP 400: temperature does not support 0.7 with this model. Only the default value is supported. Remove the parameter rather than setting it.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Which GPT-6 model should I use?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Start with gpt-6.1-sol for anything synchronous and high-volume: chat, RAG, extraction, coding assistance. Reserve gpt-6-astra for long-horizon agent runs and hard research or documentation tasks where a wrong answer costs far more than 5x the token price.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Do I need a separate API key for GPT-6 models?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;No. Both models are enabled on the default, Starter, Pro and Enterprise groups, so the same key, base URL and balance you already use for other TokenPAPA models works immediately.&quot;}}]}" />
+
+# GPT-6.1 Sol vs GPT-6 Astra: Pricing, API Quirks and Which to Pick
+
+**Both GPT-6 models are now live on TokenPAPA. `gpt-6.1-sol` costs $1.86 per 1M input and $9.30 per 1M output tokens. `gpt-6-astra` costs $9.30 and $46.50 — exactly five times Sol on both sides. Both run on the OpenAI-compatible chat endpoint, both are enabled on the default group, and both reject `max_tokens`.**
+
+That last sentence is the practical part. GPT-6 is not a drop-in model swap: it uses the reasoning-style API contract, so two parameters that every existing integration sends will return HTTP 400 on the first request. Fix those two lines and everything else works on the key you already have.
+
+This article covers verified pricing, the full price ladder against the GPT-5.6 family, the exact errors to expect, working code, and a cost model for choosing between the two.
+
+> **Verified on 2026-11-09** against TokenPAPA's live model list and pricing data, plus real requests to `https://api.tokenpapa.ai/v1/chat/completions`. Model snapshots actually served: `gpt-6.1-sol-2026-09-29` and `gpt-6-astra-2026-09-03`.
+
+---
+
+## Verified pricing
+
+| Model ID | Input / 1M | Output / 1M | Cached input / 1M | Endpoint | Groups |
+|---|---|---|---|---|---|
+| `gpt-6.1-sol` | **$1.86** | **$9.30** | **$0.10** | OpenAI-compatible | default / Starter / Pro / Enterprise |
+| `gpt-6-astra` | **$9.30** | **$46.50** | **$0.93** | OpenAI-compatible | default / Starter / Pro / Enterprise |
+
+Two things worth pointing out, because they are not obvious from a pricing table:
+
+**Astra is exactly 5× Sol.** Not "roughly". $9.30 ÷ $1.86 = 5.00 and $46.50 ÷ $9.30 = 5.00. Every astra call costs what five sol calls would. That single ratio is the whole selection decision — there is no pricing cleverness that makes astra cheap at scale.
+
+**Sol is cheaper than the model it replaces.** Against `gpt-5.6-sol` at $4.64 / $37.12, the new flagship is ~60% cheaper on input and ~75% cheaper on output. That is the unusual direction for a flagship release, and it is the reason a migration is worth evaluating even if you are happy with your current setup.
+
+## The full price ladder
+
+All figures per 1M tokens, all verified against TokenPAPA pricing data on 2026-11-09.
+
+| Model | Input | Output | Cached input | Tier |
+|---|---|---|---|---|
+| `gpt-5.6-luna` | $0.93 | $7.44 | $0.09 | budget |
+| **`gpt-6.1-sol`** | **$1.86** | **$9.30** | **$0.10** | **flagship value** |
+| `gpt-5.6-terra` | $2.28 | $18.24 | $0.22 | mid |
+| `gpt-5.6-sol` | $4.64 | $37.12 | $0.46 | previous flagship |
+| `gpt-5.5` | $4.64 | $27.84 | $0.46 | previous generation |
+| **`gpt-6-astra`** | **$9.30** | **$46.50** | **$0.93** | **flagship max** |
+
+Read down the input column: the new Sol slots in at second-cheapest, one step above the budget model and *below* the mid-tier `gpt-5.6-terra`. On output it is closer to `gpt-5.6-luna` than to `gpt-5.6-terra`.
+
+That positioning is the story. A generation ago the flagship was four to five times the budget model. Now the flagship is twice the budget model on input and 1.25× on output, while the "max" tier carries the old flagship premium.
+
+## What actually changed in GPT-6
+
+Per OpenAI's release positioning as published in TokenPAPA's model metadata, GPT-6 is the flagship for **complex end-to-end work**, with stated upgrades in:
+
+- **Computer and browser operation** — agentic control of software, not just text generation.
+- **Coding** — the headline benchmark category for this generation.
+- **Scientific research** — long-horizon reasoning over material that does not fit comfortably in one context.
+- **Professional documentation** — long-form output where structure has to hold across dozens of pages.
+- **Safety alignment** — notably framed as a capability area rather than a footnote.
+
+Worth noting for anyone budgeting rollout: both models shipped through a **Trusted Access Program** first, with access opening to enterprises from **September 4, 2026** and widening to ChatGPT Plus / Pro / Business / Enterprise plus API and AWS channels afterward. The served snapshots confirm the timeline — astra is `2026-09-03`, sol is `2026-09-29`.
+
+If you are on TokenPAPA, that staged rollout is already history: both IDs are enabled on the `default` group today, so a trial key can call them.
+
+## The two errors you will hit
+
+This is the part no pricing table tells you. GPT-6 models reject two parameters that essentially every existing OpenAI integration sends by default.
+
+### Error 1: `max_tokens`
+
+```json
+{
+  "error": {
+    "message": "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+    "type": "unsupported_parameter",
+    "code": "unsupported_parameter"
+  }
+}
+```
+
+HTTP 400. The fix is mechanical, but it is a **hard break**, not a warning — if your client library hard-codes `max_tokens`, every call fails until you upgrade or patch it.
+
+### Error 2: any non-default `temperature`
+
+```json
+{
+  "error": {
+    "message": "Unsupported value: 'temperature' does not support 0.7 with this model. Only the default (1) value is supported.",
+    "type": "unsupported_value",
+    "code": "unsupported_value"
+  }
+}
+```
+
+HTTP 400 again. The correct fix is to **delete the parameter**, not to set it to `1` — some SDKs emit `temperature` automatically when you build a config object, so check what your client actually sends on the wire.
+
+Why this happens: these are reasoning-capable models. Sampling parameters that make sense for a single-pass completion do not map onto a model that plans internally before answering. The `usage` block confirms it — responses carry `completion_tokens_details.reasoning_tokens`, and `service_tier` is present alongside a `latency_checkpoint` object.
+
+### Working request
+
+```bash
+TOKENPAPA_API_KEY="sk-..."
+
+curl https://api.tokenpapa.ai/v1/chat/completions \
+  --oauth2-bearer "$TOKENPAPA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-6.1-sol",
+    "messages": [
+      {"role": "system", "content": "You review pull requests. Reply with findings only."},
+      {"role": "user", "content": "Review this diff for race conditions: ..."}
+    ],
+    "max_completion_tokens": 1200
+  }'
+```
+
+Note what is *absent*: no `max_tokens`, no `temperature`. Adding either one puts you back at HTTP 400.
+
+### Python
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="sk-...",
+    base_url="https://api.tokenpapa.ai/v1",
+)
+
+resp = client.chat.completions.create(
+    model="gpt-6.1-sol",            # or "gpt-6-astra"
+    messages=[{"role": "user", "content": "Summarise this incident report: ..."}],
+    max_completion_tokens=1200,     # NOT max_tokens
+    # temperature omitted on purpose - only the default is accepted
+)
+
+print(resp.choices[0].message.content)
+print(resp.usage)
+```
+
+The response is standard `chat.completion`, so existing parsing code, streaming plumbing and logging keep working. What changes is the request side.
+
+## Cost model: what the 5× actually means
+
+Per-request arithmetic at $1.86 / $9.30 (sol) and $9.30 / $46.50 (astra):
+
+```
+sol   = (input_tokens  × 1.86 + output_tokens × 9.30)  / 1,000,000
+astra = (input_tokens  × 9.30 + output_tokens × 46.50) / 1,000,000
+```
+
+A concrete shape — 8,000 input tokens and 1,500 output tokens per call, 1,000 calls/day:
+
+| Scenario | Per call | Per day | Per month |
+|---|---|---|---|
+| `gpt-6-astra` | $0.1442 | $144.15 | ~$4,324 |
+| `gpt-6.1-sol` | $0.0288 | $28.83 | ~$865 |
+| `gpt-6.1-sol`, 80% input cached | $0.0176 | $17.57 | ~$527 |
+| `gpt-5.6-sol` (for comparison) | $0.0928 | $92.80 | ~$2,784 |
+
+Two conclusions:
+
+1. **Migrating from `gpt-5.6-sol` to `gpt-6.1-sol` cuts this workload by ~69%** with no change in request shape. That is a rare "same workload, smaller invoice, better model" move.
+2. **Cached input is where Sol gets cheap.** At $0.10 per 1M cached tokens, a stable system prompt plus a fixed document corpus drops the effective per-call cost by another 39% at 80% hit rate. Astra gets the same treatment but starts from five times higher.
+
+## How to choose
+
+The 5× ratio makes this simpler than most model decisions:
+
+**Use `gpt-6.1-sol` as your default.** Chat, RAG, extraction, classification, coding assistance, summarisation, anything user-facing and synchronous. At $1.86 / $9.30 it is priced like a mid-tier model while being positioned as the flagship. For most teams this replaces both the old flagship slot *and* the mid-tier slot in one move.
+
+**Use `gpt-6-astra` for long-horizon agent work.** Computer and browser operation, multi-step research, work where one wrong final answer costs more than five times the tokens. If a failed run means a human re-does an hour of work, $0.14 per call is not the expensive part.
+
+**Route, do not choose once.** Both IDs share a key and a balance, so the routing table costs nothing to run:
+
+| Workload | Model |
+|---|---|
+| Chat / support replies | sol |
+| RAG answer synthesis | sol |
+| Structured extraction at volume | sol |
+| Code review, single PR | sol |
+| Autonomous multi-hour agent run | astra |
+| Research report or long documentation | astra |
+| Escalation: sol failed twice | astra |
+
+That last row is the highest-leverage pattern. Run sol first, and on a validation failure or a self-reported low-confidence answer, retry on astra. You pay the 5× only on the minority of requests that need it.
+
+## Migration checklist
+
+1. **Search your codebase for `max_tokens`** and replace with `max_completion_tokens`. Grep for it — client SDKs sometimes inject it internally.
+2. **Drop `temperature`, `top_p`, `presence_penalty`, `frequency_penalty`.** Only defaults are accepted; passing `1` explicitly is not the same as omitting.
+3. **Keep a golden set of 20–50 real prompts** and run old vs new side by side before switching production traffic.
+4. **Watch `reasoning_tokens` in `usage`.** It is billed as output. A prompt that makes the model think for 2,000 tokens costs six times what a short answer suggests.
+5. **Turn on prompt caching for stable prefixes.** At $0.10 / 1M cached input the economics change materially — but only if your prompt prefix is genuinely stable.
+6. **Set a per-request `max_completion_tokens` cap.** Without `max_tokens` there is no default ceiling you can rely on, and a runaway reasoning loop is billed at the output rate.
+
+## What it does not solve
+
+Being explicit, because "should you switch" is the only question that matters:
+
+- **Parameter errors are not model errors.** If your integration sends `max_tokens`, GPT-6 will look broken. It is not.
+- **A 5× cheaper flagship does not make a bad prompt good.** Sol is cheaper than `gpt-5.6-sol`, not cheaper than a well-designed pipeline.
+- **Reasoning tokens are invisible cost.** Token counts in `usage` include thinking you never see. Budget on `total_tokens`, not on the length of the answer.
+- **No self-hosting.** This is a hosted API with the usual data-handling implications for regulated workloads.
+
+---
+
+## FAQ
+
+### How much does gpt-6.1-sol cost?
+
+**$1.86 per 1M input tokens, $9.30 per 1M output tokens, $0.10 per 1M cached input tokens.** About 60% cheaper on input and 75% cheaper on output than `gpt-5.6-sol`.
+
+### How much does gpt-6-astra cost?
+
+**$9.30 per 1M input, $46.50 per 1M output, $0.93 per 1M cached input.** Exactly 5× `gpt-6.1-sol` on both input and output.
+
+### Why does GPT-6 reject `max_tokens`?
+
+GPT-6 uses the reasoning-style API contract. Send `max_completion_tokens` instead — `max_tokens` returns HTTP 400 `unsupported_parameter`.
+
+### Can I set `temperature`?
+
+No. Any value other than the default 1 returns HTTP 400. Omit the parameter entirely.
+
+### Which one should I use?
+
+`gpt-6.1-sol` for anything synchronous and high-volume. `gpt-6-astra` for long-horizon agents, deep research and long-form documentation. Route by task, and escalate to astra only after sol fails validation.
+
+### Do I need a new API key?
+
+No. Both models are enabled on `default`, `Starter`, `Pro` and `Enterprise`, so your existing key, base URL and balance work as-is.
+
+### What model snapshots are actually served?
+
+`gpt-6.1-sol` serves `gpt-6.1-sol-2026-09-29`; `gpt-6-astra` serves `gpt-6-astra-2026-09-03`. Both were confirmed by real responses on 2026-11-09.
+
+---
+
+## Start
+
+Both GPT-6 models are live now. Live pricing: [https://tokenpapa.ai/pricing](https://tokenpapa.ai/pricing). Reuse your existing key at [https://tokenpapa.ai/keys](https://tokenpapa.ai/keys) and point `base_url` at `https://api.tokenpapa.ai/v1` — then swap `max_tokens` for `max_completion_tokens` before the first call.
+
+*Last updated 2026-11-09. All prices verified against TokenPAPA pricing data; both models confirmed callable via live requests. The 5× astra-to-sol ratio is arithmetic from published prices, not marketing framing.*

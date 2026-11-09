@@ -1,0 +1,252 @@
+---
+title: "GPT-6.1 Sol 与 GPT-6 Astra 上线 TokenPAPA：价格、API 坑位与选型（2026）"
+description: "gpt-6.1-sol 每 1M 输入 $1.86 / 输出 $9.30，gpt-6-astra 每 1M 输入 $9.30 / 输出 $46.50，Astra 恰好是 Sol 的 5 倍。实测价格、两个必踩的 API 报错，以及怎么选。"
+date: 2026-11-09
+authors: [tokenpapa]
+category: "模型动态"
+keywords: ["gpt-6.1-sol", "gpt-6-astra", "gpt-6 astra 价格", "gpt-6.1 sol 价格", "gpt-6 api", "max_completion_tokens", "gpt-6 对比 gpt-5.6", "openai 旗舰模型价格", "tokenpapa gpt-6", "大模型 API 价格"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-11-09 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;GPT-6.1 Sol 与 GPT-6 Astra 上线 TokenPAPA：价格、API 坑位与选型（2026）&quot;,&quot;description&quot;:&quot;gpt-6.1-sol 每 1M 输入 1.86 美元、输出 9.30 美元；gpt-6-astra 分别为 9.30 和 46.50 美元，Astra 恰好是 Sol 的 5 倍。实测价格、两个必踩的 API 报错与选型建议。&quot;,&quot;datePublished&quot;:&quot;2026-11-09&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;gpt-6.1-sol 多少钱？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;TokenPAPA 上 gpt-6.1-sol 每 1M 输入 token 1.86 美元，每 1M 输出 token 9.30 美元，每 1M 缓存输入 0.10 美元。相比 gpt-5.6-sol，输入便宜约 60%，输出便宜约 75%。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;gpt-6-astra 多少钱？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;gpt-6-astra 每 1M 输入 9.30 美元，每 1M 输出 46.50 美元，每 1M 缓存输入 0.93 美元。输入输出两项都恰好是 gpt-6.1-sol 的 5 倍。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;为什么 gpt-6.1-sol 不认 max_tokens？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;GPT-6 系列采用推理型模型的 API 契约，传 max_tokens 会返回 HTTP 400：Unsupported parameter。必须改用 max_completion_tokens。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;GPT-6 能设置 temperature 吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;不能。除默认值 1 以外任何取值都会返回 HTTP 400，提示该模型只支持默认值。正确做法是完全不传这个参数，而不是把它设成 1。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;两个模型怎么选？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;默认用 gpt-6.1-sol，覆盖对话、RAG、抽取、编码辅助等高频同步场景；长时间自主 Agent、深度调研与长文档才用 gpt-6-astra。更省的做法是先跑 sol，校验失败再升级到 astra。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;需要单独申请 API Key 吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;不需要。两个模型已在 default、Starter、Pro、Enterprise 四个分组开放，原有的 Key、Base URL 和余额可直接调用。&quot;}}]}" />
+
+# GPT-6.1 Sol 与 GPT-6 Astra 上线 TokenPAPA：价格、API 坑位与选型
+
+**两款 GPT-6 模型已上线 TokenPAPA。`gpt-6.1-sol` 每 1M 输入 token 收费 $1.86、输出 $9.30；`gpt-6-astra` 分别是 $9.30 和 $46.50 —— 输入输出都恰好是 Sol 的 5 倍。两者都走 OpenAI 兼容的 chat 接口，都在 default 分组开放，且都会拒绝 `max_tokens` 参数。**
+
+最后半句才是重点。GPT-6 不是可以直接替换的模型：它采用推理型模型的 API 契约，所以每个现成集成都会带上的两个参数，会在第一次请求就返回 HTTP 400。改掉这两行，其他一切照旧，Key 不用换。
+
+下面讲实测价格、与 GPT-5.6 系列的完整价格阶梯、会踩的两个报错、可直接运行的代码，以及一个用来选型的成本模型。
+
+> **2026-11-09 实测**：价格取自 TokenPAPA 线上的模型定价数据，并在 `https://api.tokenpapa.ai/v1/chat/completions` 上发起了真实请求。实际服务的快照：`gpt-6.1-sol-2026-09-29`、`gpt-6-astra-2026-09-03`。
+
+---
+
+## 实测价格
+
+| 模型 ID | 输入 / 1M | 输出 / 1M | 缓存输入 / 1M | 接口 | 可用分组 |
+|---|---|---|---|---|---|
+| `gpt-6.1-sol` | **$1.86** | **$9.30** | **$0.10** | OpenAI 兼容 | default / Starter / Pro / Enterprise |
+| `gpt-6-astra` | **$9.30** | **$46.50** | **$0.93** | OpenAI 兼容 | default / Starter / Pro / Enterprise |
+
+有两点光看价格表看不出来，但很关键：
+
+**Astra 精确是 Sol 的 5 倍。** 不是"大约"。$9.30 ÷ $1.86 = 5.00，$46.50 ÷ $9.30 = 5.00。每一次 astra 调用，成本等于五次 sol 调用。选型判断就在这一个比值里，没有任何"用得多就变便宜"的折扣设计。
+
+**Sol 比它替代的模型更便宜。** 对比 $4.64 / $37.12 的 `gpt-5.6-sol`，新旗舰输入便宜约 60%、输出便宜约 75%。旗舰发布通常涨价，这次是反方向 —— 这就是为什么即使你对现有模型满意，也值得评估一次迁移。
+
+## 完整价格阶梯
+
+单位均为每 1M token，2026-11-09 取自 TokenPAPA 定价数据。
+
+| 模型 | 输入 | 输出 | 缓存输入 | 定位 |
+|---|---|---|---|---|
+| `gpt-5.6-luna` | $0.93 | $7.44 | $0.09 | 经济 |
+| **`gpt-6.1-sol`** | **$1.86** | **$9.30** | **$0.10** | **旗舰性价比** |
+| `gpt-5.6-terra` | $2.28 | $18.24 | $0.22 | 中端 |
+| `gpt-5.6-sol` | $4.64 | $37.12 | $0.46 | 上一代旗舰 |
+| `gpt-5.5` | $4.64 | $27.84 | $0.46 | 上两代 |
+| **`gpt-6-astra`** | **$9.30** | **$46.50** | **$0.93** | **旗舰顶配** |
+
+顺着输入列往下看：新 Sol 排在第二便宜的位置，只比经济型的 luna 贵一档，却比中端的 `gpt-5.6-terra` 还便宜。输出侧它更接近 luna，而不是 terra。
+
+这个格局才是真正的变化。上一代旗舰是经济型的四五倍价；现在旗舰（Sol）只有经济型的 2 倍输入价、1.25 倍输出价，而老旗舰的溢价被移到了顶配档（Astra）。
+
+## GPT-6 到底改了什么
+
+按 OpenAI 的发布定位（TokenPAPA 模型元数据中的原文），GPT-6 面向**复杂的端到端工作**，重点提升在：
+
+- **电脑与浏览器操作** —— 能真的操控软件，不只是生成文字。
+- **编码** —— 这一代最核心的对比维度。
+- **科学研究** —— 面向超出单次上下文的长链条推理。
+- **专业文档** —— 几十页规模下结构仍能撑住的长文写作。
+- **安全对齐** —— 被当作能力项而不是脚注来提。
+
+排期上值得一提：两款模型都先走 **Trusted Access Program**，2026 年 9 月 4 日起对企业开放，之后才逐步放开到 ChatGPT Plus / Pro / Business / Enterprise 以及 API 和 AWS 渠道。实际服务的快照也印证了时间线 —— astra 是 `2026-09-03`，sol 是 `2026-09-29`。
+
+在 TokenPAPA 上这段排期已经是历史：两个 ID 今天就在 `default` 分组开放，试用额度也能直接调。
+
+## 一定会踩的两个报错
+
+这是任何价格表都不会告诉你、但必然遇到的部分。GPT-6 拒绝两个几乎所有现有 OpenAI 集成都默认会发的参数。
+
+### 报错一：`max_tokens`
+
+```json
+{
+  "error": {
+    "message": "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+    "type": "unsupported_parameter",
+    "code": "unsupported_parameter"
+  }
+}
+```
+
+HTTP 400。改法很机械，但这是**硬断点**不是警告 —— 如果你的客户端库写死了 `max_tokens`，在升级或打补丁前，每一次调用都会失败。
+
+### 报错二：任何非默认的 `temperature`
+
+```json
+{
+  "error": {
+    "message": "Unsupported value: 'temperature' does not support 0.7 with this model. Only the default (1) value is supported.",
+    "type": "unsupported_value",
+    "code": "unsupported_value"
+  }
+}
+```
+
+同样是 HTTP 400。正确改法是**删掉这个参数**，而不是把它设成 `1` —— 有些 SDK 在你构造配置对象时会自动带上 `temperature`，要确认实际上网的数据长什么样。
+
+原因在于这类模型是推理型的：对单遍生成有意义的采样参数，套不到一个"先内部规划再回答"的模型上。返回体的 `usage` 也印证了这一点 —— 里面有 `completion_tokens_details.reasoning_tokens`，`service_tier` 与 `latency_checkpoint` 对象同时存在。
+
+### 可用的请求
+
+```bash
+export TOKENPAPA_API_KEY=<your-tokenpapa-key>
+
+curl https://api.tokenpapa.ai/v1/chat/completions \
+  --oauth2-bearer "$TOKENPAPA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-6.1-sol",
+    "messages": [
+      {"role": "user", "content": "把这份故障报告压缩成三条结论：..."}
+    ],
+    "max_completion_tokens": 1200
+  }'
+```
+
+注意**没有**什么：没有 `max_tokens`，没有 `temperature`。加上任何一个，就回到 HTTP 400。
+
+### Python
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="sk-...",
+    base_url="https://api.tokenpapa.ai/v1",
+)
+
+resp = client.chat.completions.create(
+    model="gpt-6.1-sol",            # 或 "gpt-6-astra"
+    messages=[{"role": "user", "content": "总结这份事故报告：..."}],
+    max_completion_tokens=1200,     # 不是 max_tokens
+    # 故意不传 temperature：只接受默认值
+)
+
+print(resp.choices[0].message.content)
+print(resp.usage)
+```
+
+返回体是标准 `chat.completion`，所以现有的解析、流式处理和日志都不用改。要改的只有请求侧。
+
+## 成本模型：5 倍意味着什么
+
+按 $1.86 / $9.30（sol）与 $9.30 / $46.50（astra）计算单次请求：
+
+```
+sol   = (输入 token × 1.86 + 输出 token × 9.30)  / 1,000,000
+astra = (输入 token × 9.30 + 输出 token × 46.50) / 1,000,000
+```
+
+取一个具体形状 —— 每次 8,000 输入 token、1,500 输出 token，每天 1,000 次调用：
+
+| 方案 | 单次 | 每天 | 每月 |
+|---|---|---|---|
+| `gpt-6-astra` | $0.1442 | $144.15 | 约 $4,324 |
+| `gpt-6.1-sol` | $0.0288 | $28.83 | 约 $865 |
+| `gpt-6.1-sol`，输入 80% 命中缓存 | $0.0176 | $17.57 | 约 $527 |
+| `gpt-5.6-sol`（对照） | $0.0928 | $92.80 | 约 $2,784 |
+
+两个结论：
+
+1. **从 `gpt-5.6-sol` 迁到 `gpt-6.1-sol`，这个负载省约 69%**，请求结构一行不用改。"负载不变、账单变小、模型更强"，这种机会不多。
+2. **缓存输入是 Sol 真正变便宜的地方。** 缓存价 $0.10 / 1M，稳定 system prompt 加固定语料，在 80% 命中率下还能再把单次成本压 39%。Astra 也一样，只是起点是五倍。
+
+## 怎么选
+
+5 倍这个比值让选型比大多数模型决策都简单：
+
+**默认用 `gpt-6.1-sol`。** 对话、RAG、抽取、分类、编码辅助、摘要，以及一切面向用户、要求同步返回的场景。$1.86 / $9.30 是中端模型的价位，定位却是旗舰 —— 对多数团队来说，它一次替掉了原来的"旗舰位"和"中端位"两个坑。
+
+**`gpt-6-astra` 留给长链条 Agent。** 电脑与浏览器操作、多步调研，以及"答错一次的代价远超五倍 token 钱"的工作。如果一次失败意味着人要重做一小时，$0.14 一次不算贵。
+
+**别一次选死，用路由。** 两个 ID 共用一个 Key 和一份余额，路由表零成本：
+
+| 场景 | 模型 |
+|---|---|
+| 客服 / 对话回复 | sol |
+| RAG 答案合成 | sol |
+| 大批量结构化抽取 | sol |
+| 单个 PR 代码审查 | sol |
+| 数小时自主 Agent 任务 | astra |
+| 深度调研报告 / 长文档 | astra |
+| 兜底：sol 两次校验失败 | astra |
+
+最后一行是性价比最高的玩法：先跑 sol，校验失败或模型自报低置信时再用 astra 重试。只有少数需要升级的请求才付那 5 倍。
+
+## 迁移清单
+
+1. **全局搜 `max_tokens`**，换成 `max_completion_tokens`。要用 grep 搜 —— 有些 SDK 会在内部注入这个字段。
+2. **去掉 `temperature`、`top_p`、`presence_penalty`、`frequency_penalty`。** 只接受默认值，显式传 `1` 和不传不是一回事。
+3. **留 20～50 条真实 prompt 做金标准集**，切生产流量前新旧各跑一遍对照。
+4. **盯 `usage` 里的 `reasoning_tokens`。** 它按输出计费。让模型想 2,000 token 的 prompt，成本是答案长度暗示的六倍。
+5. **给稳定前缀开 prompt 缓存。** $0.10 / 1M 会让账算得完全不同，但前提是你的 prompt 前缀真的稳定。
+6. **给每次请求设 `max_completion_tokens` 上限。** 没有 `max_tokens` 之后就没有可依赖的默认天花板，推理跑飞了按输出价计费。
+
+## 它解决不了什么
+
+该说清楚的还是要说清楚，因为"要不要切"才是唯一重要的问题：
+
+- **参数报错不是模型问题。** 如果你的集成在发 `max_tokens`，GPT-6 看起来就像坏的。它不是。
+- **旗舰便宜 5 倍，也不会把烂 prompt 变好。** Sol 比 `gpt-5.6-sol` 便宜，不比一条设计良好的流水线便宜。
+- **思考 token 是看不见的成本。** `usage` 里的计数包含你看不到的推理过程，预算要按 `total_tokens` 算，不是按答案长度。
+- **不能自托管。** 这是托管 API，合规要求高的场景仍需评估数据处理条款。
+
+---
+
+## 常见问题
+
+### gpt-6.1-sol 多少钱？
+
+**每 1M 输入 token $1.86，每 1M 输出 token $9.30，每 1M 缓存输入 $0.10。** 比 `gpt-5.6-sol` 输入便宜约 60%、输出便宜约 75%。
+
+### gpt-6-astra 多少钱？
+
+**每 1M 输入 $9.30，输出 $46.50，缓存输入 $0.93。** 输入输出都恰好是 `gpt-6.1-sol` 的 5 倍。
+
+### 为什么 GPT-6 不认 `max_tokens`？
+
+它采用推理型模型的 API 契约。改用 `max_completion_tokens`，传 `max_tokens` 会返回 HTTP 400 `unsupported_parameter`。
+
+### 可以设 `temperature` 吗？
+
+不行。除默认值 1 以外任何取值都返回 HTTP 400。干脆不要传这个参数。
+
+### 两个模型怎么选？
+
+高频同步场景用 `gpt-6.1-sol`；长链条 Agent、深度调研、长文档才用 `gpt-6-astra`。按任务路由，并且先跑 sol，校验失败再升级。
+
+### 需要新的 API Key 吗？
+
+不需要。两个模型已在 `default`、`Starter`、`Pro`、`Enterprise` 开放，原有 Key、Base URL 和余额直接可用。
+
+### 实际服务的是哪个快照？
+
+`gpt-6.1-sol` 是 `gpt-6.1-sol-2026-09-29`，`gpt-6-astra` 是 `gpt-6-astra-2026-09-03`，两者都由 2026-11-09 的真实响应确认。
+
+---
+
+## 现在就能用
+
+两款 GPT-6 模型已上线。实时价格见 [https://tokenpapa.ai/pricing](https://tokenpapa.ai/pricing)，Key 复用 [https://tokenpapa.ai/keys](https://tokenpapa.ai/keys)，`base_url` 指向 `https://api.tokenpapa.ai/v1` —— 第一次调用前记得把 `max_tokens` 换成 `max_completion_tokens`。
+
+*最后更新：2026-11-09。价格取自 TokenPAPA 定价数据，两款模型均已实测可调用。Astra 与 Sol 的 5 倍关系是公开价格的算术结果，不是宣传口径。*
