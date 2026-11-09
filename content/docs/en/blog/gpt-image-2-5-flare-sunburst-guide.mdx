@@ -1,0 +1,214 @@
+---
+title: "GPT Image 2.5 on TokenPAPA: flare vs sunburst — Pricing and API Guide (2026)"
+description: "GPT Image 2.5 is now listed on TokenPAPA as gpt-image-2.5-flare and gpt-image-2.5-sunburst at $4.65 per 1M input and $28 per 1M output tokens — about 13% cheaper than gpt-image-2. What changed, how to call it with an OpenAI-compatible key, and how to pick between the two variants."
+date: 2026-11-09
+authors: [tokenpapa]
+category: "Model News"
+keywords: ["gpt image 2.5", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst", "gpt image 2.5 api", "gpt image 2.5 pricing", "openai image generation api", "gpt-image-2 vs gpt-image-2.5", "image generation api price per image", "ai image editing api", "tokenpapa image models"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-11-09 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;GPT Image 2.5 on TokenPAPA: flare vs sunburst — Pricing and API Guide (2026)&quot;,&quot;description&quot;:&quot;GPT Image 2.5 is available on TokenPAPA as gpt-image-2.5-flare and gpt-image-2.5-sunburst at 4.65 dollars per 1M input and 28 dollars per 1M output tokens, roughly 13 percent cheaper than gpt-image-2.&quot;,&quot;datePublished&quot;:&quot;2026-11-09&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;What is GPT Image 2.5?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;GPT Image 2.5 is OpenAI image generation and editing model listed on TokenPAPA as gpt-image-2.5-flare and gpt-image-2.5-sunburst. It generates images from natural language prompts and supports instruction-driven editing, style transfer, content expansion and detail optimization on existing images.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How much does GPT Image 2.5 cost on TokenPAPA?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Both gpt-image-2.5-flare and gpt-image-2.5-sunburst cost 4.65 dollars per 1M input tokens and 28 dollars per 1M output tokens. That is about 13.6 percent cheaper on input and 13.3 percent cheaper on output than gpt-image-2, which is listed at 5.3846 and 32.3 dollars per 1M tokens.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;What is the difference between gpt-image-2.5-flare and gpt-image-2.5-sunburst?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;On TokenPAPA the two variants carry identical pricing, identical plan availability and the same published capability description. Treat them as two checkpoints of GPT Image 2.5 and A/B test them on your own prompts rather than assuming a documented quality split.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Which API endpoint do I call for GPT Image 2.5?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;GPT Image 2.5 is served through the OpenAI-compatible image generation endpoint POST /v1/images/generations on https://api.tokenpapa.ai/v1, with the same API key you already use for chat models.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Do I need a separate API key for image models?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;No. TokenPAPA issues one key for chat, embedding and image models. Image billing is metered on the same balance, so no second account or second top-up is required.&quot;}}]}" />
+
+# GPT Image 2.5 on TokenPAPA: flare vs sunburst — Pricing and API Guide
+
+**GPT Image 2.5 is now listed on TokenPAPA as two model IDs — `gpt-image-2.5-flare` and `gpt-image-2.5-sunburst`. Both are billed at $4.65 per 1M input tokens and $28 per 1M output tokens, and both run through the same OpenAI-compatible image endpoint and the same API key you already use for chat.**
+
+That is roughly 13% below the previous generation: `gpt-image-2` is listed at $5.3846 input and $32.3 output per 1M tokens. If image generation is a meaningful line item in your product, that gap is worth a migration.
+
+This guide covers exactly what the two new IDs are, what the price difference really buys you, the endpoint they answer on, working code, and how to choose between `flare` and `sunburst` without guessing.
+
+> **GPT Image 2.5 in one paragraph**: a prompt-driven image generation *and editing* model. Beyond raw visual quality, the published capability set emphasises semantic understanding, execution of complex multi-constraint instructions, text rendering, spatial relationships and creative expression. On TokenPAPA both variants cost **$4.65 input / $28 output per 1M tokens**, are available on **every plan including the default group**, and are called via **`POST /v1/images/generations`** with your existing key.
+
+---
+
+## The two GPT Image 2.5 variants at a glance
+
+| Model ID | Input / 1M tokens | Output / 1M tokens | Cached input | Endpoint | Plans |
+|---|---|---|---|---|---|
+| `gpt-image-2.5-flare` | **$4.65** | **$28** | — | OpenAI-compatible | default, Starter, Pro, Enterprise |
+| `gpt-image-2.5-sunburst` | **$4.65** | **$28** | — | OpenAI-compatible | default, Starter, Pro, Enterprise |
+
+Identical rows. That is not a copy-paste error — on TokenPAPA the two variants really are priced and gated the same way.
+
+### So what is the difference between flare and sunburst?
+
+Honestly: **there is no published difference between them on TokenPAPA.** Same price, same plan availability, same capability description, same endpoint. They behave like two checkpoints of the same generation, which is common when a provider ships more than one release candidate of an image model.
+
+That means the right way to pick one is empirical, not from a marketing table:
+
+1. Write 10–20 prompts that represent *your* actual workload (product shots, UI mockups, illustrated blog headers, text-in-image layouts).
+2. Render each prompt on both IDs at the same size and quality settings.
+3. Score on the axis you actually ship on — text legibility, adherence to negative constraints, hands/typography, edit fidelity.
+4. Keep the winner as your default and route long-tail traffic to the other.
+
+If you only want one, start with `gpt-image-2.5-flare` — nothing about the pricing or routing suggests it is the secondary variant, and you can switch to `sunburst` with a one-string change.
+
+## GPT Image 2.5 vs gpt-image-2: what the price cut actually is
+
+| Model | Input / 1M | Output / 1M | Input Δ vs gpt-image-2 | Output Δ vs gpt-image-2 |
+|---|---|---|---|---|
+| `gpt-image-2` | $5.3846 | $32.3 | — | — |
+| `gpt-image-2.5-flare` | $4.65 | $28 | **−13.6%** | **−13.3%** |
+| `gpt-image-2.5-sunburst` | $4.65 | $28 | **−13.6%** | **−13.3%** |
+
+Two things worth noticing beyond the headline cut:
+
+- **The cut is almost symmetric** on input and output. Providers usually discount one side only (typically input), so a cheaper model with a disproportionate output price can cost *more* for image work, where output tokens dominate. Here both sides moved, which means the saving holds regardless of how prompt-heavy your workload is.
+- **Image work is output-token dominated.** Prompts are short; the rendered image is the expensive part. A 13.3% cut on the dominant term is the number that lands on your invoice.
+
+### A cost model you can actually apply
+
+Because image billing here is token-metered rather than per-image, the invoice is:
+
+```
+cost = (input_tokens  × 4.65
+      + output_tokens × 28.00) / 1,000,000
+```
+
+For `gpt-image-2` the same formula uses `5.3846` and `32.30`. Pull one week of real usage from your dashboard, plug both pairs in, and you get the exact monthly delta for your traffic — no per-image sticker price assumptions required, and no guessing at how many tokens a given resolution "should" cost.
+
+## What GPT Image 2.5 is actually built for
+
+The published capability set is where the generation-over-generation step shows up:
+
+- **Semantic understanding** — following the *intent* of a prompt, not just its nouns, so multi-clause briefs survive without prompt surgery.
+- **Complex instruction execution** — several simultaneous constraints (subject, framing, palette, style, exclusions) in one request instead of iterative re-rolls.
+- **Text rendering** — the historically weakest part of image models. This is the capability that makes posters, UI mockups and social cards viable without a compositing step.
+- **Spatial relationships** — where things sit relative to each other, which is what separates "a cat and a sofa" from "a cat on the left arm of a green sofa".
+- **Creative expression** — stylistic range, which matters when a template can't be reused across a content calendar.
+
+And critically for product teams: it is not generation-only. It also supports **AI-driven editing** of an existing image — instruction-based retouching, style transfer, content expansion (outpainting) and detail optimisation — which means one model ID covers both your "create" and "fix" paths.
+
+## How to call GPT Image 2.5
+
+Image models answer on the OpenAI-compatible image endpoint, not on `/chat/completions`. Same key, different path.
+
+### curl
+
+```bash
+TOKENPAPA_API_KEY="sk-..."
+MODEL="gpt-image-2.5-flare"
+
+curl https://api.tokenpapa.ai/v1/images/generations \
+  --oauth2-bearer "$TOKENPAPA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2.5-flare",
+    "prompt": "a matte-black espresso machine on a concrete counter, soft morning window light, editorial product photography, no text",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "url"
+  }'
+```
+
+### Python (OpenAI SDK, no fork required)
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="sk-...",
+    base_url="https://api.tokenpapa.ai/v1",
+)
+
+img = client.images.generate(
+    model="gpt-image-2.5-flare",   # or "gpt-image-2.5-sunburst"
+    prompt="a matte-black espresso machine on a concrete counter, soft morning light, no text",
+    size="1024x1024",
+    n=1,
+)
+
+print(img.data[0].url)
+```
+
+### Node.js
+
+```js
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: process.env.TOKENPAPA_API_KEY,
+  baseURL: "https://api.tokenpapa.ai/v1",
+});
+
+const img = await client.images.generate({
+  model: "gpt-image-2.5-sunburst",
+  prompt: "a matte-black espresso machine on a concrete counter, soft morning light, no text",
+  size: "1024x1024",
+  n: 1,
+});
+```
+
+The only change from the official SDK examples is `base_url`. No proxy shim, no vendor-specific client, no response-format translation layer.
+
+## Migrating from gpt-image-2 or dall-e
+
+Because the wire format is the OpenAI image schema, migration is a string change:
+
+```diff
+- "model": "gpt-image-2"
++ "model": "gpt-image-2.5-flare"
+```
+
+Nothing else in the request body has to move. Your existing retry logic, storage pipeline and moderation step continue to work, and your key does not rotate.
+
+Two practical notes:
+
+1. **Don't migrate blind.** Render a fixed benchmark set on the old and new ID and keep both outputs side by side for a week before you cut over — image models regress on specific prompt families more often than on aggregate quality.
+2. **Route, don't replace.** If a prompt family performs better on the older checkpoint, keep it. On TokenPAPA both IDs stay available on the same key and the same billing balance, so a per-request-family routing table costs you nothing but a dict lookup.
+
+## When GPT Image 2.5 is the wrong choice
+
+Being useful about the limits is part of the point:
+
+- **You need deterministic pixel output.** Any generative image model will drift. Use templates + compositing for anything that must be pixel-identical.
+- **You need vector output.** This is a raster pipeline.
+- **Your volume is tiny.** At low volume the 13% saving is noise; the engineering time to re-validate prompts costs more than the tokens. Migrate when image spend is a visible line item.
+- **You need on-prem or air-gapped inference.** This is a hosted API.
+
+## The one-key advantage
+
+The reason this release is a cheap decision rather than a project: on TokenPAPA the image models sit behind the **same base URL, same API key, same balance** as the chat models. There is no separate media account, no separate top-up, and no second rate-limit budget to reason about. You can prototype an image feature in an app that already calls `deepseek-v4.1-flash` and `gpt-5.6-sol` without touching your provisioning.
+
+---
+
+## FAQ
+
+### What is GPT Image 2.5?
+
+GPT Image 2.5 is an image generation and editing model, listed on TokenPAPA as `gpt-image-2.5-flare` and `gpt-image-2.5-sunburst`. It produces images from natural-language prompts and supports instruction-driven editing, style transfer, content expansion and detail optimisation on existing images.
+
+### How much does GPT Image 2.5 cost on TokenPAPA?
+
+**$4.65 per 1M input tokens** and **$28 per 1M output tokens**, for both variants. Compared with `gpt-image-2` at $5.3846 / $32.3 that is about **13.6% cheaper on input** and **13.3% cheaper on output**.
+
+### What is the difference between flare and sunburst?
+
+On TokenPAPA they are priced identically, available on the same plans, and share the same published capability description. Treat them as two checkpoints and A/B test on your own prompts instead of relying on a documented quality split.
+
+### Which endpoint do I call?
+
+`POST https://api.tokenpapa.ai/v1/images/generations` — the OpenAI-compatible image endpoint. Not `/chat/completions`.
+
+### Do I need a second API key for image models?
+
+No. One key covers chat, embedding and image models, and image usage is metered on the same balance.
+
+### Is GPT Image 2.5 available on the free/default plan?
+
+Yes. Both IDs list `default, Starter, Pro, Enterprise` in their enabled groups, so a default-group key can call them.
+
+---
+
+## Get started
+
+Both GPT Image 2.5 variants are listed on TokenPAPA now. Check live per-model pricing at [https://tokenpapa.ai/pricing](https://tokenpapa.ai/pricing), create or reuse a key at [https://tokenpapa.ai/keys](https://tokenpapa.ai/keys), and call `/v1/images/generations` with the same credentials your chat code already uses.
+
+*Last updated 2026-11-09. Prices and plan availability verified against the TokenPAPA pricing feed on 2026-11-09. The two variants are listed with identical pricing and capability text — this post does not claim a quality difference that TokenPAPA does not publish.*

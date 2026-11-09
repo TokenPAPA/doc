@@ -4,6 +4,7 @@
   "icon": "Newspaper",
   "root": true,
   "pages": [
+    "gpt-image-2-5-flare-sunburst-guide",
     "new-llm-models-november-2026",
     "best-llm-for-structured-json-output-2026",
     "best-llm-for-code-review-2026",

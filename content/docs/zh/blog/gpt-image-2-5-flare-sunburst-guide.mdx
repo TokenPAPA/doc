@@ -1,0 +1,213 @@
+---
+title: "GPT Image 2.5 上线 TokenPAPA：flare 与 sunburst 价格对比和调用指南（2026）"
+description: "GPT Image 2.5 已以 gpt-image-2.5-flare 和 gpt-image-2.5-sunburst 两个模型 ID 上线 TokenPAPA，价格均为 1M 输入 $4.65 / 1M 输出 $28，比 gpt-image-2 便宜约 13%。本文讲清楚两个变体的区别、调用端点和迁移方法。"
+date: 2026-11-09
+authors: [tokenpapa]
+category: "Model News"
+keywords: ["gpt image 2.5", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst", "gpt image 2.5 价格", "gpt image 2.5 API", "文生图 API", "图像编辑 API", "OpenAI 兼容 图片接口", "gpt-image-2 对比", "tokenpapa 图像模型"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-11-09 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;GPT Image 2.5 上线 TokenPAPA：flare 与 sunburst 价格对比和调用指南（2026）&quot;,&quot;description&quot;:&quot;GPT Image 2.5 已以 gpt-image-2.5-flare 和 gpt-image-2.5-sunburst 两个模型 ID 上线 TokenPAPA，价格均为 1M 输入 4.65 美元、1M 输出 28 美元，比 gpt-image-2 便宜约 13%。&quot;,&quot;datePublished&quot;:&quot;2026-11-09&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;GPT Image 2.5 是什么？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;GPT Image 2.5 是 TokenPAPA 上的图像生成与编辑模型，对应 gpt-image-2.5-flare 和 gpt-image-2.5-sunburst 两个模型 ID。它可以根据自然语言提示生成图像，也支持对已有图片做指令式改图、风格迁移、内容扩展和细节优化。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;GPT Image 2.5 在 TokenPAPA 上多少钱？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;gpt-image-2.5-flare 和 gpt-image-2.5-sunburst 均为每 1M 输入 token 4.65 美元、每 1M 输出 token 28 美元。相比 gpt-image-2 的 5.3846 / 32.3 美元，输入便宜约 13.6%，输出便宜约 13.3%。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;flare 和 sunburst 有什么区别？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;在 TokenPAPA 上两者定价完全相同、可用套餐相同、官方能力描述也相同。应当把它们看作同一代模型的两个检查点，用自己业务里的真实提示词做 A/B 测试来选，而不是假设存在官方公布的质量差异。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;调用 GPT Image 2.5 用哪个接口？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;使用 OpenAI 兼容的图片生成接口 POST https://api.tokenpapa.ai/v1/images/generations，不需要 /chat/completions，也不需要单独的 key。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;图像模型需要单独申请 API key 吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;不需要。TokenPAPA 的对话、向量和图像模型共用一个 key、一个 base URL 和一个余额，图片用量在同一账户计费。&quot;}}]}" />
+
+# GPT Image 2.5 上线 TokenPAPA：flare 与 sunburst 价格对比和调用指南
+
+**GPT Image 2.5 已以两个模型 ID 上线 TokenPAPA：`gpt-image-2.5-flare` 和 `gpt-image-2.5-sunburst`。两者统一计费为每 1M 输入 token $4.65、每 1M 输出 token $28，走同一个 OpenAI 兼容图片接口，用的还是你现有的那个 API key。**
+
+相比上一代 `gpt-image-2`（1M 输入 $5.3846、1M 输出 $32.3），价格低约 13%。如果图像生成在你的产品里已经是一项看得见的成本，这个差价值得一次迁移评估。
+
+下面把四件事说清楚：这两个 ID 到底是什么、差价到底省在哪、调用端点与可运行代码、以及在不看营销表格的前提下怎么在 flare 和 sunburst 之间做选择。
+
+> **一句话版本**：GPT Image 2.5 是提示词驱动的图像**生成 + 编辑**模型，公开能力点集中在语义理解、复杂指令执行、文字渲染、空间关系和创意表现。TokenPAPA 上两个变体均为 **$4.65 输入 / $28 输出（每 1M token）**，**默认分组及 Starter / Pro / Enterprise 套餐均可调用**，端点是 **`POST /v1/images/generations`**，现有 key 直接可用。
+
+---
+
+## 两个变体速览
+
+| 模型 ID | 输入 / 1M | 输出 / 1M | 缓存输入 | 端点 | 可用套餐 |
+|---|---|---|---|---|---|
+| `gpt-image-2.5-flare` | **$4.65** | **$28** | — | OpenAI 兼容 | 默认 / Starter / Pro / Enterprise |
+| `gpt-image-2.5-sunburst` | **$4.65** | **$28** | — | OpenAI 兼容 | 默认 / Starter / Pro / Enterprise |
+
+两行完全一样。这不是复制粘贴错误——在 TokenPAPA 上这两个变体的定价和可用性确实一致。
+
+### 那 flare 和 sunburst 到底差在哪？
+
+实话实说：**TokenPAPA 上没有任何已公布差异。** 同价、同套餐、同能力描述、同端点。它们更像同一代模型的两个检查点（release candidate），这在图像模型上很常见。
+
+所以正确的选法是实测，而不是看表格：
+
+1. 拿 10–20 条**你自己业务里真实会用到**的提示词（商品图、UI 稿、博客头图、含文字的海报）。
+2. 在相同尺寸、相同质量参数下用两个 ID 各跑一遍。
+3. 按你真正在意的维度打分：文字是否可读、负面约束是否遵守、手部和排版是否崩、改图保真度如何。
+4. 把胜出的当默认，长尾流量路由给另一个。
+
+如果只想先选一个：从 `gpt-image-2.5-flare` 开始，改回 `sunburst` 只需换一个字符串。
+
+## GPT Image 2.5 与 gpt-image-2 的价格差
+
+| 模型 | 输入 / 1M | 输出 / 1M | 输入降幅 | 输出降幅 |
+|---|---|---|---|---|
+| `gpt-image-2` | $5.3846 | $32.3 | — | — |
+| `gpt-image-2.5-flare` | $4.65 | $28 | **−13.6%** | **−13.3%** |
+| `gpt-image-2.5-sunburst` | $4.65 | $28 | **−13.6%** | **−13.3%** |
+
+两个值得注意的点：
+
+- **降幅基本对称。** 常见做法是只降输入侧，而图像生成的成本主要由输出侧决定，那种降价的真实体感会大打折扣。这次两边都降了，所以无论你的提示词长短，省的钱都能落到账单上。
+- **图像任务以输出 token 为主。** 提示词很短，贵的是渲染出来的图。降在主导项上的 13.3%，才是真正体现到账单上的那个数字。
+
+### 可以直接套用的成本公式
+
+这里按 token 计费，不是按张数计费，所以账单是：
+
+```
+cost = (input_tokens  × 4.65
+      + output_tokens × 28.00) / 1,000,000
+```
+
+`gpt-image-2` 用 `5.3846` 和 `32.30` 代入。从控制台导出一周真实用量，两套系数各算一遍，就是你这个流量规模下的月度差额——不需要假设"一张图多少 token"。
+
+## GPT Image 2.5 的能力边界
+
+公开能力点里，能从上一代看到进步的地方是：
+
+- **语义理解**——理解提示词的*意图*而不只是名词，多子句的需求不用再靠反复改写提示词硬凑。
+- **复杂指令执行**——一次请求里同时满足主体、构图、配色、风格、排除项等多个约束，而不是生成十次挑一张。
+- **文字渲染**——图像模型历史上最弱的一环。这一项能直接决定海报、UI 稿、社媒卡片能不能省掉后置合成步骤。
+- **空间关系**——物体之间的相对位置。这是"一只猫和一张沙发"与"一只猫趴在绿色沙发的左扶手上"的差别。
+- **创意表现**——风格跨度，决定了一张模板能不能撑完一整个内容日历。
+
+对产品团队更关键的是：它不只做生成，还支持**对已有图片的 AI 编辑**——指令式修图、风格迁移、内容扩展（outpainting）、细节优化。也就是说"生成"和"修图"两条链路可以共用一个模型 ID。
+
+## 怎么调用
+
+图像模型走 OpenAI 兼容的**图片**端点，不是 `/chat/completions`。同一个 key，路径不同。
+
+### curl
+
+```bash
+TOKENPAPA_API_KEY="sk-..."
+
+curl https://api.tokenpapa.ai/v1/images/generations \
+  --oauth2-bearer "$TOKENPAPA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2.5-flare",
+    "prompt": "哑光黑色半自动咖啡机放在水泥台面上，清晨柔和窗光，杂志级产品摄影，画面无文字",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "url"
+  }'
+```
+
+### Python（官方 OpenAI SDK，无需魔改）
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="sk-...",
+    base_url="https://api.tokenpapa.ai/v1",
+)
+
+img = client.images.generate(
+    model="gpt-image-2.5-flare",   # 或 "gpt-image-2.5-sunburst"
+    prompt="哑光黑色半自动咖啡机放在水泥台面上，清晨柔和窗光，画面无文字",
+    size="1024x1024",
+    n=1,
+)
+
+print(img.data[0].url)
+```
+
+### Node.js
+
+```js
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: process.env.TOKENPAPA_API_KEY,
+  baseURL: "https://api.tokenpapa.ai/v1",
+});
+
+const img = await client.images.generate({
+  model: "gpt-image-2.5-sunburst",
+  prompt: "哑光黑色半自动咖啡机放在水泥台面上，清晨柔和窗光，画面无文字",
+  size: "1024x1024",
+  n: 1,
+});
+```
+
+和官方示例相比，唯一的变化是 `base_url`。不需要代理中间层、不需要厂商专用客户端、不需要响应格式转换。
+
+## 从 gpt-image-2 或 dall-e 迁移
+
+因为走的是 OpenAI 图片 schema，迁移就是一个字符串的改动：
+
+```diff
+- "model": "gpt-image-2"
++ "model": "gpt-image-2.5-flare"
+```
+
+请求体其他部分不用动，重试逻辑、存储链路、审核步骤照常工作，key 也不用轮换。
+
+两个实操提醒：
+
+1. **不要盲迁。** 固定一组基准提示词，新旧两个 ID 各跑一遍，并排观察一周再切。图像模型的退化常常出现在某一类特定提示上，而不是总体质量。
+2. **路由，不要替换。** 如果某类提示词在旧模型上更稳，就留着。TokenPAPA 上两个 ID 同 key、同余额随时可调，按提示词类别做一张路由表，成本只是一个字典查表。
+
+## 什么时候不该选它
+
+说清楚边界才有用：
+
+- **需要像素级确定性输出**——任何生成式图像模型都会漂移，这类需求用模板加合成。
+- **需要矢量输出**——这是栅格管线。
+- **用量很小**——低频场景下 13% 是噪声，重新验证提示词的工时比 token 钱贵。等图像支出成为账单上看得见的一项再迁。
+- **必须本地部署或离线推理**——这是托管 API。
+
+## 一个 key 的价值
+
+这次上新之所以是个"顺手就做了"的决定而不是一个项目，原因在于：TokenPAPA 的图像模型和对话模型共用**同一个 base URL、同一个 API key、同一个余额**。没有独立的媒体账户、没有额外充值、没有第二套限流预算。已经在调 `deepseek-v4.1-flash`、`gpt-5.6-sol` 的应用，加一个图像功能不需要动任何账号配置。
+
+---
+
+## 常见问题
+
+### GPT Image 2.5 是什么？
+
+是 TokenPAPA 上的图像生成与编辑模型，对应 `gpt-image-2.5-flare` 和 `gpt-image-2.5-sunburst`。它支持根据自然语言提示生成图像，也支持对已有图片做指令式编辑、风格迁移、内容扩展和细节优化。
+
+### GPT Image 2.5 在 TokenPAPA 上多少钱？
+
+**每 1M 输入 token $4.65、每 1M 输出 token $28**，两个变体同价。对比 `gpt-image-2` 的 $5.3846 / $32.3，**输入便宜约 13.6%、输出便宜约 13.3%**。
+
+### flare 和 sunburst 有什么区别？
+
+在 TokenPAPA 上两者同价、同套餐、同能力描述。应视为同一代模型的两个检查点，用自己的提示词做 A/B 测试来选，而不是依赖官方未公布的质量差异。
+
+### 用哪个接口调用？
+
+`POST https://api.tokenpapa.ai/v1/images/generations`，OpenAI 兼容图片端点，不是 `/chat/completions`。
+
+### 图像模型要单独申请 key 吗？
+
+不需要。一个 key 同时覆盖对话、向量与图像模型，图像用量在同一余额计费。
+
+### 默认分组能调用吗？
+
+可以。两个 ID 的可用分组都包含 `default / Starter / Pro / Enterprise`，默认分组的 key 直接可调。
+
+---
+
+## 开始使用
+
+两个 GPT Image 2.5 变体都已上线。实时价格见 [https://tokenpapa.ai/pricing](https://tokenpapa.ai/pricing)，在 [https://tokenpapa.ai/keys](https://tokenpapa.ai/keys) 创建或复用 key，然后用你对话代码里已有的凭据调用 `/v1/images/generations`。
+
+*最后更新 2026-11-09。价格与套餐可用性已对照 TokenPAPA 定价数据核验。两个变体的定价与能力描述完全一致，本文不宣称任何 TokenPAPA 未公布的质量差异。*
