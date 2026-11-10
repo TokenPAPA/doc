@@ -1,0 +1,271 @@
+---
+title: "Claude 5.5 价格全解析：Sonnet 5.5 / Opus 5.5 / Haiku 5.5 每百万 token 多少钱"
+description: "Sonnet 5.5 是 $1.86/$9.30 每百万 token，Opus 5.5 恰好是它的 2 倍。TokenPAPA 上 11 个 Claude 模型的实测价格、单任务成本算例与选型规则。"
+date: 2026-11-11
+authors: [tokenpapa]
+category: "价格对比"
+keywords: ["claude sonnet 5.5 价格", "claude opus 5.5 多少钱", "claude haiku 5.5 成本", "claude 5.5 每百万 token", "Anthropic API 价格 2026", "claude sonnet 5.5 对比 opus 5.5", "claude API 单任务成本", "claude 提示缓存价格", "claude messages 接口", "tokenpapa claude 价格"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-11-11 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;Claude 5.5 价格全解析：Sonnet 5.5 / Opus 5.5 / Haiku 5.5 每百万 token 多少钱&quot;,&quot;description&quot;:&quot;Claude Sonnet 5.5 每百万输入 token $1.86、输出 $9.30；Claude Opus 5.5 为 $3.72 与 $18.60，恰好是 Sonnet 的两倍。TokenPAPA 上 11 个 Claude 模型的实测价格、单任务成本算例与选型规则。&quot;,&quot;datePublished&quot;:&quot;2026-11-11&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Claude Sonnet 5.5 多少钱？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;在 TokenPAPA 上 claude-sonnet-5-5 每百万输入 token 收 $1.86，每百万输出 token 收 $9.30，缓存输入每百万 $0.10。相比 claude-sonnet-4-6 的 $3.20/$16.00 便宜 41.9%，与 gpt-6.1-sol 完全同价。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Claude Opus 5.5 多少钱？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;claude-opus-5-5 每百万输入 token $3.72，输出 token $18.60，缓存输入 $0.20。输入与输出都恰好是 claude-sonnet-5-5 的 2 倍，比 claude-opus-4-6 便宜 30.3%。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Opus 5.5 值不值得付 Sonnet 5.5 两倍的价钱？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;只有当超过三分之一的请求确实需要升级时才值得。常态走 Sonnet 5.5 记 1 个单位，升级一次记 3 个单位（失败的尝试加 Opus 调用），全程用 Opus 记 2 个单位。升级率低于 33% 时路由更省，高于 33% 时直接用 Opus 更省。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Claude 5.5 支持 Anthropic Messages 原生格式吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;支持。TokenPAPA 上每个 Claude 模型都同时标注 anthropic 与 openai 两种接口类型，既可以带 anthropic-version 头调用 POST /v1/messages，也可以用同一个 Key 走 OpenAI 兼容的 chat completions 接口，价格完全相同。&quot;}}]}" />
+
+# Claude 5.5 价格全解析：Sonnet 5.5 / Opus 5.5 / Haiku 5.5 每百万 token 多少钱
+
+**Claude Sonnet 5.5 每百万输入 token 收 $1.86，输出收 $9.30。Claude Opus 5.5 是 $3.72 与 $18.60 —— 输入输出都恰好是 Sonnet 的两倍。两者都已在 TokenPAPA 上线，都支持 Anthropic 原生 Messages 格式，而且都比它们取代的上一代更便宜。**
+
+最后一句才是反常的地方。新旗舰通常比它替换掉的旧旗舰更贵，这一代反过来了：Sonnet 5.5 比 Sonnet 4.6 **便宜 41.9%**，Opus 5.5 比 Opus 4.6 **便宜 30.3%**，而且输入和输出的降幅比例完全一致。接口没有任何变化来"换"这个折扣 —— 同样的端点、同样的请求结构、同样的 Key。
+
+> **2026-11-11 实测**：价格取自 TokenPAPA 实时定价数据（`/api/pricing`，85 个模型条目）。以下所有金额均为「每百万 token / 美元」。标注为假设的地方就是假设，不当成官方数字。
+
+---
+
+## TokenPAPA 上全部 11 个 Claude 模型的价格
+
+| 模型 ID | 输入 / 1M | 输出 / 1M | 缓存输入 / 1M | 接口类型 |
+|---|---:|---:|---:|---|
+| `claude-haiku-5-5` | $0.01 | $0.50 | $0.01 | anthropic, openai |
+| **`claude-sonnet-5-5`** | **$1.86** | **$9.30** | **$0.10** | anthropic, openai |
+| `claude-sonnet-5` | $2.00 | $9.60 | $0.20 | anthropic, openai |
+| `claude-sonnet-4-6` | $3.20 | $16.00 | $0.32 | anthropic, openai |
+| **`claude-opus-5-5`** | **$3.72** | **$18.60** | **$0.20** | anthropic, openai |
+| `claude-opus-5` | $4.65 | $23.25 | $0.50 | anthropic, openai |
+| `claude-opus-4-8` | $4.78 | $23.90 | $0.478 | anthropic, openai |
+| `claude-opus-4-7` | $4.78 | $23.90 | $0.478 | anthropic, openai |
+| `claude-opus-4-6` | $5.34 | $26.70 | $0.534 | anthropic, openai |
+| `claude-fable-5` | $9.562 | $47.812 | $0.956 | anthropic, openai |
+| `claude-fable-5-1` | $9.60 | $47.80 | $0.240 | anthropic, openai |
+
+这张表里真正有用的不是某一行，而是四条规律：
+
+**两个 5.5 模型的输出都恰好是输入的 5 倍。** $9.30 ÷ $1.86 = 5.00，$18.60 ÷ $3.72 = 5.00。做任何成本估算时，输出 token 要按 5 倍权重算，不能和输入等权。
+
+**Opus 5.5 恰好是 Sonnet 5.5 的 2 倍。** 不是「大约」，两个方向都整除得到 2.00。没有阶梯价、没有折扣曲线能让这个比值变掉 —— 所以「选 Sonnet 还是 Opus」就是一个纯粹的「Opus 能救回多少 Sonnet 失败的请求」的问题。
+
+**Sonnet 5.5 与 `gpt-6.1-sol` 完全同价。** 都是 $1.86 / $9.30，缓存输入都是 $0.10。两个不同厂商的旗舰级模型落在同一个价格点，成本这条轴打平了，只剩质量能拉开差距。
+
+**Fable 5.1 与 Fable 5 token 同价，但缓存不同价。** 输入差 0.4%（$9.60 对 $9.562），缓存输入却是 $0.240 对 $0.956 —— 5.1 便宜四倍。如果你的系统提示或代码前缀是固定的，这一项的收益比标价差大得多。
+
+## 一次 Claude 5.5 任务到底花多少钱？
+
+每百万 token 的单价很难直觉化。换成每次调用的成本，用三种真实工作负载：
+
+- **对话一轮**：输入 1,200 token（系统提示 + 短历史），输出 300 token
+- **单次 PR 代码审查**：输入 12,000 token（diff + 上下文文件），输出 1,500 token
+- **Agent 单步**：输入 60,000 token（大工作上下文），输出 2,000 token
+
+| 模型 | 一轮对话 | 一次 PR 审查 | Agent 单步 |
+|---|---:|---:|---:|
+| `claude-haiku-5-5` | $0.000162 | $0.000870 | $0.001600 |
+| **`claude-sonnet-5-5`** | **$0.00502** | **$0.03627** | **$0.13020** |
+| **`claude-opus-5-5`** | **$0.01004** | **$0.07254** | **$0.26040** |
+| `claude-sonnet-4-6` | $0.00864 | $0.06240 | $0.22400 |
+| `claude-opus-4-6` | $0.014418 | $0.104130 | $0.373800 |
+
+按「PR 审查」这个形态、每天 1,000 次调用算：
+
+| 模型 | 单次 | 每天 | 每月 |
+|---|---:|---:|---:|
+| `claude-sonnet-5-5` | $0.03627 | $36.27 | ~$1,088 |
+| `claude-opus-5-5` | $0.07254 | $72.54 | ~$2,176 |
+| `claude-sonnet-4-6` | $0.06240 | $62.40 | ~$1,872 |
+| `claude-opus-4-6` | $0.10413 | $104.13 | ~$3,124 |
+
+结论很直接：同一个 PR 审查负载从 `claude-opus-4-6` 换到 `claude-opus-5-5`，月账单从约 $3,124 掉到约 $2,176，**省 30%，同档次，不改一行代码**。而如果你现在守着 Opus 4.6 是因为上一代觉得 Sonnet 不够用，值得重测一次 —— `claude-sonnet-5-5` 跑同样的 PR 审查只要 **$1,088/月，比 Opus 4.6 省 65%**。
+
+## Opus 5.5 值不值 Sonnet 5.5 两倍的价钱？
+
+这是唯一需要真正做决定的问题，而 2 倍这个比值让它变成算术题而不是感觉题。
+
+以「一次 Sonnet 调用」为 1 个单位 S：
+
+- **全程用 Opus**：每个请求 2S
+- **路由**：每个请求 1S；比例 *p* 的请求校验失败要升级，升级成本是 S（白跑的尝试）+ 2S（Opus 重试）= 3S
+
+令两者相等：`1 + 3p = 2`，得 **p = 1/3**。
+
+| 升级率 | 全程 Opus | 路由（先 Sonnet） | 谁更省 |
+|---|---:|---:|---|
+| 10% | 2.00S | 1.30S | 路由，省 35% |
+| 20% | 2.00S | 1.60S | 路由，省 20% |
+| **33%** | 2.00S | 2.00S | 打平 |
+| 50% | 2.00S | 2.50S | Opus，省 20% |
+| 80% | 2.00S | 3.40S | Opus，省 41% |
+
+> **关键结论**：因为 Opus 5.5 恰好是 Sonnet 5.5 的两倍价，只要需要升级的请求低于三分之一，先跑 Sonnet、失败再升级就比直接用 Opus 便宜。
+
+这张表藏了两个坑，别忽略：
+
+1. **升级不只有 token 成本，还有延迟成本。** 失败的请求要跑两轮往返。交互式对话里用户能感觉到，批处理任务里感觉不到。
+2. **升级需要可判定的校验器。** 你不能靠「模型好像没把握」来路由，得有确定性检查 —— JSON schema 校验、跑测试、diff 能不能干净应用、数值断言。没有校验器，「33% 阈值」本身就没法测量。
+
+没有校验器的时候，更省事的做法是选定一个模型然后别再优化：吞吐优先选 Sonnet 5.5，正确性优先选 Opus 5.5。
+
+## 4.x 到 5.5 到底变了什么？
+
+两代都有降幅，且输入输出的降幅比例一致，说明这是结构性降价，而不是只砍输入价的促销。
+
+| 对比 | 输入变化 | 输出变化 | 比值 |
+|---|---|---|---|
+| `claude-sonnet-4-6` → `claude-sonnet-5-5` | $3.20 → $1.86 | $16.00 → $9.30 | 0.581（降 41.9%） |
+| `claude-opus-4-6` → `claude-opus-5-5` | $5.34 → $3.72 | $26.70 → $18.60 | 0.697（降 30.3%） |
+| `claude-sonnet-5` → `claude-sonnet-5-5` | $2.00 → $1.86 | $9.60 → $9.30 | 0.930（降 7.0%） |
+| `claude-opus-5` → `claude-opus-5-5` | $4.65 → $3.72 | $23.25 → $18.60 | 0.800（降 20.0%） |
+
+已经在用第 5 代的人看后两行就够了：`claude-sonnet-5` 升到 5.5 是 7% 的折扣，`claude-opus-5` 升到 5.5 是 20% 的折扣，都不需要改请求结构 —— 同一个端点、同样的参数、同一个 Key，只换 `model` 字符串。
+
+按 TokenPAPA 的模型元数据，5.5 定位在复杂 agentic 编码、长程推理和代码库级迁移，上下文窗口标注为 **100 万 token**。这也解释了为什么上面的「Agent 单步」用 60,000 输入 token 举例：在这个档位，决定账单的是输入量而不是输出量。
+
+## Claude 5.5 支持 Anthropic 原生 Messages 接口吗？
+
+支持，这点值得单独确认，因为它决定了迁移是「改个 URL」还是「重写客户端」。
+
+平台上每个 Claude 模型都同时标注 `anthropic` 与 `openai` 两种接口类型，也就是同一个 Key、同一个余额可以走两种请求格式：
+
+**Anthropic Messages 格式** —— `POST /v1/messages`，必须带 `anthropic-version` 头：
+
+```bash
+TOKENPAPA_API_KEY="sk-..."
+
+curl https://api.tokenpapa.ai/v1/messages \
+  --oauth2-bearer "$TOKENPAPA_API_KEY" \
+  -H "anthropic-version: 2023-06-01" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 1024,
+    "messages": [
+      {"role": "user", "content": "把这份迁移方案总结成 5 条要点：..."}
+    ]
+  }'
+```
+
+**OpenAI 兼容格式** —— `POST /v1/chat/completions`，不需要额外头：
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="sk-...",
+    base_url="https://api.tokenpapa.ai/v1",
+)
+
+resp = client.chat.completions.create(
+    model="claude-sonnet-5-5",       # 或 "claude-opus-5-5"
+    messages=[{"role": "user", "content": "审查这个 diff 有没有竞态条件：..."}],
+    max_tokens=1500,
+)
+
+print(resp.choices[0].message.content)
+print(resp.usage)                    # 输入/输出 token 数，用来算钱
+```
+
+两条路走的是同一批模型、同一个价格。实用规则：**你现在的 SDK 说什么格式就用什么格式**。用 Anthropic SDK 就走 `/v1/messages`，用 OpenAI SDK 就走 `/v1/chat/completions`。为了省钱换格式没有意义 —— 两种格式之间没有价差。
+
+> **关键结论**：TokenPAPA 上 11 个 Claude 模型全部支持 Anthropic 原生 Messages 接口和 OpenAI 兼容接口，迁移时不需要换客户端库，只需要换 base URL 和模型名。
+
+## 提示缓存能省多少？
+
+缓存输入是 Claude 价格真正拉开差距的地方，5.5 这一代在降低基础价的同时保留了折扣力度。
+
+| 模型 | 缓存输入 / 1M | 占输入价比例 |
+|---|---:|---:|
+| `claude-sonnet-5-5` | $0.10 | 约 5.4% |
+| `claude-opus-5-5` | $0.20 | 约 5.4% |
+| `claude-sonnet-4-6` | $0.32 | 10% |
+| `claude-opus-4-6` | $0.534 | 10% |
+
+把 PR 审查负载按 **80% 输入命中缓存** 重算：
+
+| 模型 | 不缓存 | 80% 缓存 | 省下 |
+|---|---:|---:|---:|
+| `claude-sonnet-5-5` | $1,088/月 | ~$581/月 | 46.6% |
+| `claude-opus-5-5` | $2,176/月 | ~$1,162/月 | 46.6% |
+| `claude-sonnet-4-6` | $1,872/月 | ~$1,043/月 | 44.3% |
+| `claude-opus-4-6` | $3,124/月 | ~$1,740/月 | 44.3% |
+
+两个前提决定你能不能真拿到这个数：
+
+- **缓存只对稳定前缀有效。** 位置不变的系统提示、固定的文档语料、没改过的代码仓开头。如果每次调用都把提示重新拼一遍，缓存永远不命中，46.6% 就是纸面数字。
+- **提高命中率比换模型更有效。** 80% 命中时，`claude-sonnet-4-6`（$1,043/月）已经接近不缓存的 `claude-sonnet-5-5`（$1,088/月）。看起来是一个决策，其实是两个杠杆。
+
+## 各类任务该路由到哪个 Claude？
+
+| 任务 | 模型 | 理由 |
+|---|---|---|
+| 分类、打标、路由分发 | `claude-haiku-5-5` | 标价最低档，输出短 |
+| 对话与客服回复 | `claude-sonnet-5-5` | 输出是输入 5 倍，短答便宜 |
+| RAG 答案合成 | `claude-sonnet-5-5` | 大输入小输出，这类形态最划算 |
+| PR 审查、代码讲解 | `claude-sonnet-5-5` | 12k/1.5k 形态下单次 $0.036 |
+| 代码库级迁移方案 | `claude-opus-5-5` | 长程规划，方案错一次的代价远高于 token |
+| 数小时自主 Agent 任务 | `claude-opus-5-5` / `claude-fable-5-1` | 和失败重跑相比 token 不算钱 |
+| 有超大固定前缀的负载 | `claude-fable-5-1` | 缓存输入 $0.240，对比 `claude-fable-5` 的 $0.956 |
+| 已在 4.6 上跑通的一切 | `claude-sonnet-5-5` | 请求结构不变，费率低 41.9% |
+
+## 有一个数字需要你自己再确认
+
+`claude-haiku-5-5` 标价是 **输入 $0.01 / 输出 $0.50** 每百万 token。这是 50:1 的输出输入比 —— 平台上其他 Claude 模型都在 5:1 或 10:1；同时它的缓存输入价等于输入价（完全没有缓存折扣）。
+
+这两点都比较反常，所以不建议在没核对实时页面的情况下按它规划量级。这个费率是平台今天发布的数字，便宜档位本身合理 —— 但 50:1 在任何成本模型里的行为和 5:1 完全不同，一旦标价调整，按它做的预算就会直接失效。给负载定规模之前，先去 [https://tokenpapa.ai/pricing](https://tokenpapa.ai/pricing) 确认。用法上建议只接短输出任务，这种情况下哪怕输入价差 10 倍也只是几分钱的事。
+
+## 这份价格表不能告诉你的事
+
+说清楚，因为「哪个更便宜」单独问是错的：
+
+- **token 单价不等于「解决一个任务」的成本。** 需要两次尝试的模型，单价减半也不便宜。要按「成功产出」计价，不是按调用计价。
+- **本文不含 Sonnet 5.5 与 Opus 5.5 的质量差异。** 我核的是价格，不是跑分。别把 2 倍价格读成 2 倍能力。
+- **推理 token 按输出计价。** 如果这类模型产生内部推理，它落在输出计数里，按 5 倍于输入的费率计费。预算要看 `usage.total_tokens`，不是看答案长度。
+- **缓存价假设命中。** 写缓存和未命中是不同计费。46.6% 是 80% 命中率场景，不是承诺。
+- **托管 API，不能自部署。** 合规场景的数据处理影响照常适用，见 [隐私政策](https://tokenpapa.ai/privacy-policy)。
+
+---
+
+## 常见问题
+
+### Claude Sonnet 5.5 多少钱？
+
+**每百万输入 token $1.86，输出 $9.30，缓存输入 $0.10。** 相比 `claude-sonnet-4-6` 的 $3.20 / $16.00，输入输出都便宜 41.9%，与 `gpt-6.1-sol` 完全同价。
+
+### Claude Opus 5.5 多少钱？
+
+**每百万输入 $3.72，输出 $18.60，缓存输入 $0.20。** 输入输出都恰好是 `claude-sonnet-5-5` 的 2 倍，比 `claude-opus-4-6` 便宜 30.3%。
+
+### Opus 5.5 值不值得付 Sonnet 5.5 两倍的价钱？
+
+只有当 **超过三分之一的请求确实需要升级** 时才值得。常态走 Sonnet 记 1 个单位，升级一次记 3 个单位（失败的尝试 + Opus 调用），全程 Opus 记 2 个单位。升级率低于 33% 时路由更省 —— 前提是你有确定性的校验器能判定「失败」。
+
+### Claude 5.5 支持 Anthropic Messages 原生格式吗？
+
+**支持。** 每个 Claude 模型都同时标注 `anthropic` 与 `openai` 两种接口类型。带 `anthropic-version` 头调 `POST /v1/messages`，或走 OpenAI 兼容的 chat completions —— 同一个 Key、同一个价格、没有格式差价。
+
+### Claude Haiku 5.5 是什么价？
+
+**输入 $0.01 / 输出 $0.50** 每百万 token（2026-11-11 标价），50:1 输出比且无缓存折扣。按它规划负载前请先去定价页确认当前费率。
+
+### 换个 Key 才能用 Claude 5.5 吗？
+
+**不需要。** 所有 Claude 模型都在 `default`、`Starter`、`Pro`、`Enterprise` 分组里，你现有的 Key、base URL、余额都能直接用，只改 `model` 字符串。
+
+### 想同时对比 Claude 和其他厂商的价？
+
+[定价页](https://tokenpapa.ai/pricing) 有全平台 85 个模型条目的实时表；按档位归类的版本见 [LLM API 价格速查表](https://doc.tokenpapa.ai/zh/docs/blog/llm-api-pricing-cheat-sheet-2026)。跨厂商对比可以看 [GPT-6.1 Sol 与 GPT-6 Astra](https://doc.tokenpapa.ai/zh/docs/blog/gpt-6-1-sol-vs-gpt-6-astra) 和 [DeepSeek V4 与 GPT-5.6](https://doc.tokenpapa.ai/zh/docs/blog/deepseek-v4-vs-gpt-5-6)。
+
+---
+
+## 开始使用
+
+两个 5.5 模型已经上线，和整个目录共用一个 Key。实时价格：[https://tokenpapa.ai/pricing](https://tokenpapa.ai/pricing)。取 Key 去 [https://tokenpapa.ai/keys](https://tokenpapa.ai/keys)，没账号先在 [https://tokenpapa.ai/register](https://tokenpapa.ai/register) 注册，然后把客户端指向 `https://api.tokenpapa.ai/v1`，改一个字符串就行：
+
+```python
+model="claude-sonnet-5-5"   # 原来是 claude-sonnet-4-6
+```
+
+如果你算的是编码负载而不是对话负载，[代码审查成本拆解](https://doc.tokenpapa.ai/zh/docs/blog/best-llm-for-code-review-2026) 用同一套算术横向对比了 DeepSeek、Qwen、Kimi 和 Claude。
+
+*最后更新 2026-11-11。所有价格均取自当日 TokenPAPA 实时定价数据（85 个模型条目），比值与月度总额是对这些公开费率的算术运算。单任务 token 数是明示的假设，不是实测基准。本文刻意不含质量结论 —— 这是价格参考，不是评测。*

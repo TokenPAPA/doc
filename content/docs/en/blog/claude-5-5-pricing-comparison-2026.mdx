@@ -1,0 +1,279 @@
+---
+title: "Claude 5.5 Pricing: Sonnet 5.5 vs Opus 5.5 vs Haiku 5.5"
+description: "Sonnet 5.5 costs $1.86/$9.30 per 1M tokens and Opus 5.5 is exactly 2x that. Verified prices for all 11 Claude IDs on TokenPAPA, plus per-task cost math."
+date: 2026-11-11
+authors: [tokenpapa]
+category: "Pricing"
+keywords: ["claude sonnet 5.5 pricing", "claude opus 5.5 price", "claude haiku 5.5 cost", "claude 5.5 per 1M tokens", "anthropic claude api pricing 2026", "claude sonnet 5.5 vs opus 5.5", "claude api cost per task", "claude prompt caching price", "claude messages api endpoint", "tokenpapa claude pricing"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-11-11 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;Claude 5.5 Pricing: Sonnet 5.5 vs Opus 5.5 vs Haiku 5.5&quot;,&quot;description&quot;:&quot;Claude Sonnet 5.5 costs $1.86 per 1M input and $9.30 per 1M output tokens. Claude Opus 5.5 costs $3.72 and $18.60, exactly twice Sonnet 5.5. Verified pricing for all 11 Claude model IDs on TokenPAPA, with per-task cost math and routing rules.&quot;,&quot;datePublished&quot;:&quot;2026-11-11&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How much does Claude Sonnet 5.5 cost?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;On TokenPAPA, claude-sonnet-5-5 costs $1.86 per 1M input tokens, $9.30 per 1M output tokens, and $0.10 per 1M cached input tokens. That is 41.9 percent cheaper than claude-sonnet-4-6 on both input and output, and identical to the price of gpt-6.1-sol.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How much does Claude Opus 5.5 cost?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;claude-opus-5-5 costs $3.72 per 1M input tokens, $18.60 per 1M output tokens, and $0.20 per 1M cached input tokens. It is exactly 2x claude-sonnet-5-5 on both directions and 30.3 percent cheaper than claude-opus-4-6.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Is Opus 5.5 worth twice the price of Sonnet 5.5?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Only if more than one third of your requests genuinely need escalation. Routing normally to Sonnet 5.5 costs 1 unit, and escalating a request costs 3 units because you pay for the failed attempt plus the Opus call. Always using Opus costs 2 units. Routing wins below a 33 percent escalation rate and loses above it.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Do Claude 5.5 models work with the Anthropic Messages API format?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Yes. Every Claude model ID on TokenPAPA lists both the anthropic and openai endpoint types, so you can call POST /v1/messages with an anthropic-version header, or use the OpenAI-compatible chat completions route with the same key.&quot;}}]}" />
+
+# Claude 5.5 Pricing: Sonnet 5.5 vs Opus 5.5 vs Haiku 5.5
+
+**Claude Sonnet 5.5 costs $1.86 per 1M input tokens and $9.30 per 1M output tokens. Claude Opus 5.5 costs $3.72 and $18.60 — exactly twice Sonnet on both sides. Both are live on TokenPAPA, both accept the Anthropic Messages format, and both are cheaper than the models they replace.**
+
+That last part is the unusual bit. New flagship generations usually cost more than the ones they displace. This one went the other way: Sonnet 5.5 is **41.9% cheaper** than Sonnet 4.6, and Opus 5.5 is **30.3% cheaper** than Opus 4.6, on identical ratios in both directions. Nothing in the API changed to earn that discount — same endpoints, same request shape, same key.
+
+This article is the pricing reference for that generation: every Claude ID on the platform, the per-task arithmetic, the break-even math for choosing between Sonnet and Opus, and the two request formats you can use.
+
+> **Verified on 2026-11-11** against TokenPAPA's live pricing data (`/api/pricing`, 85 model entries) and the published model metadata. Prices are per 1M tokens in USD. Where a figure is an assumption rather than a published price, it is labelled as one.
+
+---
+
+## Every Claude model on TokenPAPA, priced
+
+Eleven Claude IDs are live. Sorted by input price:
+
+| Model ID | Input / 1M | Output / 1M | Cached input / 1M | Endpoints |
+|---|---:|---:|---:|---|
+| `claude-haiku-5-5` | $0.01 | $0.50 | $0.01 | anthropic, openai |
+| **`claude-sonnet-5-5`** | **$1.86** | **$9.30** | **$0.10** | anthropic, openai |
+| `claude-sonnet-5` | $2.00 | $9.60 | $0.20 | anthropic, openai |
+| `claude-sonnet-4-6` | $3.20 | $16.00 | $0.32 | anthropic, openai |
+| **`claude-opus-5-5`** | **$3.72** | **$18.60** | **$0.20** | anthropic, openai |
+| `claude-opus-5` | $4.65 | $23.25 | $0.50 | anthropic, openai |
+| `claude-opus-4-8` | $4.78 | $23.90 | $0.478 | anthropic, openai |
+| `claude-opus-4-7` | $4.78 | $23.90 | $0.478 | anthropic, openai |
+| `claude-opus-4-6` | $5.34 | $26.70 | $0.534 | anthropic, openai |
+| `claude-fable-5` | $9.562 | $47.812 | $0.956 | anthropic, openai |
+| `claude-fable-5-1` | $9.60 | $47.80 | $0.240 | anthropic, openai |
+
+Four patterns fall out of that table, and they matter more than the individual rows:
+
+**Output costs exactly 5× input on both 5.5 models.** $9.30 ÷ $1.86 = 5.00. $18.60 ÷ $3.72 = 5.00. Any estimate you build should weight output tokens five times, not equally.
+
+**Opus 5.5 is exactly 2× Sonnet 5.5.** Not "roughly". Both directions divide cleanly by two. There is no volume tier, no discount curve, no cleverness that changes that ratio — which means the Sonnet-versus-Opus decision is a pure question of how often Opus succeeds where Sonnet fails.
+
+**Sonnet 5.5 is priced identically to `gpt-6.1-sol`.** Same $1.86 / $9.30, same $0.10 cached input. Two flagship-tier models from different vendors, one price point. If you were benchmarking OpenAI's new flagship against Anthropic's, the cost axis is now a tie and only quality differentiates.
+
+**Fable 5.1 and Fable 5 cost the same per token but not per cached token.** Input differs by 0.4% ($9.60 vs $9.562), yet cached input is $0.240 versus $0.956 — four times cheaper on 5.1. If your workload has a stable system prompt or a fixed codebase prefix, that gap is worth more than the headline rate.
+
+> **Key insight**: Claude Sonnet 5.5 at $1.86 per 1M input and $9.30 per 1M output is 41.9% cheaper than Claude Sonnet 4.6 ($3.20 / $16.00), and its cached input rate of $0.10 per 1M is the same as OpenAI's gpt-6.1-sol. Opus 5.5 is exactly twice those numbers.
+
+## How much does a Claude 5.5 task actually cost?
+
+Per-1M prices are hard to reason about. Here is the same data as per-call cost, using three request shapes that show up in real code:
+
+- **Chat turn** — 1,200 input tokens (system prompt + short history), 300 output tokens.
+- **PR review** — 12,000 input (diff + surrounding files), 1,500 output.
+- **Agent step** — 60,000 input (large working context), 2,000 output.
+
+| Model | Chat turn | PR review | Agent step |
+|---|---:|---:|---:|
+| `claude-haiku-5-5` | $0.000162 | $0.000870 | $0.001600 |
+| **`claude-sonnet-5-5`** | **$0.00502** | **$0.03627** | **$0.13020** |
+| **`claude-opus-5-5`** | **$0.01004** | **$0.07254** | **$0.26040** |
+| `claude-sonnet-4-6` | $0.00864 | $0.06240 | $0.22400 |
+| `claude-opus-4-6` | $0.014418 | $0.104130 | $0.373800 |
+
+At the PR-review shape and 1,000 calls per day:
+
+| Model | Per call | Per day | Per month |
+|---|---:|---:|---:|
+| `claude-sonnet-5-5` | $0.03627 | $36.27 | ~$1,088 |
+| `claude-opus-5-5` | $0.07254 | $72.54 | ~$2,176 |
+| `claude-sonnet-4-6` | $0.06240 | $62.40 | ~$1,872 |
+| `claude-opus-4-6` | $0.10413 | $104.13 | ~$3,124 |
+
+The migration story writes itself. Moving that workload from `claude-opus-4-6` to `claude-opus-5-5` cuts the monthly bill from about $3,124 to about $2,176 — **30% off, same tier, no code change**. Moving it from `claude-sonnet-4-6` to `claude-opus-5-5` costs more per call but buys a higher tier for 16% more than you were already paying for Sonnet.
+
+And if you are currently on Opus 4.6 because you assumed Sonnet was not good enough, re-test. `claude-sonnet-5-5` runs that same PR review for **$1,088/month — 65% less than Opus 4.6** and 42% less than the Sonnet you might have rejected a generation ago.
+
+## Is Opus 5.5 worth exactly 2× Sonnet 5.5?
+
+This is the only selection question that matters, and the 2× ratio makes it arithmetic rather than intuition.
+
+Model the two strategies in units of "one Sonnet call" (S):
+
+- **Always Opus**: every request costs 2S.
+- **Route**: every request costs 1S. A fraction *p* of requests fail validation and escalate, and an escalated request costs S (the failed attempt) + 2S (the Opus retry) = 3S.
+
+Setting the two equal: `1 + 3p = 2`, so **p = 1/3**.
+
+| Escalation rate | Always Opus | Route (Sonnet first) | Winner |
+|---|---:|---:|---|
+| 10% | 2.00S | 1.30S | Route, 35% cheaper |
+| 20% | 2.00S | 1.60S | Route, 20% cheaper |
+| **33%** | 2.00S | 2.00S | Tie |
+| 50% | 2.00S | 2.50S | Opus, 20% cheaper |
+| 80% | 2.00S | 3.40S | Opus, 41% cheaper |
+
+> **Key insight**: Because Opus 5.5 is exactly 2× Sonnet 5.5, routing to Sonnet first and escalating on failure is cheaper than always using Opus as long as fewer than one in three requests needs the escalation.
+
+Two things that table hides, and you should not ignore them:
+
+1. **Escalation has a latency cost, not just a token cost.** A routed request that fails then retries pays two round trips. For interactive chat that is user-visible. For batch jobs it is invisible.
+2. **Retry-on-failure requires a validator.** You cannot route on "the model seemed unsure". You need a deterministic check — a schema validation, a test suite, a diff that applies cleanly, a numeric assertion. If you do not have one, you are measuring vibes, and the 33% threshold is not measurable either.
+
+Where a validator does not exist, the cheaper move is usually to pick one model and stop optimizing. Pick Sonnet 5.5 for throughput, Opus 5.5 for correctness-critical work, and move on.
+
+## What changed between the 4.x generation and 5.5?
+
+Both new models cut price on identical ratios in both directions, which means the discount is structural, not a promotional tweak to the input side.
+
+| Comparison | Input change | Output change | Ratio |
+|---|---|---|---|
+| `claude-sonnet-4-6` → `claude-sonnet-5-5` | $3.20 → $1.86 | $16.00 → $9.30 | 0.581 (41.9% cut) |
+| `claude-opus-4-6` → `claude-opus-5-5` | $5.34 → $3.72 | $26.70 → $18.60 | 0.697 (30.3% cut) |
+| `claude-sonnet-5` → `claude-sonnet-5-5` | $2.00 → $1.86 | $9.60 → $9.30 | 0.930 (7.0% cut) |
+| `claude-opus-5` → `claude-opus-5-5` | $4.65 → $3.72 | $23.25 → $18.60 | 0.800 (20.0% cut) |
+
+The last two rows are the useful ones for anyone already on the 5 generation. Upgrading from `claude-sonnet-5` to `claude-sonnet-5-5` is a 7% discount; upgrading from `claude-opus-5` to `claude-opus-5-5` is a 20% discount. Neither requires a request change — same endpoint, same parameters, same key, a different `model` string.
+
+Per TokenPAPA's model metadata, the 5.5 models are positioned for complex agentic coding, long-horizon reasoning and codebase-scale migrations, and list a **1M-token context window**. That context ceiling is the reason the agent-step scenario above uses 60,000 input tokens rather than a small prompt: at this tier, input volume — not output — is what drives the invoice.
+
+## Do the 5.5 models speak the Anthropic Messages API?
+
+Yes, and this is worth checking explicitly because it is the difference between a drop-in migration and a rewrite.
+
+Every Claude ID on the platform lists **both** `anthropic` and `openai` endpoint types. That means two request formats against the same key and the same balance:
+
+**Anthropic Messages format** — `POST /v1/messages`, requires an `anthropic-version` header:
+
+```bash
+TOKENPAPA_API_KEY="sk-..."
+
+curl https://api.tokenpapa.ai/v1/messages \
+  --oauth2-bearer "$TOKENPAPA_API_KEY" \
+  -H "anthropic-version: 2023-06-01" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 1024,
+    "messages": [
+      {"role": "user", "content": "Summarise this migration plan in 5 bullets: ..."}
+    ]
+  }'
+```
+
+**OpenAI-compatible format** — `POST /v1/chat/completions`, no extra headers:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="sk-...",
+    base_url="https://api.tokenpapa.ai/v1",
+)
+
+resp = client.chat.completions.create(
+    model="claude-sonnet-5-5",       # or "claude-opus-5-5"
+    messages=[{"role": "user", "content": "Review this diff for race conditions: ..."}],
+    max_tokens=1500,
+)
+
+print(resp.choices[0].message.content)
+print(resp.usage)                    # input/output token counts for cost tracking
+```
+
+Both routes hit the same models at the same prices. The practical rule: keep whatever format your SDK already speaks. If you are on the Anthropic SDK, use `/v1/messages`; if you are on the OpenAI SDK, use `/v1/chat/completions`. Switching formats to save money does not work — there is no price difference between them.
+
+> **Key insight**: All 11 Claude model IDs on TokenPAPA support the native Anthropic Messages endpoint and the OpenAI-compatible endpoint under one key, so migrating from a direct Anthropic account does not require changing your client library — only your base URL and model string.
+
+## What does prompt caching change?
+
+Cached input is where Claude pricing gets materially cheaper, and the 5.5 generation kept the discount while cutting the base rate.
+
+| Model | Cached input / 1M | Cache ratio vs input |
+|---|---:|---:|
+| `claude-sonnet-5-5` | $0.10 | ~5.4% of input price |
+| `claude-opus-5-5` | $0.20 | ~5.4% of input price |
+| `claude-sonnet-4-6` | $0.32 | 10% of input price |
+| `claude-opus-4-6` | $0.534 | 10% of input price |
+
+Rerunning the PR-review workload with **80% of input served from cache**:
+
+| Model | No cache | 80% cached | Saving |
+|---|---:|---:|---:|
+| `claude-sonnet-5-5` | $1,088/mo | ~$581/mo | 46.6% |
+| `claude-opus-5-5` | $2,176/mo | ~$1,162/mo | 46.6% |
+| `claude-sonnet-4-6` | $1,872/mo | ~$1,043/mo | 44.3% |
+| `claude-opus-4-6` | $3,124/mo | ~$1,740/mo | 44.3% |
+
+Two caveats that decide whether you actually see these numbers:
+
+- **Caching only pays on a stable prefix.** A system prompt in the same position, a fixed document corpus, an unchanged repository preamble. If your prompt is rebuilt differently each call, the cache never hits and the 46.6% is fiction.
+- **Maximise the cached share, not the model choice.** At 80% cache hit rate, `claude-sonnet-4-6` ($1,043/mo) lands close to uncached `claude-sonnet-5-5` ($1,088/mo). Two levers that look like one decision.
+
+## Which Claude model should you route each workload to?
+
+| Workload | Model | Why |
+|---|---|---|
+| Classification, tagging, routing | `claude-haiku-5-5` | Cheapest listed tier; short outputs |
+| Chat and support replies | `claude-sonnet-5-5` | 5× output ratio keeps short answers cheap |
+| RAG answer synthesis | `claude-sonnet-5-5` | Large input, small output — input-heavy shapes favour it |
+| PR review, code explanation | `claude-sonnet-5-5` | $0.036 per review at the 12k/1.5k shape |
+| Codebase-scale migration planning | `claude-opus-5-5` | Long-horizon planning where a wrong plan is expensive |
+| Multi-hour autonomous agent runs | `claude-opus-5-5` or `claude-fable-5-1` | Escalating cost is trivial next to a failed run |
+| Workloads with huge cached prefixes | `claude-fable-5-1` | $0.240 cached input vs $0.956 on `claude-fable-5` |
+| Anything already working on 4.6 | `claude-sonnet-5-5` | Same request shape, 41.9% lower rate |
+
+## One number in this table needs confirmation
+
+`claude-haiku-5-5` is listed at **$0.01 input / $0.50 output** per 1M tokens. That is a 50:1 output-to-input ratio, where every other Claude ID on the platform sits at 5:1 or 10:1, and its cached-input rate equals its input rate (no caching discount at all).
+
+Both facts are unusual enough that you should not plan volume against them without checking the live page first. The rate is what the platform publishes today, and a cheap tier is plausible — but a 50:1 ratio behaves very differently from a 5:1 ratio in any cost model, and if the listing changes, a forecast built on it breaks. Confirm at [https://tokenpapa.ai/pricing](https://tokenpapa.ai/pricing) before you size a workload on it. Use it for short-output tasks, where even a 10× error in the input rate is fractions of a cent.
+
+## What this pricing does not tell you
+
+Being explicit, because "which is cheaper" is the wrong question on its own:
+
+- **Token price is not cost per solved task.** A model that needs two attempts is not cheaper at half the rate. Measure cost per *successful* outcome, not per call.
+- **Quality differences between Sonnet 5.5 and Opus 5.5 are not in this article.** I have verified prices, not benchmark scores. Do not read the 2× ratio as a 2× capability claim.
+- **Reasoning tokens are billed as output.** If these models emit internal reasoning, it lands in your output count at the output rate — five times the input rate. Budget on `usage.total_tokens`, not on the visible answer length.
+- **Cached pricing assumes a cache hit.** Cache writes and misses are billed differently. The 46.6% figure is an 80%-hit-rate scenario, not a guarantee.
+- **Hosted API, not self-hosting.** Standard data-handling implications apply for regulated workloads; see the [privacy policy](https://tokenpapa.ai/privacy-policy).
+
+---
+
+## FAQ
+
+### How much does Claude Sonnet 5.5 cost?
+
+**$1.86 per 1M input tokens, $9.30 per 1M output tokens, $0.10 per 1M cached input tokens.** That is 41.9% cheaper than `claude-sonnet-4-6` on both input and output, and identical to the price of `gpt-6.1-sol`.
+
+### How much does Claude Opus 5.5 cost?
+
+**$3.72 per 1M input, $18.60 per 1M output, $0.20 per 1M cached input.** Exactly 2× `claude-sonnet-5-5` in both directions, and 30.3% cheaper than `claude-opus-4-6`.
+
+### Is Opus 5.5 worth twice the price of Sonnet 5.5?
+
+Only if **more than one third of your requests genuinely need escalation**. Routing normally to Sonnet 5.5 costs 1 unit and escalating costs 3 units (the failed attempt plus the Opus call), against 2 units for always using Opus. Routing wins below a 33% escalation rate — and only if you have a deterministic validator to detect failure.
+
+### Do Claude 5.5 models work with the Anthropic Messages API format?
+
+**Yes.** Every Claude ID on TokenPAPA lists both `anthropic` and `openai` endpoint types. Use `POST /v1/messages` with an `anthropic-version` header, or the OpenAI-compatible chat completions route — same key, same prices, no format penalty.
+
+### What is Claude Haiku 5.5 priced at?
+
+**$0.01 per 1M input and $0.50 per 1M output** as listed on 2026-11-11 — a 50:1 output ratio with no caching discount. Verify the current rate on the pricing page before sizing a workload on it.
+
+### Do I need a new API key for the Claude 5.5 models?
+
+**No.** All Claude IDs are enabled on `default`, `Starter`, `Pro` and `Enterprise`, so your existing key, base URL and balance work as-is. Change the `model` string and nothing else.
+
+### Where can I compare Claude against other vendors at the same time?
+
+The [pricing page](https://tokenpapa.ai/pricing) carries the full live table across all 85 model entries on the platform, and the [pricing cheat sheet](https://doc.tokenpapa.ai/en/docs/blog/llm-api-pricing-cheat-sheet-2026) groups them by tier. For cross-vendor comparisons, see [GPT-6.1 Sol vs GPT-6 Astra](https://doc.tokenpapa.ai/en/docs/blog/gpt-6-1-sol-vs-gpt-6-astra) and [DeepSeek V4 vs GPT-5.6](https://doc.tokenpapa.ai/en/docs/blog/deepseek-v4-vs-gpt-5-6).
+
+---
+
+## Start
+
+Both 5.5 models are live now and share a key with the rest of the catalogue. Live pricing: [https://tokenpapa.ai/pricing](https://tokenpapa.ai/pricing). Get a key at [https://tokenpapa.ai/keys](https://tokenpapa.ai/keys), or create an account at [https://tokenpapa.ai/register](https://tokenpapa.ai/register) and point your client at `https://api.tokenpapa.ai/v1` — then change one string:
+
+```python
+model="claude-sonnet-5-5"   # was: claude-sonnet-4-6
+```
+
+If you are sizing a coding workload rather than a chat workload, the [code review cost breakdown](https://doc.tokenpapa.ai/en/docs/blog/best-llm-for-code-review-2026) works through the same arithmetic across DeepSeek, Qwen, Kimi and Claude.
+
+*Last updated 2026-11-11. All prices verified against TokenPAPA's live pricing data (85 model entries) on that date; ratios and monthly totals are arithmetic from those published rates. Per-task token counts are stated assumptions, not measured benchmarks. Quality claims are deliberately absent — this is a pricing reference, not an evaluation.*
