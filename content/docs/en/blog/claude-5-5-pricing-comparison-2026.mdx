@@ -216,11 +216,11 @@ Two caveats that decide whether you actually see these numbers:
 | Workloads with huge cached prefixes | `claude-fable-5-1` | $0.240 cached input vs $0.956 on `claude-fable-5` |
 | Anything already working on 4.6 | `claude-sonnet-5-5` | Same request shape, 41.9% lower rate |
 
-## One number in this table needs confirmation
+## Haiku 5.5: $0.01 / $0.50, and how to use it safely
 
-`claude-haiku-5-5` is listed at **$0.01 input / $0.50 output** per 1M tokens. That is a 50:1 output-to-input ratio, where every other Claude ID on the platform sits at 5:1 or 10:1, and its cached-input rate equals its input rate (no caching discount at all).
+`claude-haiku-5-5` is live at **$0.01 input / $0.50 output** per 1M tokens. The listing has been verified against the live pricing endpoint and re-confirmed on 2026-11-11 — the number is not a placeholder. That is ~186× cheaper on input than Sonnet 5.5 and ~18.6× cheaper on output, and its cached-input rate equals its input rate, so there is no separate caching discount.
 
-Both facts are unusual enough that you should not plan volume against them without checking the live page first. The rate is what the platform publishes today, and a cheap tier is plausible — but a 50:1 ratio behaves very differently from a 5:1 ratio in any cost model, and if the listing changes, a forecast built on it breaks. Confirm at [https://tokenpapa.ai/pricing](https://tokenpapa.ai/pricing) before you size a workload on it. Use it for short-output tasks, where even a 10× error in the input rate is fractions of a cent.
+Two things follow from that ratio. First, the 50:1 output-to-input ratio behaves very differently from the 5:1 ratio every other Claude ID on the platform uses: budget on **output** tokens, because an input-only estimate will badly understate the bill. Second, since caching buys nothing extra here, prompt caching is a Sonnet / Opus optimisation, not a Haiku one. Route high-volume, short-output work — classification, extraction, tagging, routing — to Haiku, and keep long-form generation on Sonnet 5.5.
 
 ## What this pricing does not tell you
 
