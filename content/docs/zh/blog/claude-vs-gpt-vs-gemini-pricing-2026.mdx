@@ -1,0 +1,273 @@
+---
+title: "Claude vs GPT vs Gemini 价格对比 2026：谁才是真正便宜的旗舰"
+description: "Claude Sonnet 5.5 与 GPT-6.1 Sol 同为 $1.86/$9.30 每百万 token，Gemini 没有一款停在这个价位。三家旗舰的真实成本测算、缓存折扣与分流规则。"
+date: 2026-11-13
+authors: [tokenpapa]
+category: "价格对比"
+keywords: ["claude vs gpt vs gemini 价格", "claude sonnet 5.5 多少钱", "gpt-6.1 sol 价格", "gemini 4 argon 价格", "2026 最便宜旗舰模型", "大模型 API 价格对比 2026", "claude 和 gpt 哪个便宜", "gemini API 价格 2026", "每百万 token 价格", "tokenpapa 价格"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-11-13 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;Claude vs GPT vs Gemini 价格对比 2026：谁才是真正便宜的旗舰&quot;,&quot;description&quot;:&quot;Claude Sonnet 5.5 与 GPT-6.1 Sol 价格完全相同，都是每百万输入 1.86 美元、每百万输出 9.30 美元。Gemini 没有一款模型停在这个价位。含三家旗舰价格表、单月成本测算、缓存折扣与分流规则。&quot;,&quot;datePublished&quot;:&quot;2026-11-13&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;2026 年 Claude 比 GPT 便宜吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;不便宜也不贵：两款当前旗舰定价完全相同。claude-sonnet-5-5 与 gpt-6.1-sol 都是每百万输入 1.86 美元、每百万输出 9.30 美元、每百万缓存命中 0.10 美元，在成本轴上没有任何一方占优。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Gemini 是三家里面最便宜的吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;绝对价格最低，但不在同一档位。gemini-4-argon 每百万输入 1.64 美元、输出 8.20 美元，比 Sonnet 5.5 低 11.8 个百分点，平台把它定位为面向高频简单任务的轻量模型。真正的低价档是 gemini-3.8-flash，0.62 与 3.10 美元。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;为什么账单总比按 token 算出来的高？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;因为三家当前旗舰的输出单价都是输入单价的 5 倍。在常见的 4 比 1 输入输出比下，输出只占 token 数量的 20 个百分点，却占了账单的 62.5 个百分点。所有估算都必须把输出按 5 倍加权。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;提示缓存会改变哪家更便宜的结论吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;不会。缓存只能把账单压小，不会改变排序。缓存命中价在 Sonnet 5.5 与 gpt-6.1-sol 上都是每百万 0.10 美元，仅相当于输入价的 5.4%，三家的折扣比例几乎一样，所以相对排序不变。&quot;}}]}" />
+
+# Claude vs GPT vs Gemini 价格对比 2026：谁才是真正便宜的旗舰
+
+**答案是：Claude Sonnet 5.5 和 GPT-6.1 Sol 完全同价 —— 每百万输入 1.86 美元、输出 9.30 美元、缓存命中 0.10 美元。而 Gemini 根本没有一款模型停在这个价位：最接近的 `gemini-4-argon` 是 1.64 / 8.20 美元，真正的低价档 `gemini-3.8-flash` 是 0.62 / 3.10 美元。**
+
+这个结果挺反直觉。过去两年「Gemini 便宜、Claude 贵」几乎是默认认知，但在 2026 年 11 月的现行价格表里，Anthropic 和 OpenAI 的旗舰撞在了同一个价格上，而 Google 把中间档压低了 11.8%，然后把带 pro 名字的型号放到了预览档。
+
+> **三家旗舰定价（2026-11-13 核对）**：Claude Sonnet 5.5 与 GPT-6.1 Sol 均为每百万输入 1.86 美元、输出 9.30 美元；Gemini 4 Argon 为 1.64 / 8.20 美元；Gemini 3.8 Flash 为 0.62 / 3.10 美元。以上全部读自 TokenPAPA 实时价格数据，单位美元。
+
+本文只做一件事：把「谁更便宜」这个问题算清楚 —— 单月成本、输出 token 的放大效应、缓存到底能省多少、以及什么流量该走哪家。所有数字都可以在[定价页](https://tokenpapa.ai/pricing)自行复核。
+
+---
+
+## 2026 年三家旗舰分别多少钱？
+
+只列当前世代，价格均为每百万 token。
+
+| 模型 ID | 厂商 | 输入 /1M | 输出 /1M | 缓存命中 /1M | 输出÷输入 | 接口 |
+|---|---|---:|---:|---:|:---:|---|
+| `claude-haiku-5-5` | Anthropic | $0.01 | $0.50 | $0.01 | 50.0× | anthropic, openai |
+| `gemini-3.8-flash` | Google | $0.62 | $3.10 | $0.062 | 5.0× | gemini, openai |
+| `gemini-4-argon` | Google | $1.64 | $8.20 | $0.082 | 5.0× | gemini, openai |
+| `gemini-3.1-pro-preview` | Google | $1.6154 | $9.6923 | — | 6.0× | gemini, openai |
+| **`claude-sonnet-5-5`** | Anthropic | **$1.86** | **$9.30** | **$0.10** | 5.0× | anthropic, openai |
+| **`gpt-6.1-sol`** | OpenAI | **$1.86** | **$9.30** | **$0.10** | 5.0× | openai |
+| `deepseek-v4-pro` | DeepSeek | $1.40 | $4.00 | $0.05 | 2.86× | openai |
+| `claude-opus-5-5` | Anthropic | $3.72 | $18.60 | $0.20 | 5.0× | anthropic, openai |
+| `gpt-6-astra` | OpenAI | $9.30 | $46.50 | $0.93 | 5.0× | openai |
+| `claude-fable-5-1` | Anthropic | $9.60 | $47.80 | $0.24 | 4.98× | anthropic, openai |
+
+这张表里有四个比单行数字更有用的规律。
+
+**Sonnet 5.5 和 GPT-6.1 Sol 逐位相同。** 输入、输出、缓存命中三项全部一致。也就是说 2026 年「选 Claude 还是选 GPT」在成本轴上是一个平局，只有输出质量与接口契约能分出胜负。
+
+**当前旗舰一律是 5 倍输出倍率。** 9.30 ÷ 1.86 = 5.00，18.60 ÷ 3.72 = 5.00，46.50 ÷ 9.30 = 5.00。输出单价是输入的 5 倍，这意味着影响账单最大的变量不是选哪家，而是你的输入输出比例。
+
+**Opus 5.5 恰好是 Sonnet 5.5 的 2 倍，Astra 恰好是 Sol 的 5 倍。** 没有阶梯折扣、没有量价优惠，所以「要不要升级」是纯算术题。
+
+**Haiku 5.5 打破了规律：它是 50 倍输出倍率。** 0.01 美元输入、0.50 美元输出，输入比 Sonnet 5.5 便宜 186 倍，输出只便宜 19 倍。做长文档、RAG 上下文、日志分析这类输入密集型任务时差距极大；做纯生成时差距迅速收窄。
+
+> **关键结论**：Claude Sonnet 5.5 与 GPT-6.1 Sol 定价完全相同（每百万输入 1.86 美元、输出 9.30 美元），Gemini 4 Argon 以 1.64 / 8.20 美元低 11.8%。2026 年在 Claude 与 GPT 之间做选择，不能用价格当理由。
+
+---
+
+## 为什么 GPT-6.1 Sol 和 Claude Sonnet 5.5 价格一模一样？
+
+因为两家瞄准的是同一个买家，而且都不愿意在高端档位当那个「更便宜的」。
+
+TokenPAPA 的模型元数据把 `gpt-6.1-sol` 描述为 OpenAI 面向复杂端到端任务的旗舰，在电脑与浏览器操作、编程、科研、专业文档撰写上有明显升级；并注明发布是分阶段的 —— 2026 年 9 月 4 日起先向可信访问计划中的企业开放，随后逐步扩到消费级套餐与 API。
+
+Claude 5.5 系列的元数据读起来意图几乎一致：2026 年 5 月发布的旗舰推理模型，面向智能体编程、深度逻辑推理与长周期任务，上下文窗口最高 100 万 token。
+
+两个厂商、两套旗舰叙事、同一张价格表。这不是可以套利的巧合，它意味着真正该问的问题变成了三个：
+
+1. **谁在你的任务上失败率更低？** 一个平均需要 1.2 次尝试的模型，即使 token 单价相同，单个完成任务的成本也高 20%。
+2. **你手头已经有哪种接口？** Sonnet 5.5 同时支持 Anthropic Messages 与 OpenAI 兼容两种格式，Sol 只支持 OpenAI 兼容。
+3. **缓存需求是否满足？** 这一项两家打平，缓存命中都是每百万 0.10 美元。
+
+所以结论很干脆：用你自己的评测集跑一遍，谁的分高就用谁 —— 花同样的钱，买更好的输出。
+
+---
+
+## Gemini 是三家里面最便宜的吗？
+
+部分正确，但这个说法必须加限定，因为 Gemini 当前世代最便宜的那款并不在旗舰档竞争。
+
+`gemini-4-argon` 是 1.64 / 8.20 美元，两个方向都正好比 Sonnet 5.5 低 11.8%。TokenPAPA 的模型说明写的是「轻量且极高效的模型，面向以速度和成本为首要考量的简单高频任务」。这是定位描述，不是跑分，应当照字面理解：这是吞吐型模型，不是前沿推理模型。
+
+所以三家的诚实答案是：
+
+| 问题 | 答案 |
+|---|---|
+| 哪家旗舰每 token 最便宜？ | **Gemini 4 Argon**，1.64 / 8.20 美元 |
+| 哪家「单位前沿能力」最便宜？ | 无法判定 —— 三家都没有公布可对比的同口径跑分 |
+| 哪家绝对价格最低？ | **Gemini 3.8 Flash**，0.62 / 3.10 美元 |
+| 哪两家完全同价？ | **Claude Sonnet 5.5 与 GPT-6.1 Sol**，1.86 / 9.30 美元 |
+
+Gemini 还有一件另外两家没做的事：它把 `gemini-3.1-pro-preview` 放在 1.6154 / 9.6923 美元，输入比 Sonnet 5.5 低 13.1%，输出却贵 4.2%。因为它的输出倍率是 6 倍而不是 5 倍，只有当你的负载极度偏输入时它才更便宜；对 4:1 的聊天产品来说，它比两款旗舰都贵。另外 preview 本身就是风险：预览模型可能在没有弃用窗口的情况下变更或下线，这个风险任何价格表都不会写出来。
+
+⚠️ **本平台没有为这三款模型公布任何可对比的跑分。** 如果你看到一篇价格文章给 `gemini-4-argon` 或 `claude-fable-5-1` 报了具体分数却没给一手来源，那基本是编的 —— 平台只公布价格与定位文案，不公布评测结果。
+
+---
+
+## 每月 10 万次请求的真实成本是多少？
+
+取一个最常见的生产型聊天负载：每月 10 万次请求，每次 1500 输入 token、500 输出 token，即每月 1.5 亿输入 token、5000 万输出 token。
+
+| 模型 | 输入成本 | 输出成本 | 月总计 | 相对 Sonnet 5.5 |
+|---|---:|---:|---:|---:|
+| `claude-haiku-5-5` | $1.50 | $25.00 | **$26.50** | −96.4% |
+| `gemini-3.8-flash` | $93.00 | $155.00 | **$248.00** | −66.7% |
+| `gemini-4-argon` | $246.00 | $410.00 | **$656.00** | −11.8% |
+| `deepseek-v4-pro` | $210.00 | $200.00 | **$410.00** | −44.9% |
+| `claude-sonnet-5-5` | $279.00 | $465.00 | **$744.00** | 基准 |
+| `gpt-6.1-sol` | $279.00 | $465.00 | **$744.00** | 0.0% |
+| `claude-opus-5-5` | $558.00 | $930.00 | **$1,488.00** | +100.0% |
+| `gpt-6-astra` | $1,395.00 | $2,325.00 | **$3,720.00** | +400.0% |
+| `claude-fable-5-1` | $1,440.00 | $2,390.00 | **$3,830.00** | +414.8% |
+
+注意两件事。第一，Sonnet 5.5 与 Astra 之间每月差 2976 美元，而这个负载在多数团队眼里都算「小」。第二，Haiku 5.5 与 Sonnet 5.5 之间每月差 717.50 美元，同样 10 万次请求。
+
+还要注意 `deepseek-v4-pro` 的位置：每月 410 美元，比旗舰档低 44.9%，原因是它的输出倍率是 2.86 倍而不是 5 倍。**在聊天这类输出占大头、但输出不是很长的流量上，低输出倍率的模型会不成比例地占优。**
+
+> **关键结论**：每月 10 万次请求、每次 1500 输入 + 500 输出时，GPT-6.1 Sol 与 Claude Sonnet 5.5 都是 744 美元，Gemini 4 Argon 是 656 美元，Gemini 3.8 Flash 是 248 美元 —— 同一家厂商内部就有 3 倍差距。
+
+---
+
+## 为什么账单由输出 token 说了算？
+
+因为输出单价是输入的 5 倍，而大多数负载的实际输出占比比想象的高 —— 一旦把推理 token 与多步智能体的往返都算进去。
+
+在 4:1 的输入输出比下，输出只占 token 数量的 20%，却占账单的 **62.5%**。如果换成 1:1 的翻译或摘要负载，输出占账单 83.3%。
+
+| 输入:输出 | 输出占 token 数 | 输出占账单（5 倍倍率） |
+|---|:---:|:---:|
+| 10:1（带引用的 RAG） | 9.1% | 35.7% |
+| 4:1（聊天） | 20.0% | 62.5% |
+| 1:1（翻译） | 50.0% | 83.3% |
+| 1:3（短提示长生成） | 75.0% | 93.8% |
+
+这就是为什么输入单价极低的模型也可能输。Sonnet 5.5 的输入比 Haiku 5.5 贵 186 倍，但输出只贵 19 倍；对 10:1 的 RAG 负载，两者真实差距是 5.6 倍而不是 186 倍。
+
+由此直接推出三条控制手段：
+
+1. **每次调用都设 `max_tokens`。** 不受限的生成就是不受限的账单，而成本正好落在高倍率的那一侧。
+2. **限制智能体循环步数。** 每一步都会把累积上下文作为输入重发，同时再付一次输出；十步不是一步的十倍，输入侧是平方级增长。
+3. **先测真实比例再选型。** 团队常假设 10:1，上线后实测 3:1，月账单直接翻倍。
+
+---
+
+## 提示缓存会改变「哪家更便宜」的结论吗？
+
+不会。它把每家的账单都压小，但折扣比例太接近，排序不动。
+
+Sonnet 5.5 与 Sol 的缓存命中价都是每百万 0.10 美元，相当于输入价 $1.86 的 5.4%，即省下约 94.6%；Gemini 4 Argon 是 0.082 对 1.64，省 95.0%。几乎一样，所以缓存只压缩金额，不改排序。
+
+对同样的 10 万次/月负载，假设 60% 的输入 token 命中缓存：
+
+| 模型 | 不缓存 | 60% 输入命中缓存 | 省下 | 折扣 |
+|---|---:|---:|---:|---:|
+| `gemini-3.8-flash` | $248.00 | $197.78 | $50.22 | 20.3% |
+| `gemini-4-argon` | $656.00 | $515.78 | $140.22 | 21.4% |
+| `claude-sonnet-5-5` | $744.00 | $585.60 | $158.40 | 21.3% |
+| `gpt-6.1-sol` | $744.00 | $585.60 | $158.40 | 21.3% |
+| `claude-opus-5-5` | $1,488.00 | $1,171.20 | $316.80 | 21.3% |
+
+稳定在 21% 左右 —— 不是四舍五入的误差，但也不是选型工具。两个必须说清的前提：
+
+- **缓存只在「前缀重复」时才有效。** Anthropic 格式模型的缓存写入是有溢价的（`claude-sonnet-5-5` 的缓存创建倍率为 1.29 倍），如果每次请求的 prompt 都不同，你是在为一段永远不会被命中的缓存付溢价。
+- **`gemini-3.1-pro-preview` 完全没有公布缓存价格。** 表格里是横杠。不要给一个没有公布缓存价的模型预算折扣。
+
+---
+
+## 什么流量该走哪家？
+
+决定分流的不是单价，而是失败率。两款旗舰同价的情况下，正确的框架是按任务难度分层，而不是按厂商站队。
+
+| 流量类型 | 最优性价比选择 | 理由 |
+|---|---|---|
+| 分类、打标、意图路由 | `claude-haiku-5-5`（$0.01 / $0.50） | 任务已饱和，旗舰的溢价买不到提升 |
+| 高频摘要、抽取 | `gemini-3.8-flash`（$0.62 / $3.10） | 输出密集但输出单价低 |
+| 长上下文 RAG 问答 | `gemini-4-argon` 或 `deepseek-v4-pro` | 输入便宜且输出倍率低 |
+| 通用聊天、工具调用、产品默认档 | `claude-sonnet-5-5` 或 `gpt-6.1-sol` | 同价，用自己的评测集定 |
+| 硬核智能体编程、跨文件重构 | `claude-opus-5-5`（$3.72 / $18.60） | 2 倍价，升级率超过 33% 才划算 |
+| 前沿研究、长周期自主任务 | `gpt-6-astra` 或 `claude-fable-5-1` | 5–9 倍价，只留给别的模型确实做不动的活 |
+
+Opus 这笔账值得单独算。正常走 Sonnet 5.5 是 1 个单位；升级一次是 3 个单位（失败的 Sonnet 尝试 + Opus 那次调用）；全程用 Opus 是 2 个单位。所以升级率低于 33% 时路由划算，高于 33% 时就亏。如果你的升级率是 45%，实际成本是 1 + 0.45 × 2 = 1.9 个单位 —— 只比全程 Opus 略微便宜，再把多出来的延迟和编排代码算进去，其实就是白忙。
+
+---
+
+## 怎么在不改代码的情况下切换三家？
+
+一个 Key、一个 base URL、一个 `model` 字符串。三家都能走 TokenPAPA 的 OpenAI 兼容接口，同一份客户端代码可以访问上表每一行。
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="sk-your-tokenpapa-key",
+    base_url="https://tokenpapa.ai/v1",
+)
+
+MODEL = "claude-sonnet-5-5"  # 换成 gpt-6.1-sol 或 gemini-4-argon 即可
+
+resp = client.chat.completions.create(
+    model=MODEL,
+    messages=[
+        {"role": "system", "content": "你是一名资深代码审查员。"},
+        {"role": "user", "content": "审查这段 diff 有没有竞态：\n" + diff},
+    ],
+    max_tokens=800,   # 一定要设；输出单价是输入的 5 倍
+)
+print(resp.choices[0].message.content)
+```
+
+因为请求结构完全一致，横评就是个循环，而不是重写项目：
+
+```python
+CANDIDATES = ["claude-sonnet-5-5", "gpt-6.1-sol", "gemini-4-argon"]
+
+for model in CANDIDATES:
+    out = client.chat.completions.create(
+        model=model,
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=500,
+    )
+    record(model, out.choices[0].message.content, out.usage)
+```
+
+跑之前有两个厂商差异必须先知道：
+
+- **推理系模型不接受 `max_tokens`。** `gpt-6.1-sol` 与 `gpt-6-astra` 要求用 `max_completion_tokens`，并且拒绝非默认的 `temperature`。在 Sonnet 5.5 上能跑的请求，在 Sol 上可能因为这两点直接返回 HTTP 400。
+- **Claude 两种格式都认。** `claude-sonnet-5-5` 同时列出 `anthropic` 与 `openai` 两种接口类型，想用原生语义可以调 `POST https://tokenpapa.ai/v1/messages` 并带 `anthropic-version` 头，也可以留在 OpenAI 兼容路由上，Key 不变。
+
+如果你是从 Anthropic 或 OpenAI 官方账号迁移过来，改动只有两行 —— Key 和 base URL，业务代码不用动。
+
+---
+
+## 常见问题
+
+### 2026 年 Claude 比 GPT 便宜吗？
+
+不便宜也不贵：两款当前旗舰定价完全相同。`claude-sonnet-5-5` 与 `gpt-6.1-sol` 都是每百万输入 1.86 美元、每百万输出 9.30 美元、每百万缓存命中 0.10 美元，在成本轴上没有任何一方占优，只能靠输出质量与接口契约来选。
+
+### Gemini 是三家里面最便宜的吗？
+
+绝对价格最低，但不在同一档位。`gemini-4-argon` 每百万输入 1.64 美元、输出 8.20 美元，比 Sonnet 5.5 低 11.8%，平台把它定位为面向高频简单任务的轻量模型。真正的低价档是 `gemini-3.8-flash`，0.62 与 3.10 美元。
+
+### 为什么账单总比按 token 算出来的高？
+
+因为三家当前旗舰的输出单价都是输入单价的 5 倍。在常见的 4:1 输入输出比下，输出只占 token 数量的 20%，却占了账单的 62.5%。所有估算都必须把输出按 5 倍加权，并且每次调用都要设 `max_tokens`。
+
+### 提示缓存会改变哪家更便宜的结论吗？
+
+不会。缓存只能把账单压小，不会改变排序。缓存命中价在 Sonnet 5.5 与 `gpt-6.1-sol` 上都是每百万 0.10 美元，仅相当于输入价的 5.4%，三家的折扣比例几乎一样，所以相对排序不变。
+
+### 生产环境的聊天机器人该用哪家？
+
+从 `claude-sonnet-5-5` 或 `gpt-6.1-sol` 起步（同价，挑自己评测集里赢的那个），把分类与抽取流量分流到 `claude-haiku-5-5` 或 `gemini-3.8-flash`。这个分层能砍掉「全旗舰」账单的 60–90%，而简单流量上的回答质量不受影响。
+
+---
+
+## 开始使用
+
+三家厂商、一个 Key、一个 base URL。注册、生成 Key，把客户端指向 `https://tokenpapa.ai/v1` 即可 —— 不需要为 Anthropic、OpenAI、Google 分别维护 SDK 和账单关系。
+
+1. **[注册账号](https://tokenpapa.ai/register)** —— 邮箱或 GitHub 登录
+2. **[生成 API Key](https://tokenpapa.ai/keys)** —— 一个 Key 通用所有模型
+3. **先看[定价页](https://tokenpapa.ai/pricing)** 再定预算
+4. **在[控制台](https://tokenpapa.ai/dashboard/overview)** 按模型查看消耗
+
+延伸阅读：[Claude 5.5 价格全解析](https://doc.tokenpapa.ai/zh/docs/blog/claude-5-5-pricing-comparison-2026)（11 个 Claude 型号逐个拆）、[GPT-6.1 Sol vs GPT-6 Astra](https://doc.tokenpapa.ai/zh/docs/blog/gpt-6-1-sol-vs-gpt-6-astra)（含两个 400 报错坑）、[LLM API 价格速查表](https://doc.tokenpapa.ai/zh/docs/blog/llm-api-pricing-cheat-sheet-2026)。
+
+---
+
+*价格于 2026-11-13 核对 TokenPAPA 实时价格数据（共 85 个模型条目）与已公布的模型元数据，单位为美元 / 每百万 token。价格会变，下预算前请以[定价页](https://tokenpapa.ai/pricing)为准。文中负载参数是明示的假设而非实测值；平台未公布跑分的模型，本文不引用任何分数。*

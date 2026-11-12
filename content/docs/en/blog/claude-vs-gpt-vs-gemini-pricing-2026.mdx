@@ -1,0 +1,272 @@
+---
+title: "Claude vs GPT vs Gemini Pricing 2026: Which Is Cheapest?"
+description: "Claude Sonnet 5.5 and GPT-6.1 Sol cost $1.86/$9.30 per 1M tokens, and no Gemini model sits at that price. Verified three-vendor cost math and routing rules."
+date: 2026-11-13
+authors: [tokenpapa]
+category: "Pricing"
+keywords: ["claude vs gpt vs gemini pricing", "claude sonnet 5.5 price", "gpt-6.1 sol price", "gemini 4 argon pricing", "cheapest flagship llm 2026", "llm api price comparison 2026", "claude vs gpt cost per token", "gemini api pricing 2026", "llm api cost per 1m tokens", "tokenpapa pricing"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-11-13 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;Claude vs GPT vs Gemini Pricing 2026: Which Is Cheapest?&quot;,&quot;description&quot;:&quot;Claude Sonnet 5.5 and GPT-6.1 Sol cost exactly the same, 1.86 dollars per 1M input tokens and 9.30 dollars per 1M output tokens. Gemini has no model at that price. Verified three-vendor price tables, per-workload cost math, cache rates, and routing rules.&quot;,&quot;datePublished&quot;:&quot;2026-11-13&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Is Claude cheaper than GPT in 2026?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;No. The current flagship pair is priced identically: claude-sonnet-5-5 and gpt-6.1-sol both cost 1.86 dollars per 1M input tokens, 9.30 dollars per 1M output tokens, and 0.10 dollars per 1M cached input tokens. Neither vendor has a cost advantage at that tier.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Is Gemini the cheapest of the three?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Yes on absolute price, but not at the same tier. gemini-4-argon costs 1.64 dollars per 1M input and 8.20 dollars per 1M output, which is 11.8 percent below Sonnet 5.5, and the platform describes it as a lean model for simple high-frequency tasks rather than a flagship. The true budget lane is gemini-3.8-flash at 0.62 and 3.10 dollars.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Why is my LLM bill higher than the token math suggests?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Because output tokens cost five times more than input tokens on all three current flagships. At a normal 4 to 1 input-output ratio, output is only 20 percent of your tokens but 62.5 percent of your bill. Every estimate must weight output five times.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Does prompt caching change which vendor is cheapest?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;It changes the size of the bill, not the ranking. Caching 60 percent of a stable input prefix cuts the monthly input line by 94.6 percent on Sonnet 5.5 and gpt-6.1-sol, saving 158.40 dollars on a 100K-request month, but the relative order of vendors stays the same because the cache discount ratios are nearly identical.&quot;}}]}" />
+
+# Claude vs GPT vs Gemini Pricing 2026: Which Is Cheapest?
+
+**Claude Sonnet 5.5 and GPT-6.1 Sol cost exactly the same: $1.86 per 1M input tokens, $9.30 per 1M output tokens, and $0.10 per 1M cached input tokens. Gemini has no model at that price point at all — its nearest entry, `gemini-4-argon`, is $1.64 / $8.20, and its true budget lane, `gemini-3.8-flash`, is $0.62 / $3.10.**
+
+That is the whole answer, and it is a strange one. The two most expensive-to-train flagship models on the market converged on a single price to the cent, while the vendor that used to be the cheap option moved its mid-tier model 11.8% below them and parked its flagship-labelled preview elsewhere.
+
+> **Three-vendor flagship pricing, verified 2026-11-13**: Claude Sonnet 5.5 and GPT-6.1 Sol are each $1.86 per 1M input and $9.30 per 1M output. Gemini 4 Argon is $1.64 and $8.20. Gemini 3.8 Flash is $0.62 and $3.10. All figures are read from TokenPAPA's live pricing data, per 1M tokens in USD.
+
+This article does the arithmetic that a comparison table alone cannot answer: what a real month costs on each model, why output tokens decide the bill, how caching reorders nothing, and which traffic should go to which vendor. Every number below is reproducible from the [pricing page](https://tokenpapa.ai/pricing).
+
+---
+
+## What do Claude, GPT, and Gemini charge in 2026?
+
+Three vendors, one table, current generation only. Prices are per 1M tokens.
+
+| Model ID | Vendor | Input / 1M | Output / 1M | Cached input / 1M | Output ÷ input | Endpoints |
+|---|---|---:|---:|---:|:---:|---|
+| `claude-haiku-5-5` | Anthropic | $0.01 | $0.50 | $0.01 | 50.0× | anthropic, openai |
+| `gemini-3.8-flash` | Google | $0.62 | $3.10 | $0.062 | 5.0× | gemini, openai |
+| `gemini-4-argon` | Google | $1.64 | $8.20 | $0.082 | 5.0× | gemini, openai |
+| `gemini-3.1-pro-preview` | Google | $1.6154 | $9.6923 | — | 6.0× | gemini, openai |
+| **`claude-sonnet-5-5`** | Anthropic | **$1.86** | **$9.30** | **$0.10** | 5.0× | anthropic, openai |
+| **`gpt-6.1-sol`** | OpenAI | **$1.86** | **$9.30** | **$0.10** | 5.0× | openai |
+| `deepseek-v4-pro` | DeepSeek | $1.40 | $4.00 | $0.05 | 2.86× | openai |
+| `claude-opus-5-5` | Anthropic | $3.72 | $18.60 | $0.20 | 5.0× | anthropic, openai |
+| `gpt-6-astra` | OpenAI | $9.30 | $46.50 | $0.93 | 5.0× | openai |
+| `claude-fable-5-1` | Anthropic | $9.60 | $47.80 | $0.24 | 4.98× | anthropic, openai |
+
+Four things in that table are more useful than the individual rows.
+
+**Sonnet 5.5 and GPT-6.1 Sol are the same price, digit for digit.** Input, output, and cached input all match. On the cost axis alone, the Claude-versus-GPT decision in 2026 is a coin flip; only output quality and API behaviour separate them.
+
+**Every current flagship uses a 5× output multiplier.** $9.30 ÷ $1.86 = 5.00. $18.60 ÷ $3.72 = 5.00. $46.50 ÷ $9.30 = 5.00. Output is priced at five times input across the board, which makes the input/output mix of your workload the single biggest lever on your bill — bigger than the vendor choice itself.
+
+**Opus 5.5 is exactly 2× Sonnet 5.5, and Astra is exactly 5× Sol.** Both directions divide cleanly. There is no volume tier or discount curve, so escalation decisions are pure arithmetic: does the harder model succeed often enough to pay for the upgrade?
+
+**Haiku 5.5 breaks the pattern with a 50× multiplier.** At $0.01 in and $0.50 out, its output costs fifty times its input, not five. It is 186× cheaper than Sonnet 5.5 on input but only 19× cheaper on output. For input-heavy work — long documents, RAG context, log analysis — that gap is enormous. For output-heavy work it narrows fast.
+
+> **Key insight**: Claude Sonnet 5.5 and GPT-6.1 Sol are priced identically at $1.86 per 1M input and $9.30 per 1M output tokens, while Gemini 4 Argon sits 11.8% below them at $1.64 / $8.20. Choosing between Claude and GPT in 2026 cannot be justified on price — only on output quality and API contract.
+
+---
+
+## Why do GPT-6.1 Sol and Claude Sonnet 5.5 cost exactly the same?
+
+Because the two vendors targeted the same buyer with the same economics, and neither is willing to be the cheaper option at the top of the range.
+
+TokenPAPA's model metadata describes `gpt-6.1-sol` as OpenAI's flagship for complex end-to-end work, with upgrades in computer and browser operation, coding, scientific research, and professional documentation — rolled out from 4 September 2026 through a staged trusted-access programme. The Claude 5.5 metadata reads almost identically in intent: a flagship reasoning model released in May 2026 for agentic coding, deep logical reasoning, and long-horizon tasks, with a context window of up to 1M tokens.
+
+Two flagship narratives, one price list. This is not a coincidence you can arbitrage, so the practical question becomes:
+
+1. **Which one fails less often on your specific workload?** A model that needs 1.2 attempts per task costs 20% more per completed task even at an identical token price.
+2. **Which endpoint format do you already have?** Sonnet 5.5 accepts both the Anthropic Messages API and the OpenAI-compatible route. Sol is OpenAI-compatible only.
+3. **Which one has the cache behaviour you need?** Identical here, at $0.10 per 1M cached input on both.
+
+There is a fourth, less obvious factor: pairing. If your evaluation harness scores Sol 3 points higher on your task, you pay the same money for better output — that is the entire decision. If it scores Sonnet 5.5 higher, the reverse.
+
+> **Key insight**: An identical sticker price does not mean an identical cost per completed task. If one model needs retries and the other does not, the effective price per successful task diverges even when the per-token rate is the same to the cent.
+
+---
+
+## Is Gemini actually the cheaper option?
+
+Partly — and the wording matters, because Gemini's cheapest current-generation model is not competing at the flagship tier.
+
+`gemini-4-argon` is $1.64 in and $8.20 out, exactly 11.8% below Sonnet 5.5 on both directions. TokenPAPA's model listing describes it as "a lean and ultra-efficient model, designed for simple, high-frequency tasks where speed and cost are the top priorities." That is a positioning statement, not a benchmark, and it should be read literally: this is a throughput model, not a frontier reasoning model.
+
+So the honest three-way answer is:
+
+| Question | Answer |
+|---|---|
+| Which flagship is cheapest per token? | **Gemini 4 Argon** at $1.64 / $8.20 |
+| Which is cheapest per *unit of frontier capability*? | Undetermined — no vendor publishes comparable scores for these three |
+| Which has the lowest absolute floor? | **Gemini 3.8 Flash** at $0.62 / $3.10 |
+| Which two are priced identically? | **Claude Sonnet 5.5 and GPT-6.1 Sol**, at $1.86 / $9.30 |
+
+Gemini also exposes `gemini-3.1-pro-preview` at $1.6154 / $9.6923 — 13.1% below Sonnet 5.5 on input but 4.2% *above* it on output. Its multiplier is 6× rather than 5×, so it only wins on input-heavy workloads; at 4:1 for a chat product it costs more than both flagships. Preview status is a second caveat no price table captures: a preview model can change or disappear without a deprecation window.
+
+⚠️ **No published benchmark comparison exists for these three models on this platform.** If a pricing article quotes you a score for `gemini-4-argon` or `claude-fable-5-1`, treat it as invented unless the article links a primary source — the platform publishes prices and positioning text, not evaluation results.
+
+---
+
+## What does a 100K-request month actually cost?
+
+Take a normal production chat workload: 100,000 requests per month, 1,500 input tokens and 500 output tokens each. That is 150M input tokens and 50M output tokens per month.
+
+| Model | Input cost | Output cost | Monthly total | vs Sonnet 5.5 |
+|---|---:|---:|---:|---:|
+| `claude-haiku-5-5` | $1.50 | $25.00 | **$26.50** | −96.4% |
+| `gemini-3.8-flash` | $93.00 | $155.00 | **$248.00** | −66.7% |
+| `gemini-4-argon` | $246.00 | $410.00 | **$656.00** | −11.8% |
+| `deepseek-v4-pro` | $210.00 | $200.00 | **$410.00** | −44.9% |
+| `claude-sonnet-5-5` | $279.00 | $465.00 | **$744.00** | baseline |
+| `gpt-6.1-sol` | $279.00 | $465.00 | **$744.00** | 0.0% |
+| `claude-opus-5-5` | $558.00 | $930.00 | **$1,488.00** | +100.0% |
+| `gpt-6-astra` | $1,395.00 | $2,325.00 | **$3,720.00** | +400.0% |
+| `claude-fable-5-1` | $1,440.00 | $2,390.00 | **$3,830.00** | +414.8% |
+
+Read the bottom half of that column. The gap between Sonnet 5.5 and Astra is $2,976 per month on a workload that most teams would describe as small. The gap between Haiku 5.5 and Sonnet 5.5 is $717.50 per month for the same 100,000 requests.
+
+And note where `deepseek-v4-pro` lands: $410 per month, 44.9% below the flagship tier, because its output multiplier is 2.86× rather than 5×. A model with a lower output multiplier wins disproportionately on chat-shaped traffic, where output is the expensive half.
+
+> **Key insight**: On a 100K-request month with 1,500 input and 500 output tokens per call, GPT-6.1 Sol and Claude Sonnet 5.5 cost the same $744. Gemini 4 Argon costs $656 and Gemini 3.8 Flash costs $248 — a 3× spread inside one vendor.
+
+---
+
+## Why do output tokens decide the bill?
+
+Because output costs five times input, and most workloads produce far more output than they realize once reasoning tokens and agent steps are counted.
+
+At the 4:1 input-to-output ratio used above, output is 20% of your tokens and **62.5% of your bill**. Change the ratio to 1:1 — a summarization or translation workload, where input and output are similar in length — and output becomes 83.3% of the bill.
+
+| Input:output ratio | Output share of tokens | Output share of bill (5× multiplier) |
+|---|:---:|:---:|
+| 10:1 (RAG with citation) | 9.1% | 35.7% |
+| 4:1 (chat) | 20.0% | 62.5% |
+| 1:1 (translation) | 50.0% | 83.3% |
+| 1:3 (generation from a short prompt) | 75.0% | 93.8% |
+
+This is why a model with a low input price can still lose. Sonnet 5.5 at $1.86 input is 186× more expensive than Haiku 5.5 on input — but only 19× on output. For a 10:1 RAG workload Sonnet costs 5.6× Haiku, not 186×; for a 1:1 translation workload it costs 19×.
+
+Three controls follow directly from the arithmetic:
+
+1. **Set `max_tokens` on every call.** An unbounded completion is an unbounded bill, and the cost is on the output side where the multiplier lives.
+2. **Cap agent loop iterations.** Each step re-sends the accumulated context as input *and* pays for a fresh completion as output. Ten steps is not ten times the cost of one — the input side grows quadratically.
+3. **Measure the real ratio before choosing a vendor.** Teams routinely assume 10:1 and discover 3:1 in production, which changes the monthly total by a factor of two.
+
+---
+
+## Does prompt caching change which vendor is cheapest?
+
+No. It changes the size of every bill, but the ratios are close enough that the ranking holds.
+
+Cache reads cost $0.10 per 1M on both Sonnet 5.5 and Sol — 94.6% off the $1.86 input rate. Gemini 4 Argon charges $0.082 against $1.64, a 95.0% discount. Nearly identical, so caching compresses the bill without reordering the vendors.
+
+Apply a 60% cache hit rate to half of the input tokens (a realistic pattern for a stable system prompt plus a fixed document prefix) on the same 100K-request workload:
+
+| Model | No cache | 60% of input cached | Saved | Cache discount |
+|---|---:|---:|---:|---:|
+| `gemini-3.8-flash` | $248.00 | $197.78 | $50.22 | 20.3% |
+| `gemini-4-argon` | $656.00 | $515.78 | $140.22 | 21.4% |
+| `claude-sonnet-5-5` | $744.00 | $585.60 | $158.40 | 21.3% |
+| `gpt-6.1-sol` | $744.00 | $585.60 | $158.40 | 21.3% |
+| `claude-opus-5-5` | $1,488.00 | $1,171.20 | $316.80 | 21.3% |
+
+A consistent 21% off the monthly bill — not a rounding error, but not a vendor-selection tool either. Two caveats: caching only helps if the prefix repeats (a cache write costs 1.29× a normal read on `claude-sonnet-5-5`, so unique prompts pay a premium for a cache they never read), and `gemini-3.1-pro-preview` publishes no cached-input price at all — its row shows a dash, so do not budget a discount for it.
+
+> **Key insight**: Prompt caching cuts the input line by about 94.6% on Claude Sonnet 5.5, GPT-6.1 Sol, and Gemini 4 Argon alike, saving roughly 21% of a total monthly bill at a 60% hit rate — but because the discount is nearly identical across vendors, caching never changes which vendor is cheaper.
+
+---
+
+## Which model should handle which traffic?
+
+Price per token does not decide routing; failure rate does. With two flagships priced identically, the useful framing is tiering by task difficulty, not by vendor.
+
+| Traffic type | Best value pick | Why |
+|---|---|---|
+| Classification, tagging, intent routing | `claude-haiku-5-5` ($0.01 / $0.50) | Saturated task; flagship spend buys nothing |
+| High-volume summarization, extraction | `gemini-3.8-flash` ($0.62 / $3.10) | Output-heavy work, low output rate |
+| Long-context RAG answering | `gemini-4-argon` or `deepseek-v4-pro` | Cheap input plus a low output multiplier |
+| General chat, tool use, product default | `claude-sonnet-5-5` or `gpt-6.1-sol` | Same price; choose on your own eval set |
+| Hard agentic coding, multi-file refactors | `claude-opus-5-5` ($3.72 / $18.60) | 2× Sonnet, worth it only above a 33% escalation rate |
+| Frontier research, long-horizon autonomy | `gpt-6-astra` or `claude-fable-5-1` | 5–9× flagship price; reserve for work that fails elsewhere |
+
+The Opus line deserves its own arithmetic. Routing normally to Sonnet 5.5 costs 1 unit. Escalating a request costs 3 units — you pay for the failed Sonnet attempt plus the Opus call. Always using Opus costs 2 units. So routing wins below a 33% escalation rate and loses above it. If your escalation rate is 45%, you are paying 1 + 0.45 × 2 = 1.9 units instead of 2 — barely ahead, and behind once you count the added latency and orchestration code.
+
+---
+
+## How do you switch between the three vendors without rewriting code?
+
+One key, one base URL, one `model` string. All three vendors are reachable through the OpenAI-compatible route on TokenPAPA, so the same client code addresses every row in the table above.
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="sk-your-tokenpapa-key",
+    base_url="https://tokenpapa.ai/v1",
+)
+
+MODEL = "claude-sonnet-5-5"  # swap for gpt-6.1-sol or gemini-4-argon
+
+resp = client.chat.completions.create(
+    model=MODEL,
+    messages=[
+        {"role": "system", "content": "You are a senior code reviewer."},
+        {"role": "user", "content": "Review this diff for race conditions:\n" + diff},
+    ],
+    max_tokens=800,   # always cap output; output is 5x the input rate
+)
+print(resp.choices[0].message.content)
+```
+
+Because the request shape is identical, an A/B test is a loop rather than a rewrite:
+
+```python
+CANDIDATES = ["claude-sonnet-5-5", "gpt-6.1-sol", "gemini-4-argon"]
+
+for model in CANDIDATES:
+    out = client.chat.completions.create(
+        model=model,
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=500,
+    )
+    record(model, out.choices[0].message.content, out.usage)
+```
+
+Two vendor-specific quirks matter before you run that loop:
+
+- **Reasoning-family models reject `max_tokens`.** `gpt-6.1-sol` and `gpt-6-astra` expect `max_completion_tokens`, and they reject a non-default `temperature`. A request that works on Sonnet 5.5 can return HTTP 400 on Sol for those two reasons alone.
+- **Claude models accept both formats.** `claude-sonnet-5-5` lists the `anthropic` and `openai` endpoint types, so you can call `POST https://tokenpapa.ai/v1/messages` with an `anthropic-version` header if you want native Anthropic semantics, or stay on the OpenAI-compatible route with the same key.
+
+If you are migrating from a direct Anthropic or OpenAI account, the change is two lines — the key and the base URL — and no application code touching the request body.
+
+---
+
+## FAQ
+
+### Is Claude cheaper than GPT in 2026?
+
+No. The current flagship pair is priced identically: `claude-sonnet-5-5` and `gpt-6.1-sol` both cost $1.86 per 1M input tokens, $9.30 per 1M output tokens, and $0.10 per 1M cached input tokens. Neither vendor has a cost advantage at that tier, so the decision has to be made on output quality and API contract.
+
+### Is Gemini the cheapest of the three?
+
+Yes on absolute price, but not at the same tier. `gemini-4-argon` costs $1.64 per 1M input and $8.20 per 1M output, which is 11.8% below Sonnet 5.5, and the platform describes it as a lean model for simple high-frequency tasks rather than a flagship. The true budget lane is `gemini-3.8-flash` at $0.62 and $3.10.
+
+### Why is my LLM bill higher than the token math suggests?
+
+Because output tokens cost five times more than input tokens on all three current flagships. At a normal 4:1 input-to-output ratio, output is only 20% of your tokens but 62.5% of your bill. Every estimate must weight output five times, and every call should set `max_tokens`.
+
+### Does prompt caching change which vendor is cheapest?
+
+It changes the size of the bill, not the ranking. Caching 60% of a stable input prefix cuts the monthly input line by 94.6% on Sonnet 5.5 and `gpt-6.1-sol`, saving $158.40 on a 100K-request month, but the relative order of vendors stays the same because the cache discount ratios are nearly identical.
+
+### Which of the three should I use for a production chatbot?
+
+Start with `claude-sonnet-5-5` or `gpt-6.1-sol` — identical price, so pick whichever wins your own evaluation — and route classification and extraction traffic to `claude-haiku-5-5` or `gemini-3.8-flash`. That tiering cuts 60–90% of a naive all-flagship bill without touching answer quality on the easy half of your traffic.
+
+---
+
+## Get started
+
+All three vendors, one key, one base URL. Create an account, generate a key, and point your client at `https://tokenpapa.ai/v1` — no per-vendor SDK, no separate billing relationship for Anthropic, OpenAI, and Google.
+
+1. **[Create an account](https://tokenpapa.ai/register)** — email or GitHub sign-in.
+2. **[Generate an API key](https://tokenpapa.ai/keys)** — one key works across all models.
+3. **Check the current rates** on the [pricing page](https://tokenpapa.ai/pricing) before you size a budget.
+4. **Track spend** in the [dashboard](https://tokenpapa.ai/dashboard/overview), per model.
+
+Related reading: the [Claude 5.5 pricing breakdown](https://doc.tokenpapa.ai/en/docs/blog/claude-5-5-pricing-comparison-2026) covers all eleven Claude IDs, [GPT-6.1 Sol vs GPT-6 Astra](https://doc.tokenpapa.ai/en/docs/blog/gpt-6-1-sol-vs-gpt-6-astra) covers the OpenAI side including the 400-error traps, and the [LLM API pricing cheat sheet](https://doc.tokenpapa.ai/en/docs/blog/llm-api-pricing-cheat-sheet-2026) puts the budget tier in one table.
+
+---
+
+*Prices verified 2026-11-13 against TokenPAPA's live pricing data (85 model entries) and the published model metadata. Rates are per 1M tokens in USD and can change — confirm on the [pricing page](https://tokenpapa.ai/pricing) before committing to a budget. Workload figures above are stated assumptions, not measurements; where the platform publishes no benchmark score, none is quoted.*

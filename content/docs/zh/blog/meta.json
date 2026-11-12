@@ -4,6 +4,7 @@
   "icon": "Newspaper",
   "root": true,
   "pages": [
+    "claude-vs-gpt-vs-gemini-pricing-2026",
     "claude-5-5-pricing-comparison-2026",
     "gpt-6-1-sol-vs-gpt-6-astra",
     "gpt-image-2-5-flare-sunburst-guide",
