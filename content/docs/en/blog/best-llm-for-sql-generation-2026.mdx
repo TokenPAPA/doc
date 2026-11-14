@@ -1,0 +1,242 @@
+---
+title: "Which LLM Is Best for SQL Generation in 2026?"
+description: "Text-to-SQL prompts are 97% input tokens, so schema caching decides your bill. Per-query costs for 13 models, plus an execution-accuracy test plan."
+date: 2026-11-15
+authors: [tokenpapa]
+category: "Model Comparison"
+keywords: ["best llm for sql", "text to sql llm", "text-to-sql model comparison 2026", "llm sql generation cost", "cheapest llm for text to sql", "natural language to sql api", "sql generation prompt caching", "nl2sql model benchmark", "llm api for database queries", "tokenpapa text to sql"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-11-15 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;Which LLM Is Best for SQL Generation in 2026?&quot;,&quot;description&quot;:&quot;Text-to-SQL prompts are 97% input tokens, so schema caching decides your bill. Per-query costs for 13 models, plus an execution-accuracy test plan.&quot;,&quot;datePublished&quot;:&quot;2026-11-15&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Which LLM is best for SQL generation in 2026?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;There is no single winner, because text-to-SQL is input-dominated. For a 5,500-token prompt with a 160-token answer, DeepSeek V4 Flash costs about 4.09 dollars per 10,000 queries once 95 percent of the schema prefix is cached, while Claude Sonnet 5.5 and GPT-6.1 Sol cost about 30.24 dollars for the same workload. Start on a cheap tier and escalate only failures.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Why does prompt caching matter more than price for text-to-SQL?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Because the schema DDL and few-shot examples are resent on every query and they are identical. In a typical setup the output query is only 2.8 percent of the tokens, so 97 percent of what you pay for is repeated context. DeepSeek V4 Flash caches input at 0.01 dollars per 1M tokens against a 0.30 dollar list price, which cuts a 10,000-query run from 18.42 to 4.09 dollars, a 78 percent reduction.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How do I measure text-to-SQL accuracy instead of guessing?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Build a golden set of 100 to 200 real analyst questions with a known-good query for each, run every candidate model against it on a read-only replica, and score by execution accuracy, meaning you execute both queries and compare result sets rather than comparing SQL strings. Two queries that differ only in join order or aliases are equivalent and string matching will wrongly mark them wrong.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Is it safe to let an LLM write queries against a production database?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Only with a read-only role, a statement timeout, an explicit table allowlist and a row limit injected on every generated query. Never connect a text-to-SQL model with credentials that can write, drop or grant, and parse the generated SQL with a real dialect parser before execution instead of trusting a string prefix check.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Can I switch text-to-SQL models without rewriting code?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Yes. TokenPAPA exposes one OpenAI-compatible endpoint at https://tokenpapa.ai/v1 where a single key reaches 80 or more model entries, so moving from DeepSeek V4 Flash to Qwen 3.8 Flash or Claude Sonnet 5.5 is a one-line model name change with no SDK or prompt rewrite.&quot;}}]}" />
+
+# Which LLM Is Best for SQL Generation in 2026?
+
+Every "cheapest model" list you have read was built for chatbots, where one message in roughly equals one message out. **Text-to-SQL is the opposite shape**: you paste a schema, a handful of few-shot examples and some retrieved rows on every single call, and the answer is one short query. In a normal setup the model reads about 5,500 tokens and writes about 160. That single ratio — not the headline price — decides which model is actually best for SQL generation, and it is why teams that pick a model by output price end up overpaying by an order of magnitude.
+
+This guide measures the real thing. It prices 13 models on TokenPAPA for a realistic text-to-SQL workload, shows why prompt caching changes the ranking, and gives you an accuracy test you can run on your own schema instead of trusting a leaderboard.
+
+> **Best LLM for SQL generation, in one paragraph**: for most teams the best model is not the strongest one, it is the cheapest one that clears your accuracy bar, because 97% of the tokens in a text-to-SQL prompt are repeated context. On TokenPAPA's live prices, DeepSeek V4 Flash costs about **$4.09 per 10,000 queries** with a 95% cache hit on the schema prefix, Qwen 3.8 Flash about **$2.21**, and Claude Sonnet 5.5 or GPT-6.1 Sol about **$30.24** for the same workload. Run a cheap tier first, escalate only the queries that fail validation.
+
+---
+
+## Why text-to-SQL breaks normal model selection
+
+A chat completion is balanced: a 400-token question and a 400-token answer. A text-to-SQL call is lopsided, and the lopsidedness is structural, not incidental.
+
+| Component of the prompt | Tokens | Repeat on every call? |
+|---|---:|:---:|
+| Schema DDL (about 30 tables, columns, types, comments) | ~4,200 | Yes |
+| Few-shot exemplars (4 question → SQL pairs) | ~900 | Yes |
+| Retrieved sample rows / value hints | ~340 | Partly |
+| User question | ~60 | No |
+| **Total input** | **~5,500** | |
+| **Output** (generated SQL + optional one-line explanation) | **~160** | |
+
+That is **2.8% output and 97.2% input**. Two consequences follow immediately:
+
+1. **Output price is nearly irrelevant.** A model with a 8× output multiplier is barely penalised, because it writes so little.
+2. **Input price and the cache discount are everything.** The 5,100 tokens of DDL and exemplars are byte-identical between requests, which is exactly the pattern prompt caching exists for.
+
+> **Key insight**: in a text-to-SQL workload the generated query is 2.8% of the tokens, so the bill is a caching problem wearing a pricing-problem costume. Two models with the same list price can differ by 4× in real cost depending on their cache ratio.
+
+---
+
+## What does one text-to-SQL query actually cost?
+
+Assume 10,000 queries a month, the workload above, and prices taken from TokenPAPA's live pricing endpoint (`/api/pricing`, read 2026-11-15). "Cold" is every request paying full input price; "cached" is a 95% hit rate on the 5,200-token static prefix.
+
+| Model | Input /1M | Output /1M | Cached input /1M | Cold, 10k queries | Cached, 10k queries |
+|---|---:|---:|---:|---:|---:|
+| Claude Haiku 5.5 | $0.01 | $0.50 | $0.01 | **$1.35** | $1.35 |
+| Doubao Seed 2.0 Mini | $0.031 | $0.312 | — | $2.20 | $2.20 |
+| GLM-5.3-Flash | $0.12 | $0.42 | $0.04 | $7.27 | $3.32 |
+| Qwen 3.8 Flash | $0.12 | $0.50 | $0.015 | $7.40 | **$2.21** |
+| Qwen 3.7 Plus | $0.20 | $0.83 | $0.04 | $12.33 | $4.42 |
+| DeepSeek V4 Flash | $0.30 | $1.20 | $0.01 | $18.42 | **$4.09** |
+| Gemini 3.8 Flash | $0.62 | $3.10 | $0.062 | $39.06 | $11.49 |
+| DeepSeek V4 Pro | $1.40 | $4.00 | $0.05 | $83.40 | $16.71 |
+| Gemini 4 Argon | $1.64 | $8.20 | $0.082 | $103.32 | $26.35 |
+| Claude Sonnet 5.5 | $1.86 | $9.30 | $0.10 | $117.18 | $30.24 |
+| GPT-6.1 Sol | $1.86 | $9.30 | $0.10 | $117.18 | $30.24 |
+| Claude Opus 5.5 | $3.72 | $18.60 | $0.20 | $234.36 | $60.47 |
+| GPT-5.6 Sol | $4.64 | $37.12 | $0.46 | $314.59 | $108.10 |
+
+Scale it up and the spread becomes uncomfortable. At **one million text-to-SQL calls a month**, DeepSeek V4 Flash with caching lands near **$409**, Sonnet 5.5 near **$3,024**, and GPT-5.6 Sol near **$10,810** — for the same prompt and the same 160-token answers. The coldest-to-hottest gap on this table is **233×** ($1.35 vs $314.59).
+
+> **Key insight**: at 10,000 queries the entire spread between a budget model and a frontier model is a few hundred dollars a month. At 1,000,000 queries it is the difference between a line item nobody notices and a budget review.
+
+### Two numbers that surprise people
+
+**Output share of the bill is not the same as output share of tokens.** Output is 2.8% of tokens but 12.7% of the bill for Sonnet 5.5, 18.9% for GPT-5.6 Sol, and **59.3%** for Claude Haiku 5.5 — whose 50:1 output multiplier means you pay mostly for the answer, not the schema. If your generated queries get longer (window functions, CTEs, multi-CTE analytical SQL), that 59% grows.
+
+**A cheap cache beats a cheap sticker price.** Caching cuts the bill by 78% on DeepSeek V4 Flash, 74% on Sonnet 5.5, 71% on Gemini 3.8 Flash, 70% on Qwen 3.8 Flash — but **0% on Claude Haiku 5.5 and Doubao Seed 2.0 Mini**, whose cached price equals their input price. A model with no cache discount is the wrong choice for a large, stable schema no matter how low its list price looks.
+
+---
+
+## Which model should you use for each tier?
+
+Prices answer "what does it cost", not "what can it do". Vendors publish general reasoning and coding benchmark scores, but none of them publish text-to-SQL execution accuracy for these exact snapshots, so the tiering below is by price and reasoning class — validate it on your schema with the test in the next section before you commit.
+
+| Tier | Job | Best value on TokenPAPA | Cached 10k queries |
+|---|---|---|---:|
+| **Draft** | autocomplete, schema-browsing, "show me the tables that could answer this" | Qwen 3.8 Flash, GLM-5.3-Flash | $2.21 – $3.32 |
+| **Default production** | routine BI questions on a documented schema | DeepSeek V4 Flash | $4.09 |
+| **Hard cases** | multi-CTE analytics, ambiguous joins, dialect corners | DeepSeek V4 Pro (budget), Claude Sonnet 5.5 / GPT-6.1 Sol (quality) | $16.71 – $30.24 |
+| **Very short outputs, no cache** | classification-style "which table" routing | Claude Haiku 5.5 | $1.35 flat |
+
+### The cheapest absolute option is not the default choice
+
+At $0.01 input and $0.50 output per 1M tokens, **Claude Haiku 5.5** is the cheapest model on this table for a 160-token answer, and it stays at $1.35 even with a perfect cache hit — because its cached price equals its input price. That makes it excellent for a narrow job: short outputs, or schemas too small and too volatile to cache. It is a poor fit for a large stable warehouse where a cacheable 5,000-token prefix is sitting right there, and you should treat its 50:1 output multiplier as a warning if your generated SQL tends to run long.
+
+### The escalation pipeline that actually wins
+
+Almost nobody needs one model for every query. Split the traffic:
+
+1. **Draft** with a cheap tier (DeepSeek V4 Flash, ~$4.09 per 10k cached).
+2. **Validate** the generated SQL mechanically: parse it with the target dialect's parser, check every referenced table and column against the schema, run `EXPLAIN` on a replica, and reject anything that scans without a filter or exceeds a cost threshold.
+3. **Escalate only the rejects** to a strong tier.
+
+If 25% of queries escalate, the blended cost is **$11.65 per 10,000 queries** (0.75 × $4.09 + 0.25 × ($4.09 + $30.24)) — about **61% cheaper** than sending everything to Sonnet 5.5 at $30.24, while the queries that actually needed the strong model still get it.
+
+> **Key insight**: a validator plus a cheap model beats a single expensive model on both cost and reliability, because parsing and `EXPLAIN` catch the failure modes that "the SQL looks plausible" never does.
+
+---
+
+## How do you measure accuracy without a leaderboard?
+
+Public text-to-SQL benchmarks are trained on well-documented academic schemas. Your warehouse has `crm_stg_orders_v3`, three columns named `status`, and a join path nobody has written down. The only accuracy number that means anything is the one you measure.
+
+Build a **golden set**:
+
+1. **Collect 100–200 real questions** from analysts, support tickets and dashboards. Not invented ones — real phrasing, including the sloppy ones.
+2. **Attach a known-good query** to each, written by someone who knows the schema.
+3. **Run every candidate model** against the same prompt builder, temperature 0, on a read-only replica.
+4. **Score by execution accuracy**, never by string comparison: run both queries and compare the result sets as multisets. Two queries that differ only in join order, aliases or `WHERE a = 1 AND b = 2` ordering are equivalent, and a string diff will mark them wrong. For ordered results, compare after stripping `ORDER BY` or compare with `EXCEPT`/`UNION ALL` in both directions depending on dialect.
+5. **Break results down by difficulty** — single-table filters, one join, three-plus joins, window functions, date arithmetic. A model that is 90% on single-table and 40% on multi-join is a different purchase decision from a flat 70%.
+6. **Record cost per successful query**, not cost per query. A model that is half the price but fails twice as often is more expensive per working answer.
+
+| Metric | What it tells you | What it hides |
+|---|---|---|
+| Execution accuracy | Does the query answer the question | Whether the SQL is readable or safe |
+| Exact-match string accuracy | Nothing useful — penalises equivalent SQL | The only thing that matters |
+| Cost per 1k queries | Your invoice | Your failure rate |
+| **Cost per successful query** | The number to buy on | Long-tail schema failures |
+
+Re-run the golden set whenever you swap models, change the prompt builder, or migrate a schema. A model swap is a one-line change on an OpenAI-compatible endpoint, which makes it cheap to test and therefore tempting to do without testing.
+
+---
+
+## What does the code look like?
+
+One key, one base URL, any of the models in the table above:
+
+```python
+import os
+from openai import OpenAI
+
+client = OpenAI(
+    api_key=os.environ["TOKENPAPA_API_KEY"],
+    base_url="https://tokenpapa.ai/v1",
+)
+
+SYSTEM = (
+    "You translate questions into {dialect} SQL. "
+    "Use only the tables and columns in the schema. "
+    "Return SQL only, no prose, no markdown fences."
+)
+
+def generate_sql(question: str, schema_ddl: str, exemplars: str) -> str:
+    resp = client.chat.completions.create(
+        model="deepseek-v4-flash",          # change this line to switch models
+        temperature=0,
+        max_tokens=400,                      # answers are short; cap them
+        messages=[
+            {"role": "system", "content": SYSTEM.format(dialect="postgres")},
+            # static prefix first, so it is the part that gets cached
+            {"role": "user", "content": schema_ddl},
+            {"role": "assistant", "content": "Understood. I will use only this schema."},
+            {"role": "user", "content": exemplars},
+            {"role": "assistant", "content": "Understood. I will follow these examples."},
+            {"role": "user", "content": question},
+        ],
+    )
+    return resp.choices[0].message.content.strip()
+```
+
+Three details in that snippet matter more than the model name:
+
+- **Static content goes first.** Prompt caching works on the longest matching prefix, so schema before exemplars before question. Interleaving a timestamp or the user's name into the system prompt destroys every cache hit you had.
+- **`temperature=0`.** Text-to-SQL is not a creative task; sampling variance shows up as schema hallucinations.
+- **`max_tokens` capped at 400.** Output is the expensive half on some models, and an uncapped answer that starts explaining itself costs you tokens you did not want.
+
+Streaming is unnecessary here — a 160-token answer arrives in one pass, and streaming adds a code path you have to maintain for no UX gain.
+
+---
+
+## How do you keep generated SQL safe?
+
+An LLM that writes SQL is an LLM with a database cursor if you let it. The controls are boring and they are not optional:
+
+| Control | Implementation | Why |
+|---|---|---|
+| Read-only role | Separate DB user with `SELECT` only, no `INSERT`/`UPDATE`/`DROP`/`GRANT` | A prompt injection in a column comment should not be able to write |
+| Table allowlist | Restrict the schema you send *and* the tables the role can read | Limits both hallucination and damage |
+| Statement timeout | `SET statement_timeout = '5s'` on the session | A missing join predicate becomes a 5-second error, not a 5-minute outage |
+| Row limit | Inject `LIMIT 1000` on generated queries that lack one | Protects memory and the replica |
+| Parser check, not prefix check | Parse with the dialect parser and assert a single `SELECT` statement | `SELECT ... ; DROP ...` passes a naive `startswith` test |
+| Replica | Point text-to-SQL at a read replica | Keeps reporting load off production |
+
+The parser check is the one teams skip and the one that matters. A string that starts with `SELECT` is not a guarantee of a single read statement; a parse tree is.
+
+---
+
+## FAQ
+
+### Which LLM is best for SQL generation in 2026?
+
+There is no single winner, because text-to-SQL is input-dominated. For a 5,500-token prompt with a 160-token answer, DeepSeek V4 Flash costs about **$4.09 per 10,000 queries** once 95% of the schema prefix is cached, while Claude Sonnet 5.5 and GPT-6.1 Sol cost about **$30.24** for the identical workload. Start on a cheap tier and escalate only the queries that fail validation.
+
+### Why does prompt caching matter more than price for text-to-SQL?
+
+Because the schema DDL and few-shot examples are resent on every query and they are byte-identical. Output is only **2.8%** of the tokens, so 97% of what you pay for is repeated context. DeepSeek V4 Flash caches input at **$0.01 per 1M tokens** against a $0.30 list price, cutting a 10,000-query run from **$18.42 to $4.09** — a 78% reduction. Models whose cached price equals their input price, such as Claude Haiku 5.5, get no benefit at all.
+
+### How do I measure text-to-SQL accuracy instead of guessing?
+
+Build a golden set of 100–200 real analyst questions with a known-good query for each, run every candidate model on a read-only replica at temperature 0, and score by **execution accuracy** — execute both queries and compare result sets, not SQL strings. Two queries that differ only in join order or aliases are equivalent, and string matching marks them wrong. Then report cost per *successful* query, not cost per query.
+
+### Is it safe to let an LLM write queries against a production database?
+
+Only with a read-only role, a statement timeout, an explicit table allowlist and a row limit injected into every generated query. Never connect a text-to-SQL model with credentials that can write, drop or grant, and parse the generated SQL with a real dialect parser before execution instead of trusting a string prefix check.
+
+### Can I switch text-to-SQL models without rewriting code?
+
+Yes. [TokenPAPA](https://tokenpapa.ai) exposes one OpenAI-compatible endpoint at `https://tokenpapa.ai/v1`, where a single key reaches 80+ model entries, so moving from `deepseek-v4-flash` to `qwen3.8-flash` or `claude-sonnet-5-5` is a one-line `model=` change with no SDK or prompt rewrite. That is also what makes a golden-set comparison cheap enough to actually run.
+
+### Should I use a reasoning model or a fast model for text-to-SQL?
+
+Use a fast model for the common case and a reasoning-class model only for hard cases. Most analyst questions are single-table filters and one or two joins, where a fast tier is accurate and 3–7× cheaper. Multi-CTE analytics, ambiguous join paths and dialect-specific date arithmetic are where a stronger model earns its price — send only those, after a validator has rejected the draft.
+
+---
+
+## Get Started
+
+- **Compare live prices** for all 80+ models at [tokenpapa.ai/pricing](https://tokenpapa.ai/pricing)
+- **Create a key** at [tokenpapa.ai/keys](https://tokenpapa.ai/keys) and point your client at `https://tokenpapa.ai/v1`
+- **Open the console** at [tokenpapa.ai/dashboard/overview](https://tokenpapa.ai/dashboard/overview) to watch per-model spend while you run your golden set
+
+Related reading on this blog:
+
+- [Why output tokens make your LLM bill bigger than your math](/en/docs/blog/best-llm-for-structured-json-output-2026) — schema-constrained output and per-call cost models
+- [DeepSeek cache hit optimization](/en/docs/blog/deepseek-cache-hit-optimization) — how prefix caching actually behaves
+- [RAG cost guide](/en/docs/blog/deepseek-rag-cost-guide) — retrieving the right tables before you generate SQL
+- [LLM API pricing cheat sheet 2026](/en/docs/blog/llm-api-pricing-cheat-sheet-2026) — the full price table
+
+---
+*Prices checked against TokenPAPA's live pricing endpoint on 2026-11-15. Cost figures are arithmetic on those prices for a stated workload of 5,500 input and 160 output tokens per query; your own prompt length will move them. Accuracy must be measured on your schema — no vendor publishes execution accuracy for these model snapshots.*

@@ -1,0 +1,213 @@
+---
+title: "2026 年做 Text-to-SQL 该用哪个大模型？"
+description: "Text-to-SQL 的提示词 97% 是输入 token，真正决定账单的是 schema 缓存。13 个模型的单查询成本实测，附准确率测试方法。"
+date: 2026-11-15
+authors: [tokenpapa]
+category: "模型对比"
+keywords: ["text to sql 模型", "SQL 生成用哪个模型", "自然语言转 SQL API", "text-to-sql 成本", "最便宜的 SQL 生成模型", "LLM 生成 SQL 准确率", "prompt 缓存 省钱", "nl2sql 选型", "大模型 API 价格对比", "tokenpapa text to sql"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-11-15 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;2026 年做 Text-to-SQL 该用哪个大模型？&quot;,&quot;description&quot;:&quot;Text-to-SQL 的提示词 97% 是输入 token，真正决定账单的是 schema 缓存。13 个模型的单查询成本实测，附准确率测试方法。&quot;,&quot;datePublished&quot;:&quot;2026-11-15&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;2026 年做 Text-to-SQL 该用哪个模型？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;没有单一答案，因为 Text-to-SQL 是输入主导型任务。以 5500 token 输入、160 token 输出计算，DeepSeek V4 Flash 在 schema 前缀缓存命中 95% 时，1 万次查询约 4.09 美元；Claude Sonnet 5.5 与 GPT-6.1 Sol 同为 30.24 美元。合理做法是先用便宜档跑，只把校验失败的查询升级到强模型。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;为什么 prompt 缓存比单价更影响成本？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;因为建表语句和 few-shot 例子每次请求都要重发，而且完全一样。这类负载里输出只占 2.8% 的 token，97% 的钱花在重复上下文上。DeepSeek V4 Flash 缓存输入价 0.01 美元每百万 token，仅为 0.30 美元标价的 3.3%，1 万次查询从 18.42 美元降到 4.09 美元，省 78%。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;怎么测 Text-to-SQL 的准确率而不是靠感觉？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;准备 100 到 200 条真实分析师问题，每条配一个已知正确 SQL，在只读从库上以 temperature 0 跑所有候选模型，用执行准确率打分：两条 SQL 都执行、比对结果集，而不是比对字符串。只差 join 顺序或别名的等价 SQL 会被字符串比对误判为错。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;让大模型直接连生产数据库安全吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;只有在只读账号、语句超时、表白名单、强制行数上限这四项都到位时才安全。绝不要给生成 SQL 的模型可写、可删、可授权的凭据，并且要用真正的方言解析器校验生成的语句，而不是判断字符串是否以 SELECT 开头。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;换模型需要重写代码吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;不需要。TokenPAPA 提供 OpenAI 兼容端点 https://tokenpapa.ai/v1，一个 Key 可调用 80 个以上模型条目，从 deepseek-v4-flash 换到 qwen3.8-flash 或 claude-sonnet-5-5 只改一行 model 名，SDK 和提示词都不用动。&quot;}}]}" />
+
+# 2026 年做 Text-to-SQL 该用哪个大模型？
+
+市面上的「最便宜模型」榜单几乎都是按聊天场景算的：一问一答，输入输出差不多长。**Text-to-SQL 正好反过来**——你每次都要把建表语句、几个 few-shot 例子、检索到的样例行一起塞进去，模型只吐一条短 SQL。典型负载大约是 **5500 token 输入、160 token 输出**。就是这个比例，而不是榜单上的单价，决定了哪个模型真的适合 SQL 生成；也正因如此，按输出价格选型的团队往往会多花一个数量级的钱。
+
+> **一句话结论**：对大多数团队来说，最好的 SQL 生成模型不是最强的那个，而是**能过准确率门槛的最便宜的那个**。按 TokenPAPA 的实时价格，schema 前缀缓存命中 95% 时，DeepSeek V4 Flash 约 **4.09 美元 / 1 万次查询**，Qwen 3.8 Flash 约 **2.21 美元**，Claude Sonnet 5.5 与 GPT-6.1 Sol 同为 **30.24 美元**。先用便宜档跑，只把校验失败的查询升级。
+
+---
+
+## 为什么 Text-to-SQL 会打破常规选型逻辑
+
+| 提示词组成 | token 数 | 是否每次重复 |
+|---|---:|:---:|
+| 建表语句（约 30 张表） | ~4200 | 是 |
+| few-shot 示例（4 组「问题 → SQL」） | ~900 | 是 |
+| 检索到的样例行 / 枚举值提示 | ~340 | 部分 |
+| 用户问题 | ~60 | 否 |
+| **输入合计** | **~5500** | |
+| **输出（生成的 SQL + 一行说明）** | **~160** | |
+
+也就是 **2.8% 输出、97.2% 输入**。两个直接结论：
+
+1. **输出单价几乎不重要**，因为模型写得很少；
+2. **输入单价和缓存折扣才是全部**，而 5100 token 的建表语句和示例每次逐字相同，这正是 prompt 缓存存在的场景。
+
+> **关键洞察**：这类负载里生成的 SQL 只占 2.8% 的 token，所以账单本质上是**缓存问题**，只是穿着价格问题的外衣。两个标价相同的模型，缓存折扣不同，真实成本能差 4 倍。
+
+---
+
+## 一次 Text-to-SQL 查询到底多少钱？
+
+按 1 万次查询、上述负载、2026-11-15 读取的 TokenPAPA 实时价格（`/api/pricing`）计算。「未缓存」= 每次输入都按全价；「已缓存」= 5100 token 静态前缀命中率 95%。
+
+| 模型 | 输入 /1M | 输出 /1M | 缓存输入 /1M | 1 万次（未缓存） | 1 万次（已缓存） |
+|---|---:|---:|---:|---:|---:|
+| Claude Haiku 5.5 | $0.01 | $0.50 | $0.01 | **$1.35** | $1.35 |
+| 豆包 Seed 2.0 Mini | $0.031 | $0.312 | — | $2.20 | $2.20 |
+| GLM-5.3-Flash | $0.12 | $0.42 | $0.04 | $7.27 | $3.32 |
+| Qwen 3.8 Flash | $0.12 | $0.50 | $0.015 | $7.40 | **$2.21** |
+| Qwen 3.7 Plus | $0.20 | $0.83 | $0.04 | $12.33 | $4.42 |
+| DeepSeek V4 Flash | $0.30 | $1.20 | $0.01 | $18.42 | **$4.09** |
+| Gemini 3.8 Flash | $0.62 | $3.10 | $0.062 | $39.06 | $11.49 |
+| DeepSeek V4 Pro | $1.40 | $4.00 | $0.05 | $83.40 | $16.71 |
+| Gemini 4 Argon | $1.64 | $8.20 | $0.082 | $103.32 | $26.35 |
+| Claude Sonnet 5.5 | $1.86 | $9.30 | $0.10 | $117.18 | $30.24 |
+| GPT-6.1 Sol | $1.86 | $9.30 | $0.10 | $117.18 | $30.24 |
+| Claude Opus 5.5 | $3.72 | $18.60 | $0.20 | $234.36 | $60.47 |
+| GPT-5.6 Sol | $4.64 | $37.12 | $0.46 | $314.59 | $108.10 |
+
+放到 **100 万次查询 / 月** 的量级：DeepSeek V4 Flash 开缓存约 **409 美元**，Sonnet 5.5 约 **3024 美元**，GPT-5.6 Sol 约 **1.08 万美元**——同样的提示词、同样 160 token 的答案。表内最贵与最便宜相差 **233 倍**。
+
+### 两个反直觉的数字
+
+**「输出占 token 的 2.8%」不等于「输出占账单的 2.8%」**：Sonnet 5.5 是 12.7%，GPT-5.6 Sol 是 18.9%，而 Claude Haiku 5.5 高达 **59.3%**——它 50:1 的输出倍率意味着你主要在为答案付钱。如果生成的 SQL 偏长（窗口函数、多层 CTE），这个比例还会涨。
+
+**便宜的缓存胜过便宜的标价**：开缓存后 DeepSeek V4 Flash 省 78%、Sonnet 5.5 省 74%、Gemini 3.8 Flash 省 71%、Qwen 3.8 Flash 省 70%，但 Claude Haiku 5.5 和豆包 Seed 2.0 Mini **省 0%**——它们的缓存价等于输入价。对又大又稳定的 schema 来说，没有缓存折扣的模型再便宜也不该选。
+
+---
+
+## 分档该选谁？
+
+价格只能回答「多少钱」，回答不了「能不能干对」。各家都只公布通用推理/代码跑分，**没有一家公布这些具体快照的 Text-to-SQL 执行准确率**，所以下面按价格与推理档次分档，正式采用前请用下一节的方法在你自己的 schema 上验证。
+
+| 档位 | 用途 | 性价比选择 | 1 万次（已缓存） |
+|---|---|---|---:|
+| **草稿档** | 自动补全、浏览表结构、「哪些表能回答这个问题」 | Qwen 3.8 Flash、GLM-5.3-Flash | $2.21 – $3.32 |
+| **生产默认** | 有文档 schema 上的常规 BI 问题 | DeepSeek V4 Flash | $4.09 |
+| **难例档** | 多层 CTE、歧义 join、方言角落 | DeepSeek V4 Pro（省钱）/ Sonnet 5.5、GPT-6.1 Sol（质量） | $16.71 – $30.24 |
+| **极短输出、无缓存** | 「该查哪张表」这类路由 | Claude Haiku 5.5 | $1.35 固定 |
+
+### 升级流水线才是真正的赢家
+
+很少有人需要一个模型打全部流量。拆成三步：
+
+1. **草稿**：便宜档生成（DeepSeek V4 Flash，缓存后约 4.09 美元 / 万次）；
+2. **机械校验**：用目标方言解析器解析 SQL、逐列对照 schema、在只读从库上跑 `EXPLAIN`，拒绝无过滤全表扫、超成本阈值的语句；
+3. **只把被拒的**升级到强档。
+
+若 25% 的查询需要升级，混合成本是 **11.65 美元 / 万次**（0.75 × 4.09 + 0.25 × (4.09 + 30.24)），比全部走 Sonnet 5.5 的 30.24 美元便宜约 **61%**，而真正需要强模型的查询依然得到了强模型。
+
+> **关键洞察**：校验器 + 便宜模型，在成本和可靠性上都优于单一贵模型，因为解析和 `EXPLAIN` 能抓住「SQL 看着挺像」永远抓不住的失败模式。
+
+---
+
+## 怎么测准确率，而不是信榜单？
+
+公开的 Text-to-SQL 榜单都在文档齐全的学术 schema 上训练。而你的数仓里叫 `crm_stg_orders_v3`，有三列都叫 `status`，join 路径没人写下来过。唯一有意义的准确率是**你自己测出来的那个**。
+
+1. **收集 100–200 条真实问题**（分析师、工单、看板里的原话，包括口语化的）；
+2. **每条配一个已知正确的 SQL**，由熟悉 schema 的人写；
+3. **所有候选模型跑同一套提示词**，temperature 0，连只读从库；
+4. **用执行准确率打分，不要比对字符串**：两条 SQL 都执行，按多重集比对结果集。只差 join 顺序、别名、`WHERE` 条件顺序的等价查询，字符串比对会误判为错；有 `ORDER BY` 时先剥离再比，或用 `EXCEPT` / `UNION ALL` 双向比对；
+5. **按难度拆分**：单表过滤、单 join、三 join 以上、窗口函数、日期运算。「单表 90% + 多表 40%」和「平均 70%」是完全不同的采购决策；
+6. **记录「每次成功的成本」**，而不是每次调用成本——便宜一半但错一倍的模型，单条有效答案更贵。
+
+---
+
+## 代码长什么样？
+
+一个 Key、一个 base URL，切换表格里任何模型：
+
+```python
+import os
+from openai import OpenAI
+
+client = OpenAI(
+    api_key=os.environ["TOKENPAPA_API_KEY"],
+    base_url="https://tokenpapa.ai/v1",
+)
+
+def generate_sql(question: str, schema_ddl: str, exemplars: str) -> str:
+    resp = client.chat.completions.create(
+        model="deepseek-v4-flash",       # 换模型只改这一行
+        temperature=0,
+        max_tokens=400,                  # 答案很短，上限压住
+        messages=[
+            {"role": "system", "content": "把问题翻译成 PostgreSQL SQL，只使用给定 schema，只返回 SQL。"},
+            # 静态内容放最前面，才会被缓存命中
+            {"role": "user", "content": schema_ddl},
+            {"role": "assistant", "content": "明白，我只使用这个 schema。"},
+            {"role": "user", "content": exemplars},
+            {"role": "assistant", "content": "明白，我按这些示例来写。"},
+            {"role": "user", "content": question},
+        ],
+    )
+    return resp.choices[0].message.content.strip()
+```
+
+三个细节比模型名更重要：
+
+- **静态内容必须排在前面**。prompt 缓存按最长公共前缀命中，schema → 示例 → 问题的顺序才对；往 system 里塞时间戳会把缓存全部打掉。
+- **`temperature=0`**。这不是创意任务，采样波动只会变成 schema 幻觉。
+- **`max_tokens` 压到 400**。输出在某些模型上是贵的那一半，不设上限等于允许模型自我解释着烧钱。
+
+这个场景不需要流式——160 token 一次就回完了，加流式只是多一条要维护的代码路径。
+
+---
+
+## 怎么保证生成的 SQL 不出事？
+
+| 控制项 | 实现方式 | 为什么必须有 |
+|---|---|---|
+| 只读账号 | 独立 DB 用户，只有 `SELECT`，无 `INSERT`/`UPDATE`/`DROP`/`GRANT` | 字段注释里的 prompt 注入不该有写权限 |
+| 表白名单 | 同时限制「发给模型的 schema」和「账号能读的表」 | 既防幻觉也防破坏 |
+| 语句超时 | 会话级 `SET statement_timeout = '5s'` | 漏掉 join 条件变成 5 秒报错，而不是 5 分钟故障 |
+| 行数上限 | 给没有 `LIMIT` 的生成语句注入 `LIMIT 1000` | 保护内存与从库 |
+| 解析器校验 | 用方言解析器解析，断言是单条 `SELECT` | `SELECT ... ; DROP ...` 能骗过 `startswith` |
+| 从库 | 指向只读从库 | 报表负载不压生产 |
+
+最常被跳过、也最该做的是解析器校验：以 `SELECT` 开头的字符串**不等于**一条只读语句，语法树才是。
+
+---
+
+## FAQ
+
+### 2026 年做 Text-to-SQL 该用哪个模型？
+
+没有单一答案，因为这是输入主导型任务。以 5500 token 输入、160 token 输出计算，schema 前缀缓存命中 95% 时，DeepSeek V4 Flash 1 万次查询约 **4.09 美元**，Claude Sonnet 5.5 与 GPT-6.1 Sol 同为 **30.24 美元**。合理做法是先用便宜档跑，只把校验失败的查询升级。
+
+### 为什么 prompt 缓存比单价更影响成本？
+
+因为建表语句和 few-shot 例子每次请求都要重发且完全一样。输出只占 **2.8%** 的 token，97% 的钱花在重复上下文上。DeepSeek V4 Flash 缓存输入价 **0.01 美元 / 1M token**，仅为 0.30 美元标价的 3.3%，1 万次查询从 **18.42 降到 4.09 美元**，省 78%。而缓存价等于输入价的模型（如 Claude Haiku 5.5）一点都省不到。
+
+### 怎么测准确率而不是靠感觉？
+
+准备 100–200 条真实分析师问题，每条配已知正确 SQL，在只读从库上以 temperature 0 跑所有候选模型，用**执行准确率**打分——两条都执行、比对结果集，而不是比对字符串。最后报告「每次成功的成本」，不是每次调用的成本。
+
+### 让大模型直接连生产库安全吗？
+
+只有在只读账号、语句超时、表白名单、强制行数上限四项都到位时才安全。绝不要给生成 SQL 的模型可写、可删、可授权的凭据，并且要用真正的方言解析器校验语句，而不是判断字符串是否以 `SELECT` 开头。
+
+### 换模型需要重写代码吗？
+
+不需要。[TokenPAPA](https://tokenpapa.ai) 提供 OpenAI 兼容端点 `https://tokenpapa.ai/v1`，一个 Key 可调用 80 个以上模型条目，从 `deepseek-v4-flash` 换到 `qwen3.8-flash` 或 `claude-sonnet-5-5` 只改一行 `model=`，SDK 和提示词都不用动——这也是为什么「跑一遍金标集」这件事便宜到真的值得做。
+
+### 该用推理模型还是快模型？
+
+常见问题用快模型，难例才上推理档。大多数分析师问题就是单表过滤加一两个 join，快档既准又便宜 3–7 倍。多层 CTE、歧义 join、方言特有的日期运算才是强模型回本的地方——而且只在校验器拒掉草稿之后才发过去。
+
+---
+
+## 开始使用
+
+- 在 [tokenpapa.ai/pricing](https://tokenpapa.ai/pricing) 对比全部 80+ 模型实时价格
+- 到 [tokenpapa.ai/keys](https://tokenpapa.ai/keys) 创建 Key，把客户端指向 `https://tokenpapa.ai/v1`
+- 打开 [tokenpapa.ai/dashboard/overview](https://tokenpapa.ai/dashboard/overview) 边跑金标集边看各模型花费
+
+延伸阅读：
+
+- [结构化 JSON 输出该用哪个模型](/zh/docs/blog/best-llm-for-structured-json-output-2026) —— 受约束输出与单次调用成本模型
+- [DeepSeek 缓存命中优化](/zh/docs/blog/deepseek-cache-hit-optimization) —— 前缀缓存的真实行为
+- [RAG 成本指南](/zh/docs/blog/deepseek-rag-cost-guide) —— 先把对的表检索出来，再生成 SQL
+- [2026 LLM API 价格速查表](/zh/docs/blog/llm-api-pricing-cheat-sheet-2026) —— 完整价格表
+
+---
+*价格于 2026-11-15 从 TokenPAPA 实时定价接口核对。成本数字是按「5500 输入 + 160 输出 token / 次」这一口径算出的算术结果，你的提示词长度不同会得到不同数字。准确率必须在你自己的 schema 上实测——各家均未公布这些模型快照的执行准确率。*
