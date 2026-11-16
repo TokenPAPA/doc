@@ -1,0 +1,251 @@
+---
+title: "Claude Code 怎么用自己的 API Key？自定义 Endpoint 配置与真实成本（2026）"
+description: "Claude Code 可以指向任何兼容 Anthropic 的网关。两个环境变量的准确写法、11 个可达的 Claude 模型，以及 75% 缓存命中下每 1000 轮会话的真实成本。"
+date: 2026-11-17
+authors: [tokenpapa]
+category: "教程"
+keywords: ["claude code 自定义 api", "claude code base url", "anthropic_base_url 配置", "claude code 用自己的 key", "claude code 代理 网关", "claude code 每月成本", "claude code 便宜 api", "claude code 接入教程", "claude sonnet 5.5 价格", "tokenpapa claude code"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-11-17 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;Claude Code 怎么用自己的 API Key？自定义 Endpoint 配置与真实成本（2026）&quot;,&quot;description&quot;:&quot;Claude Code 可以指向任何兼容 Anthropic 的网关。两个环境变量的准确写法、11 个可达的 Claude 模型，以及 75% 缓存命中下每 1000 轮会话的真实成本。&quot;,&quot;datePublished&quot;:&quot;2026-11-17&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;inLanguage&quot;:&quot;zh-CN&quot;}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Claude Code 支持自定义 API 地址吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;支持。Claude Code 本质是 Anthropic Messages API 的客户端，服务地址从 ANTHROPIC_BASE_URL 读取，所以任何能响应 POST /v1/messages 的网关都能接。注意地址只写到域名，不要带 /v1，因为 Anthropic SDK 会自己拼上 /v1/messages。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Claude Code 每 1000 轮对话大概多少钱？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;按 TokenPAPA 实时价格，把一轮会话建模为输入 18000 token、输出 550 token、其中 75% 输入命中缓存，Claude Sonnet 5.5 约 14.84 美元/1000 轮，Opus 5.5 约 29.67 美元，Haiku 5.5 约 0.46 美元。同样 1000 轮若完全不做缓存，Sonnet 5.5 要 38.59 美元，缓存命中率决定 62% 的账单。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Claude Code 能跑 DeepSeek、Qwen 这些非 Claude 模型吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;不能直接跑。网关的定价元数据显示，11 个 claude 模型的 supported_endpoint_types 同时包含 anthropic 和 openai，其他所有模型只有 openai，也就是说 /v1/messages 只有 Claude 系列在服务。要在 Claude Code 里用 DeepSeek 或 Qwen，必须加一层翻译代理，把 Anthropic 格式请求改写成 OpenAI 格式。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;把 Claude Code 指向网关后哪些功能会不工作？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;主要是 token 计数。实测 POST /v1/messages 对无效 Key 返回 401（说明路由存在），而 POST /v1/messages/count_tokens 返回 404（路由不存在），所以需要精确预统计 token 的功能拿不到数据。建议显式设置 CLAUDE_CODE_MAX_OUTPUT_TOKENS，按自己的预算控制上下文，并以控制台的按模型消费为准。&quot;}}]}" />
+
+# Claude Code 怎么用自己的 API Key？自定义 Endpoint 配置与真实成本（2026）
+
+Claude Code 并没有锁死在官方计费上。它只是 Anthropic Messages API 的一个客户端，服务地址存在环境变量里。改两个变量，终端里的工作流、斜杠命令、改动确认提示全都不变，只是 token 换了个地方计费。
+
+多数教程只给配置，不给钱。这篇补三件事：**准确的两个变量写法和顺序**、**Anthropic 路由上到底哪些模型能通**（11 个，不是全部 85 个）、以及**一轮真实会话的账单长什么样**。另外单独说一个会返回 404 的接口 —— 这是后面排查问题时最容易被误判成网络故障的地方。
+
+> **一句话答案**：把 `ANTHROPIC_BASE_URL` 设为网关域名、`ANTHROPIC_AUTH_TOKEN` 设为你的 Key，然后照常启动 `claude`。Claude Code 会向你指定的地址发 `POST /v1/messages`。在 TokenPAPA 上这个域名是 `https://tokenpapa.ai`，**不要带 `/v1`**，SDK 自己会拼。
+
+---
+
+## Claude Code 支持自定义 Base URL 吗?
+
+支持。Claude Code 读四个环境变量就能把整个客户端重定向：
+
+| 变量 | 作用 | 示例值 |
+|---|---|---|
+| `ANTHROPIC_BASE_URL` | Messages API 的主机地址 | `https://tokenpapa.ai`（不带 `/v1`） |
+| `ANTHROPIC_AUTH_TOKEN` | 作为凭证发送的 Key | 在 [tokenpapa.ai/keys](https://tokenpapa.ai/keys) 生成 |
+| `ANTHROPIC_MODEL` | 会话默认模型 | `claude-sonnet-5-5` |
+| `ANTHROPIC_SMALL_FAST_MODEL` | 后台小任务用的廉价模型 | `claude-haiku-5-5` |
+
+两个细节决定了 90% 的失败：
+
+1. **Base URL 不能带 `/v1`。** SDK 的最终地址是「base + `/v1/messages`」。你自己再加 `/v1`，请求会打到 `/v1/v1/messages` —— 实测返回 **404**。同一台网关：正确路径无凭证 POST 返回 401（路由存在、需要鉴权），双 `/v1` 返回 404（路由不存在）。
+2. **小模型变量改过名。** 旧版本读 `ANTHROPIC_SMALL_FAST_MODEL`，新版本读 `ANTHROPIC_DEFAULT_HAIKU_MODEL` 和 `ANTHROPIC_DEFAULT_SONNET_MODEL`。**两种都写上**。变量名写错不会报错，只会被静默忽略 —— 表现和「配置没生效」一模一样。
+
+> **核心结论**：把 Claude Code 指向网关是改两个变量，不是改代码。跑不通时先看 base URL 有没有多写 `/v1`，再看 Key 有没有导出到 Claude Code 那个进程里。
+
+---
+
+## 三步配置
+
+**第一步**：在 [tokenpapa.ai/sign-in](https://tokenpapa.ai/sign-in) 登录（没账号先 [register](https://tokenpapa.ai/register)），到 [tokenpapa.ai/keys](https://tokenpapa.ai/keys) 建 Key，只显示一次，当场复制。
+
+**第二步**：写进 shell 配置，让每个新终端都带上：
+
+```bash
+# ~/.zshrc 或 ~/.bashrc
+export ANTHROPIC_BASE_URL="https://tokenpapa.ai"
+export ANTHROPIC_AUTH_TOKEN="sk-填写你的Key"
+export ANTHROPIC_MODEL="claude-sonnet-5-5"
+export ANTHROPIC_SMALL_FAST_MODEL="claude-haiku-5-5"
+export ANTHROPIC_DEFAULT_HAIKU_MODEL="claude-haiku-5-5"
+```
+
+**第三步**：启动 `claude`，执行 `/status`。它会打印当前解析到的 base URL 和模型，是确认变量生效最快的方法。`/model` 可中途切换，`/cost` 看本会话花了多少。
+
+团队协作用项目内的 `.claude/settings.json`，别让每个人手改 shell：
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://tokenpapa.ai",
+    "ANTHROPIC_MODEL": "claude-sonnet-5-5",
+    "ANTHROPIC_SMALL_FAST_MODEL": "claude-haiku-5-5",
+    "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "8000"
+  }
+}
+```
+
+**Key 不要写进这个文件** —— 它会被提交进仓库。只在里面放路由，Key 留在各人自己的环境变量或密钥管理里。
+
+---
+
+## 哪些模型真的能通?
+
+不是全部。网关的定价元数据里每个模型都有 `supported_endpoint_types` 字段，界线非常干净：11 个 `claude-*` 同时标 **anthropic** 和 **openai**，其余所有条目只标 **openai**。所以 Anthropic 路由上只有 Claude 家族，截至 2026-11-17 共 11 个：
+
+| 模型 ID | 输入 /1M | 输出 /1M | 缓存输入 /1M | 说明 |
+|---|---:|---:|---:|---|
+| `claude-haiku-5-5` | $0.01 | $0.50 | $0.01 | 最便宜，但缓存无折扣 |
+| `claude-sonnet-5-5` | $1.86 | $9.30 | $0.10 | 写代码的最佳默认 |
+| `claude-sonnet-5` | $2.00 | $9.60 | $0.20 | 上一代 Sonnet |
+| `claude-sonnet-4-6` | $3.20 | $16.00 | $0.32 | 更旧且更贵 |
+| `claude-opus-5-5` | $3.72 | $18.60 | $0.20 | 恰好 2× Sonnet 5.5 |
+| `claude-opus-5` | $4.65 | $23.25 | $0.50 | |
+| `claude-opus-4-8` | $4.78 | $23.90 | $0.478 | |
+| `claude-opus-4-7` | $4.78 | $23.90 | $0.478 | 与 4-8 同价 |
+| `claude-opus-4-6` | $5.34 | $26.70 | $0.534 | 最贵的 Opus |
+| `claude-fable-5-1` | $9.60 | $47.80 | $0.24 | 顶配，缓存便宜 |
+| `claude-fable-5` | $9.5625 | $47.8125 | $0.9563 | 顶配，缓存贵 |
+
+模型 ID 按上表原样写。带日期后缀的快照 ID（如厂商的 `-20260101`）不会被别名匹配，报错发生在请求阶段而不是启动阶段，看起来特别像网络问题。
+
+**想在 Claude Code 里跑 DeepSeek / Qwen / GLM**，必须加一层翻译代理（LiteLLM、Claude Code Router 之类）：接住 Anthropic 格式请求，改写成 `/v1/chat/completions`，再把响应转回来。能跑，但多一个会坏的环节 —— 流式事件、工具调用块、思考块都要映射，代理不认识的块会静默丢掉。
+
+> **核心结论**：Anthropic 路由是「Claude 专属路线」。「一个 Key 调 80+ 模型」说的是 `https://tokenpapa.ai/v1` 这条 OpenAI 兼容路由；`/v1/messages` 上只有 11 个 Claude。
+
+---
+
+## 一轮会话到底多少钱?
+
+Claude Code 的 token 结构和聊天机器人相反：每次请求都要重发系统提示词、工具定义和不断变长的对话，而模型写出来的东西很少 —— 一个 diff、一条命令、两句解释。
+
+一轮典型请求：
+
+| 组成 | 每次请求 token | 是否重复 |
+|---|---:|---|
+| 系统提示词 + 工具 schema | ~11,000 | 每轮重复，字节相同 |
+| 对话历史 | ~6,400 | 增长，前缀稳定 |
+| 本次用户消息 | ~600 | 一次 |
+| **输入合计** | **~18,000** | |
+| **输出**（diff / 命令 / 小结） | **~550** | |
+
+也就是 **输出只占 3.0%，输入占 97.0%**。按 75% 缓存命中（前缀稳定时很容易达到）算 1000 轮和 5000 轮（约等于一个人每天 150 次请求、22 个工作日）：
+
+| 模型 | 无缓存 1000 轮 | 有缓存 1000 轮 | 省下 | 有缓存 5000 轮 |
+|---|---:|---:|---:|---:|
+| `claude-haiku-5-5` | $0.46 | **$0.46** | 0% | **$2.27** |
+| `claude-sonnet-5-5` | $38.59 | **$14.84** | 62% | **$74.18** |
+| `claude-sonnet-5` | $41.28 | $16.98 | 59% | $84.90 |
+| `claude-sonnet-4-6` | $66.40 | $27.52 | 59% | $137.60 |
+| `claude-opus-5-5` | $77.19 | $29.67 | 62% | $148.35 |
+| `claude-opus-5` | $96.49 | $40.46 | 58% | $202.31 |
+| `claude-opus-4-8` | $99.19 | $41.11 | 59% | $205.54 |
+| `claude-opus-4-6` | $110.81 | $45.92 | 59% | $229.62 |
+| `claude-fable-5-1` | $199.09 | $72.73 | 63% | $363.65 |
+| `claude-fable-5` | $198.42 | $82.24 | 59% | $411.19 |
+
+把前两行放在一起看：Haiku 5.5 的 1000 轮 $0.46，比 **Sonnet 5.5 开了缓存还便宜 32 倍**，比不开缓存便宜 84 倍。一个人一个月就是 $2.27 对 $74.18 —— 一个是零头，一个是账单条目。
+
+---
+
+## 为什么缓存折扣比标价更重要?
+
+因为 97% 的 token 在输入侧，输入价就是账单，而**缓存后的输入价才是真正的输入价**。各家的折扣倍率差异远大于标价差异：
+
+| 模型 | 输入 /1M | 缓存 /1M | 缓存折扣 |
+|---|---:|---:|---:|
+| `claude-sonnet-5-5` | $1.86 | $0.10 | 94.6% |
+| `claude-opus-5-5` | $3.72 | $0.20 | 94.6% |
+| `claude-fable-5-1` | $9.60 | $0.24 | 97.5% |
+| `claude-haiku-5-5` | $0.01 | $0.01 | 0% |
+
+Haiku 5.5 是个反例：绝对价格已经低到不需要折扣，事实也确实没有折扣，但它 5000 轮一个月仍然只要 $2.27，比所有模型折后价都低。如果你的活儿主要是搜索、读文件、改名、小改动，直接选最便宜那档，缓存讨论没有意义。中间价位才是缓存真正决定胜负的地方 —— Sonnet 5.5 和 GPT-6.1 Sol 标价完全相同（$1.86/$9.30），「哪家便宜」这个问题在标价上无解，差别只在你自己的命中率和提示词稳定度。
+
+保住缓存命中率的三条实操规则：
+
+- **别把时间戳、主机名、当前分支塞进系统提示词** —— 每次都让前缀失效。
+- **大文件用工具读，别贴在第一条消息里** —— 贴进去的 8000 token 会按全价在每一轮重算，除非它落在缓存前缀内。
+- **会话内别增减 MCP server** —— 工具块一变，缓存全掉。
+
+> **核心结论**：在 Claude Code 里，你买的不是「每美元多少智能」，而是「每美元多少缓存稳定性」。同一个模型、同一个套餐，两个团队只因为命中率不同就能差出 2.6 倍账单。
+
+---
+
+## 指向网关后哪些东西会坏?
+
+按踩坑频率从高到低：
+
+| 现象 | 最可能原因 | 处理 |
+|---|---|---|
+| 每个请求都 404 | base URL 多写了 `/v1` | 只写域名 |
+| OpenAI 路由能用的 Key 在这里 401 | Key 没导出到 Claude Code 进程 | 写进 `settings.json` 的 `env` 或 shell 配置后重启 |
+| 模型不存在 | 用了带日期后缀的快照 ID | 用 [pricing](https://tokenpapa.ai/pricing) 上的目录名 |
+| 花费比预期高 | 缓存没命中，或小模型变量名写错 | 检查前缀稳定性，两种变量名都写 |
+
+**最值得单独说明的是 token 计数。** Claude Code 在某些路径上会先问一声「这段上下文多少 token」。实测这台网关：`POST /v1/messages` 对无效 Key 返回 **401**（路由存在、需要鉴权），而 `POST /v1/messages/count_tokens` 返回 **404**（路由不存在）。结论是精确的预统计拿不到，依赖它的功能不能靠它。做法：显式设置 `CLAUDE_CODE_MAX_OUTPUT_TOKENS`、自己控制上下文预算、以控制台的按模型消费为准，别信上下文计量条。
+
+---
+
+## 便宜模型和强模型怎么分工?
+
+不是「选一个最好的」，而是按任务形态分流。Claude Code 的会话绝大多数是廉价劳动：找符号、读文件、跑测试、报结果；只有少数几轮是真正的多文件推理，那种才值得上更贵的模型。
+
+| 会话里的任务 | 占比 | 模型 | 理由 |
+|---|---:|---|---|
+| 搜索、阅读、解释单个文件 | 60% | `claude-haiku-5-5` | 机械活，输出极短，这个价位缓存已无所谓 |
+| 改代码、重构、写测试 | 35% | `claude-sonnet-5-5` | 需要可靠的多文件编辑 |
+| 调一个跨服务的 bug、设计迁移方案 | 5% | `claude-opus-5-5` | 只有这几轮值 2 倍价 |
+
+同样 1000 轮，这个组合是 **$6.95**；全走 Sonnet 是 **$14.84**，全走 Opus 是 **$29.67** —— 比默认的「全用 Sonnet」低 53%。任务类型变了就 `/model` 切，不用重开会话。
+
+> **核心结论**：三档分流比「选最强模型」省 2.1 倍，而且在真正需要推理的那 5% 上没有损失。贵模型应该看那 5%，而不是 60% 的找文件。
+
+---
+
+## 团队怎么铺开而不被账单吓到?
+
+三个控制项，都很便宜：
+
+1. **仓库里的 `settings.json`** 固定 base URL 和默认模型，省得有人手改 shell、也避免有人误指向个人账号。
+2. **一人一个 Key，不要团队共用一个。** 共用 Key 等于关掉按人归因，出问题时看不出是谁在烧钱。
+3. **每周一看一次消费。** 重点看缓存输入量与非缓存输入量的比例。命中率低于 60% 是提示词结构问题，不是价格问题 —— 改这个比换模型有用得多。
+
+还有一条是代码 Agent 特有的：**给输出封顶**。一个开始用 2000 token 段落「讲计划」的失控 Agent 也不是模型问题 —— `CLAUDE_CODE_MAX_OUTPUT_TOKENS` 加上一句「写完 diff 就停」，两个都写上。
+
+---
+
+## 常见问题
+
+### Claude Code 支持自定义 API 地址吗？
+
+支持。Claude Code 是 Anthropic Messages API 的客户端，服务地址从 `ANTHROPIC_BASE_URL` 读取，任何能响应 `POST /v1/messages` 的网关都能接。地址只写到域名、**不要带 `/v1`**（SDK 会自己拼 `/v1/messages`），Key 放在 `ANTHROPIC_AUTH_TOKEN`。
+
+### Claude Code 每 1000 轮对话大概多少钱？
+
+按 TokenPAPA 实时价格、输入 18000 token / 输出 550 token、75% 输入命中缓存计算：`claude-sonnet-5-5` 约 **$14.84/1000 轮**，`claude-opus-5-5` 约 **$29.67**，`claude-haiku-5-5` 约 **$0.46**。完全不做缓存时 Sonnet 5.5 要 **$38.59**，缓存命中率决定了 62% 的账单。
+
+### Claude Code 能跑 DeepSeek、Qwen 吗？
+
+不能直接跑。定价元数据显示 11 个 Claude 模型的 `supported_endpoint_types` 同时含 `anthropic` 和 `openai`，其他模型只有 `openai`，所以 `/v1/messages` 只服务 Claude 系列。要跑 DeepSeek / Qwen，必须加一层把 Anthropic 请求翻译成 OpenAI 请求的代理。
+
+### 指向网关后哪些功能会不工作？
+
+主要是 token 计数：`POST /v1/messages/count_tokens` 实测返回 **404**，而 `POST /v1/messages` 对无效 Key 返回 401 —— 对话路由存在、计数路由不存在。所以精确预统计拿不到：显式设置输出上限、自己控上下文，以控制台的按模型消费为准。
+
+### 用 Haiku 跑 Claude Code 是不是更省钱？
+
+纯机械活的话便宜到夸张：本期工作负载下 Haiku 5.5 是 **$0.46/1000 轮**，Sonnet 5.5 开缓存是 **$14.84**，差 32 倍，因为这个价位上唯一的变量就是输出价。但多文件重构不适合 —— 一次改错重来的成本比省下的高。按任务分流，别一刀切。
+
+### Claude Code 和 OpenAI 兼容接口要用两个 Key 吗？
+
+不用。同一个 Key 两条路由都认：Anthropic 路径是 `https://tokenpapa.ai` + `/v1/messages`，OpenAI 路径是 `https://tokenpapa.ai/v1` + `/chat/completions`。所以终端里跑 Claude Code、生产里跑 OpenAI SDK，可以共用一个账号、看同一张消费报表。
+
+---
+
+## 开始使用
+
+- **建 Key**：到 [tokenpapa.ai/keys](https://tokenpapa.ai/keys) 生成，导出 `ANTHROPIC_BASE_URL` 和 `ANTHROPIC_AUTH_TOKEN`，启动后 `/status` 确认
+- **比价**：11 个 Claude 模型和 70+ 其他模型的价格都在 [tokenpapa.ai/pricing](https://tokenpapa.ai/pricing)
+- **看消费**：[tokenpapa.ai/dashboard/overview](https://tokenpapa.ai/dashboard/overview) 里核对本周缓存与非缓存输入量
+- **新用户**：[tokenpapa.ai/register](https://tokenpapa.ai/register) 注册，一个 Key 同时支持 OpenAI 兼容与 Anthropic 兼容两条路由
+
+同站相关文章：
+
+- [Claude 5.5 价格全解析](/zh/docs/blog/claude-5-5-pricing-comparison-2026) —— 完整 Claude 价格阶梯与单任务成本
+- [在 Cursor 里配置自定义 API Key](/zh/docs/blog/cursor-custom-api-key-setup) —— 同样的思路用在 IDE 上
+- [2026 年代码审查该用哪个模型](/zh/docs/blog/best-llm-for-code-review-2026) —— 单次 PR 成本模型
+- [LLM API 价格速查表 2026](/zh/docs/blog/llm-api-pricing-cheat-sheet-2026) —— 一页看完全部模型
+
+---
+*价格读取自 TokenPAPA 实时定价接口（2026-11-17）。成本为按「每轮输入 18000 / 输出 550 token、缓存命中 75%」这一明确工作负载做的算术，你自己的 token 结构会改变结果。路由可用性来自实测：POST /v1/messages 无凭证返回 401（路由存在、需鉴权），POST /v1/messages/count_tokens 返回 404。环境变量名在不同 Claude Code 版本间会变化，请在自用版本中用 /status 核实。*

@@ -4,6 +4,7 @@
   "icon": "Newspaper",
   "root": true,
   "pages": [
+    "claude-code-custom-api-endpoint",
     "best-llm-for-sql-generation-2026",
     "claude-vs-gpt-vs-gemini-pricing-2026",
     "claude-5-5-pricing-comparison-2026",

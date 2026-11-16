@@ -1,0 +1,259 @@
+---
+title: "Claude Code Custom API Endpoint: Setup and Real Costs 2026"
+description: "Claude Code works with any Anthropic-compatible key. Exact env vars, which of the 11 Claude models are reachable, and per-1,000-turn costs at 75% cache hits."
+date: 2026-11-17
+authors: [tokenpapa]
+category: "Tutorial"
+keywords: ["claude code custom api", "claude code base url", "anthropic_base_url claude code", "claude code api key setup", "claude code cheap api", "claude code proxy gateway", "claude code cost per month", "claude code alternative endpoint", "run claude code with own key", "tokenpapa claude code"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-11-17 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;Claude Code Custom API Endpoint: Setup and Real Costs 2026&quot;,&quot;description&quot;:&quot;Claude Code works with any Anthropic-compatible key. Exact env vars, which of the 11 Claude models are reachable, and per-1,000-turn costs at 75% cache hits.&quot;,&quot;datePublished&quot;:&quot;2026-11-17&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Does Claude Code support a custom API endpoint?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Yes. Claude Code is a client for the Anthropic Messages API and reads its host from the ANTHROPIC_BASE_URL environment variable, so any gateway that answers POST /v1/messages works. Point ANTHROPIC_BASE_URL at the host without a trailing /v1 and put the key in ANTHROPIC_AUTH_TOKEN, because the Anthropic SDK appends /v1/messages itself.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How much does Claude Code cost per 1,000 turns on a gateway?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;On TokenPAPA live prices, a turn modelled at 18,000 input and 550 output tokens with 75 percent of input served from cache costs about 14.84 dollars per 1,000 turns on Claude Sonnet 5.5, 29.67 dollars on Opus 5.5, and 0.46 dollars on Haiku 5.5. Without caching the same 1,000 Sonnet 5.5 turns cost 38.59 dollars, so the cache hit rate is worth 62 percent of the bill.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Can Claude Code run non-Claude models?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Not directly. TokenPAPA pricing metadata lists supported_endpoint_types as anthropic plus openai for all 11 claude models, and openai only for every other model, so /v1/messages is served by Claude models alone. Running DeepSeek or Qwen inside Claude Code requires a translation proxy that converts Anthropic-format requests into OpenAI-format ones.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;What breaks when you point Claude Code at a gateway?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;The main gap is token accounting. TokenPAPA answers POST /v1/messages with 401 for a bad key, which proves the route exists, but POST /v1/messages/count_tokens returns 404, so a client that asks for an exact pre-flight token count gets nothing. Budget output tokens explicitly, keep CLAUDE_CODE_MAX_OUTPUT_TOKENS set, and watch the console rather than relying on a context meter.&quot;}}]}" />
+
+# Claude Code Custom API Endpoint: Setup and Real Costs 2026
+
+Claude Code is not locked to Anthropic's billing. It is a thin client for the Anthropic Messages API, and the host it talks to comes from an environment variable. That means you can keep the same terminal workflow, the same slash commands and the same approval prompts, while the tokens are billed somewhere else.
+
+This guide does three things a generic setup post does not: it shows the exact two variables and the order to set them in, it lists **which models actually answer on the Anthropic route** (11 of them, and not the other 74), and it prices a realistic session so you know what a month of Claude Code costs before you commit. It also documents the one endpoint that returns 404 on this path, which is the detail most tutorials skip and the one that produces confusing errors later.
+
+> **Short answer**: set `ANTHROPIC_BASE_URL` to the gateway host and `ANTHROPIC_AUTH_TOKEN` to your key, then start `claude` as usual. Claude Code sends `POST /v1/messages` to whatever host you point at. On TokenPAPA that host is `https://tokenpapa.ai` — with no `/v1` suffix, because the Anthropic SDK appends `/v1/messages` itself.
+
+---
+
+## Does Claude Code support a custom base URL?
+
+Yes. Claude Code reads four environment variables that between them redirect the entire client. The two that matter for a gateway are the base URL and the auth token; the rest control which model runs.
+
+| Variable | Purpose | Value for a gateway |
+|---|---|---|
+| `ANTHROPIC_BASE_URL` | Host for the Messages API | `https://tokenpapa.ai` (no `/v1`) |
+| `ANTHROPIC_AUTH_TOKEN` | Key sent as the bearer credential | your `sk-` key from [tokenpapa.ai/keys](https://tokenpapa.ai/keys) |
+| `ANTHROPIC_MODEL` | Default model for the session | `claude-sonnet-5-5` |
+| `ANTHROPIC_SMALL_FAST_MODEL` | Cheap model for background tasks | `claude-haiku-5-5` |
+
+Two naming details are worth pinning down, because they are the source of most failed setups:
+
+1. **No `/v1` on the base URL.** The SDK builds the final URL as base + `/v1/messages`. Add `/v1` yourself and the request goes to `/v1/v1/messages`, which returns **404**. Verified on this gateway: correct path 401 to an unauthenticated POST (route exists, auth required), doubled path 404 (no such route).
+2. **The small-model variable has moved.** Older builds read `ANTHROPIC_SMALL_FAST_MODEL`; newer ones read `ANTHROPIC_DEFAULT_HAIKU_MODEL` and `ANTHROPIC_DEFAULT_SONNET_MODEL`. Set both spellings. An unrecognised variable is silently ignored, not an error, so a stale one looks exactly like "the setting did not apply".
+
+> **Key insight**: pointing Claude Code at a gateway is a two-variable change, not a fork. If your setup does not work, the cause is almost always a `/v1` suffix on the base URL or a key exported in a shell that Claude Code does not inherit.
+
+---
+
+## How do you configure it in three steps?
+
+**Step 1 — create the key.** Sign in at [tokenpapa.ai/sign-in](https://tokenpapa.ai/sign-in) (or register at [tokenpapa.ai/register](https://tokenpapa.ai/register)), open [tokenpapa.ai/keys](https://tokenpapa.ai/keys) and create a key. Copy it once; the console shows it a single time.
+
+**Step 2 — export the variables.** Put this in your shell profile so every new terminal inherits it:
+
+```bash
+# ~/.zshrc or ~/.bashrc
+export ANTHROPIC_BASE_URL="https://tokenpapa.ai"
+export ANTHROPIC_AUTH_TOKEN="sk-paste-your-key-here"
+export ANTHROPIC_MODEL="claude-sonnet-5-5"
+export ANTHROPIC_SMALL_FAST_MODEL="claude-haiku-5-5"
+export ANTHROPIC_DEFAULT_HAIKU_MODEL="claude-haiku-5-5"
+```
+
+**Step 3 — confirm the client sees it.** Start `claude`, then run `/status`. It prints the resolved base URL and model, which is the fastest way to catch a variable that never reached the process. `/model` switches mid-session, and `/cost` reports what the current session has spent.
+
+For a team, put the same values in the project's `.claude/settings.json` instead of asking everyone to edit their shell profile:
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://tokenpapa.ai",
+    "ANTHROPIC_MODEL": "claude-sonnet-5-5",
+    "ANTHROPIC_SMALL_FAST_MODEL": "claude-haiku-5-5",
+    "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "8000"
+  }
+}
+```
+
+Keep the **token** out of that file — it is committed to the repository. Leave `ANTHROPIC_AUTH_TOKEN` in each developer's own environment or in a secrets manager, and commit only the routing.
+
+> **Key takeaway**: commit the routing, never the key. `settings.json` is a shared artifact; an auth token in it is a leaked credential the moment someone clones the repo.
+
+---
+
+## Which models can you actually reach?
+
+Not all of them. Pricing metadata on the gateway lists `supported_endpoint_types` per model, and the split is clean: every `claude-*` entry advertises **anthropic** and **openai**, while every other entry advertises **openai** only. So the Anthropic route is served by the Claude family, and these are the eleven entries on it as of 2026-11-17.
+
+| Model ID | Input /1M | Output /1M | Cached input /1M | Notes |
+|---|---:|---:|---:|---|
+| `claude-haiku-5-5` | $0.01 | $0.50 | $0.01 | Cheapest; no cache discount |
+| `claude-sonnet-5-5` | $1.86 | $9.30 | $0.10 | Best default for coding |
+| `claude-sonnet-5` | $2.00 | $9.60 | $0.20 | Previous Sonnet |
+| `claude-sonnet-4-6` | $3.20 | $16.00 | $0.32 | Older, dearer than 5.5 |
+| `claude-opus-5-5` | $3.72 | $18.60 | $0.20 | 2x Sonnet 5.5, same ratio |
+| `claude-opus-5` | $4.65 | $23.25 | $0.50 | |
+| `claude-opus-4-8` | $4.78 | $23.90 | $0.478 | |
+| `claude-opus-4-7` | $4.78 | $23.90 | $0.478 | Same price as 4-8 |
+| `claude-opus-4-6` | $5.34 | $26.70 | $0.534 | Most expensive Opus |
+| `claude-fable-5-1` | $9.60 | $47.80 | $0.24 | Top tier, cheap cache |
+| `claude-fable-5` | $9.5625 | $47.8125 | $0.9563 | Top tier, weak cache |
+
+Use the IDs exactly as written. Claude Code will happily send a dated snapshot ID like a vendor's `-20260101` suffix, but the gateway matches on its own catalogue names, and an unmatched ID fails at request time rather than at startup — which looks like a network problem and is not.
+
+**If you want DeepSeek, Qwen or GLM inside Claude Code**, you need a translation layer. Those models are OpenAI-format only here, so a proxy such as LiteLLM or Claude Code Router has to accept the Anthropic request, rewrite it as `/v1/chat/completions`, and translate the response back. That works, but it is a second moving part: streaming events, tool-call blocks and thinking blocks all need mapping, and any block the proxy does not understand silently disappears from the transcript.
+
+> **Key insight**: the Anthropic route is a Claude-only route here. "One key, 80+ models" is true on the OpenAI-compatible endpoint at `https://tokenpapa.ai/v1`; on `/v1/messages` it is 11 Claude models.
+
+---
+
+## What does one Claude Code session actually cost?
+
+Claude Code has a distinctive token shape, and it is the opposite of a chatbot's. Every request re-sends the system prompt, the tool definitions and a growing conversation. The model writes very little: a diff, a command, a short explanation.
+
+A representative turn, measured in tokens rather than dollars:
+
+| Component | Tokens per request | Repeats |
+|---|---:|---|
+| System prompt and tool schemas | ~11,000 | Every request, byte-identical |
+| Conversation history | ~6,400 | Grows, prefix-stable |
+| New user message | ~600 | Once |
+| **Total input** | **~18,000** | |
+| **Output** (diff, command, summary) | **~550** | |
+
+That is **3.0% output, 97.0% input**. Price it at a 75% cache hit rate — realistic when the static prefix is stable — for 1,000 turns and 5,000 turns (roughly a heavy developer-month at 150 requests a day for 22 days):
+
+| Model | Cold, 1,000 turns | Cached, 1,000 turns | Saved | Cached, 5,000 turns |
+|---|---:|---:|---:|---:|
+| `claude-haiku-5-5` | $0.46 | **$0.46** | 0% | **$2.27** |
+| `claude-sonnet-5-5` | $38.59 | **$14.84** | 62% | **$74.18** |
+| `claude-sonnet-5` | $41.28 | $16.98 | 59% | $84.90 |
+| `claude-sonnet-4-6` | $66.40 | $27.52 | 59% | $137.60 |
+| `claude-opus-5-5` | $77.19 | $29.67 | 62% | $148.35 |
+| `claude-opus-5` | $96.49 | $40.46 | 58% | $202.31 |
+| `claude-opus-4-8` | $99.19 | $41.11 | 59% | $205.54 |
+| `claude-opus-4-6` | $110.81 | $45.92 | 59% | $229.62 |
+| `claude-fable-5-1` | $199.09 | $72.73 | 63% | $363.65 |
+| `claude-fable-5` | $198.42 | $82.24 | 59% | $411.19 |
+
+Read the first row and the second row together. Haiku 5.5 at $0.46 per 1,000 turns is **32x cheaper than Sonnet 5.5 with caching** and **84x cheaper than Sonnet 5.5 without it**. For a month of one developer that is $2.27 against $74.18 — the difference between a rounding error and a line item.
+
+---
+
+## Why does the cache ratio matter more than the list price?
+
+Because with 97% of tokens on the input side, the input price is the bill, and the *cached* input price is the real input price. The multiplier between them varies far more than the list prices do:
+
+| Model | Input /1M | Cached /1M | Discount on cached input |
+|---|---:|---:|---:|
+| `claude-sonnet-5-5` | $1.86 | $0.10 | 94.6% |
+| `claude-opus-5-5` | $3.72 | $0.20 | 94.6% |
+| `claude-fable-5-1` | $9.60 | $0.24 | 97.5% |
+| `claude-haiku-5-5` | $0.01 | $0.01 | 0% |
+
+Haiku 5.5 is the twist: it is so cheap in absolute terms that it does not need a discount, and in fact gets none. A 5,000-turn month still lands at $2.27, which beats every other model's cached price anyway. If your workload is mostly search, read, rename and small mechanical edits, the cheapest tier wins on every axis and the caching argument becomes irrelevant.
+
+Where caching decides the outcome is the middle of the range. Sonnet 5.5 and GPT-6.1 Sol are priced identically at $1.86/$9.30, so a "which vendor is cheaper" comparison tells you nothing; the difference in a Claude Code session comes from your own cache hit rate and from how much of the prompt you keep stable. Practical rules that preserve hits:
+
+- **Do not inject timestamps, hostnames or the current branch into the system prompt.** They invalidate the prefix on every request.
+- **Load large files via tools, not by pasting them into the first message.** A pasted 8,000-token file is re-billed at full price on every subsequent turn unless it sits inside the cached prefix.
+- **Keep the tool set stable within a session.** Adding or removing an MCP server mid-session changes the tool block and drops the cache.
+
+> **Key takeaway**: in Claude Code you are not buying model quality per dollar, you are buying *cache stability* per dollar. Two teams on the same model and the same plan can differ 2.6x in cost purely on hit rate.
+
+---
+
+## What breaks when you point Claude Code at a gateway?
+
+Four things, in descending order of how often they bite.
+
+**1. Token counting returns 404.** Claude Code asks the Messages API for pre-flight token counts on some paths. On this gateway, `POST /v1/messages/count_tokens` returns **404** while `POST /v1/messages` returns 401 to an unauthenticated request — the first route is absent, the second is present and gated. The consequence is that exact upstream token accounting is unavailable to the client, so any feature that depends on a precise pre-flight count cannot rely on it. Practically: set `CLAUDE_CODE_MAX_OUTPUT_TOKENS` explicitly, keep prompts under your own budget, and treat context-window warnings as advisory.
+
+**2. A dated snapshot ID fails at request time.** Covered above. Use the catalogue names.
+
+**3. The small-model variable silently does nothing.** Claude Code runs small background jobs — summarising, title generation — through a cheaper model. If the variable name does not match your build, those jobs quietly fall back to the main model, and your bill reflects Sonnet doing Haiku work.
+
+**4. A `/v1` suffix produces 404 and a confusing message.** The client reports a request failure, not a configuration error. Check the base URL first, before you check the key.
+
+| Symptom | Most likely cause | Fix |
+|---|---|---|
+| 404 on every request | `/v1` appended to `ANTHROPIC_BASE_URL` | Use the bare host |
+| 401 with a key that works on the OpenAI route | Key not exported into Claude Code's process | Set it in `settings.json` `env` or the shell profile, then restart |
+| Model not found | Dated snapshot ID | Use the catalogue ID from [pricing](https://tokenpapa.ai/pricing) |
+| Costs higher than expected | Cache misses or a stale small-model variable | Check prefix stability, set both variable spellings |
+
+---
+
+## How do you split cheap and strong models?
+
+The useful pattern is not "pick one model", it is "route by task shape". Claude Code sessions are dominated by cheap work: locating a symbol, reading a file, running a test and reporting the result. A minority of turns involve multi-file reasoning where a stronger model pays for itself.
+
+| Task in a session | Share of turns | Model | Why |
+|---|---:|---|---|
+| Search, read, explain a file | 60% | `claude-haiku-5-5` | Mechanical, output tiny, cache irrelevant at this price |
+| Edit, refactor, write tests | 35% | `claude-sonnet-5-5` | Needs reliable multi-file edits |
+| Debug a failing integration, design a migration | 5% | `claude-opus-5-5` | Only these turns justify 2x |
+
+Priced on the same 1,000-turn workload: **$6.95** for the mix against **$14.84** for all-Sonnet and **$29.67** for all-Opus — 53% below the naive default. Switch with `/model` when a task type changes, rather than restarting the session.
+
+> **Key insight**: routing three ways beats picking the "best" model by 2.1x on cost with no loss on the turns that actually need reasoning. The expensive model should see the 5% of turns that are genuinely hard, not the 60% that are file lookups.
+
+---
+
+## How do you roll this out to a team without surprise bills?
+
+Three controls, all cheap to set up:
+
+1. **`settings.json` in the repo** carries the base URL and default model, so nobody hand-edits a shell profile and nobody accidentally points at a personal account.
+2. **Keys per developer, not per team.** A shared key makes per-person spend invisible. Individual keys mean the console at [tokenpapa.ai/dashboard/overview](https://tokenpapa.ai/dashboard/overview) attributes every request to a person.
+3. **A spend review on the first Monday.** Compare cached and uncached input volume for the week. A hit rate under 60% is a prompt-structure problem, not a pricing problem, and it is worth more than switching models.
+
+One more guardrail that is specific to coding agents: cap output. A runaway agent that starts narrating its plan in 2,000-token chunks is not a model problem either — `CLAUDE_CODE_MAX_OUTPUT_TOKENS` and a concrete instruction to stop after the diff both fix it.
+
+---
+
+## FAQ
+
+### Does Claude Code support a custom API endpoint?
+
+Yes. Claude Code is a client for the Anthropic Messages API and reads its host from `ANTHROPIC_BASE_URL`, so any gateway that answers `POST /v1/messages` works. Point the variable at the bare host — no trailing `/v1`, because the Anthropic SDK appends `/v1/messages` itself — and put the key in `ANTHROPIC_AUTH_TOKEN`.
+
+### How much does Claude Code cost per 1,000 turns on a gateway?
+
+On TokenPAPA's live prices, a turn modelled at 18,000 input and 550 output tokens with 75% of input served from cache costs about **$14.84 per 1,000 turns** on `claude-sonnet-5-5`, **$29.67** on `claude-opus-5-5` and **$0.46** on `claude-haiku-5-5`. Without caching, the same 1,000 Sonnet 5.5 turns cost **$38.59**, so the hit rate is worth 62% of the bill.
+
+### Can Claude Code run non-Claude models?
+
+Not directly. Pricing metadata lists `supported_endpoint_types` as `anthropic` plus `openai` for all 11 Claude models and `openai` only for every other entry, so `/v1/messages` is served by Claude models alone. Running DeepSeek or Qwen inside Claude Code requires a translation proxy that converts Anthropic-format requests into OpenAI-format ones.
+
+### What breaks when you point Claude Code at a gateway?
+
+The main gap is token accounting: `POST /v1/messages/count_tokens` returns **404** on this gateway while `POST /v1/messages` returns 401 for a bad key, proving the chat route exists and the counting route does not. Budget output tokens explicitly, keep `CLAUDE_CODE_MAX_OUTPUT_TOKENS` set, and watch per-model spend in the console instead of trusting a context meter.
+
+### Is it cheaper to run Claude Code on Haiku than on Sonnet?
+
+For mechanical work, dramatically. Haiku 5.5 costs **$0.46 per 1,000 turns** on this workload against **$14.84** for Sonnet 5.5 with caching — 32x cheaper — because output price is the only meaningful multiplier at that scale. It is the wrong choice for multi-file refactors, where a failed edit costs more than the model saves. Route by task shape instead of choosing one model for everything.
+
+### Do I need a different key for Claude Code and the OpenAI-compatible endpoint?
+
+No. One key works on both routes: the Anthropic path (`https://tokenpapa.ai` + `/v1/messages`) and the OpenAI path (`https://tokenpapa.ai/v1` + `/chat/completions`). That is what lets a team run Claude Code in the terminal and an OpenAI SDK service in production against the same account and the same spend dashboard.
+
+---
+
+## Get Started
+
+- **Create a key** at [tokenpapa.ai/keys](https://tokenpapa.ai/keys), then export `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN` and run `/status`
+- **Compare live prices** for all 11 Claude models and 70+ others at [tokenpapa.ai/pricing](https://tokenpapa.ai/pricing)
+- **Watch the spend** at [tokenpapa.ai/dashboard/overview](https://tokenpapa.ai/dashboard/overview) and check cached versus uncached input for the week
+- **New here?** Register at [tokenpapa.ai/register](https://tokenpapa.ai/register) — one key, OpenAI-compatible and Anthropic-compatible routes on the same account
+
+Related reading on this blog:
+
+- [Claude 5.5 pricing: Sonnet 5.5 vs Opus 5.5 vs Haiku 5.5](/en/docs/blog/claude-5-5-pricing-comparison-2026) — the full Claude price ladder and per-task cost math
+- [Cursor custom API key setup](/en/docs/blog/cursor-custom-api-key-setup) — the same trick for an IDE instead of a terminal
+- [Which LLM is best for code review in 2026?](/en/docs/blog/best-llm-for-code-review-2026) — per-PR cost models and a two-stage review pipeline
+- [LLM API pricing cheat sheet 2026](/en/docs/blog/llm-api-pricing-cheat-sheet-2026) — every model on one page
+
+---
+*Prices read from TokenPAPA's live pricing endpoint on 2026-11-17. Cost figures are arithmetic on those prices for a stated workload of 18,000 input and 550 output tokens per turn with a 75% cache hit rate; measure your own token shape before budgeting. Route availability was verified by request: POST /v1/messages answers 401 unauthenticated (route exists, auth required), POST /v1/messages/count_tokens answers 404. Verify client behaviour in your own Claude Code version, since environment variable names change between releases.*
