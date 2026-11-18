@@ -1,0 +1,264 @@
+---
+title: "Which LLM Is Best for RAG in 2026? Cost per Grounded Answer"
+description: "RAG prompts are 94% input tokens, so cache pricing decides your bill. Per-1,000-answer costs for 17 models on TokenPAPA, plus a faithfulness test."
+date: 2026-11-19
+authors: [tokenpapa]
+category: "Model Comparison"
+keywords: ["best llm for rag", "rag model comparison 2026", "llm cost per answer", "rag prompt caching", "cheapest llm for rag", "rag pipeline api cost", "llm api for retrieval augmented generation", "prompt caching discount", "rag hallucination evaluation", "tokenpapa rag"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-11-19 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;Which LLM Is Best for RAG in 2026? Cost per Grounded Answer&quot;,&quot;description&quot;:&quot;RAG prompts are 94% input tokens, so cache pricing decides your bill. Per-1,000-answer costs for 17 models on TokenPAPA, plus a faithfulness test.&quot;,&quot;datePublished&quot;:&quot;2026-11-19&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Which LLM is best for RAG in 2026?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;There is no single best model, because a RAG call is 94 percent input tokens. For an 8000-token prompt with a 500-token answer, Mimo V2.6 Flash costs about 0.49 dollars per 1000 answers at a 75 percent cache hit rate, Qwen 3.8 Flash about 0.58, DeepSeek V4 Flash about 1.26, and Claude Sonnet 5.5 or GPT-6.1 Sol about 8.97 dollars for the same workload. Route cheap first and escalate only answers that fail your citation check.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Why does prompt caching matter more than list price for RAG?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Because the retrieved chunks and the system instructions are resent on every question and are largely identical between turns. Cacheable input is 75 percent of an 8000-token RAG prompt, and the cached price ranges from 0.003 dollars per 1M tokens on Mimo V2.6 Flash to 0.46 dollars on GPT-5.6 Sol. Ignoring the cache ratio can make two models with the same output multiplier cost 4 times apart in production.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How do I test whether a cheap RAG model is good enough?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Build a gold set of 100 to 200 real questions with the correct answer and the chunk that contains it, then score four things separately: answer correctness, citation precision, refusal behaviour when the context is missing, and whether the model invented facts outside the provided context. A model can look fluent and still fail the last two, which are the ones users notice.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Can I switch RAG models without rewriting my pipeline?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Yes. TokenPAPA exposes one OpenAI-compatible endpoint at https://tokenpapa.ai/v1 where a single key reaches more than 60 model entries, so moving from deepseek-v4-flash to qwen3.8-flash or claude-sonnet-5-5 is a one-line model change. Your retriever, prompt template and citation parser stay the same.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Is a 2000-token output budget wasteful for RAG?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;It is, unless you cap it. Grounded answers with citations rarely need more than 400 to 600 tokens, and output tokens are billed at a 3 to 8 times multiplier on most models. Setting max_tokens to 600 is the single fastest cost fix in a RAG pipeline, and it also makes latency predictable.&quot;}}]}" />
+
+# Which LLM Is Best for RAG in 2026? Cost per Grounded Answer
+
+Ask ten engineers which model to use for RAG and you will get ten opinions, usually about benchmarks. But retrieval-augmented generation is not a benchmark-shaped workload. **It is a bill-shaped one.** You stuff five retrieved chunks, a citation ruleset and a question into every call, and you get back a short paragraph. In a realistic setup that is roughly 8,000 input tokens and 500 output tokens — 94% input. Which model is "best" then depends far less on which one reasons better and far more on which one prices repeated context cheapest, and whether its cache actually hits.
+
+This guide prices 17 models on TokenPAPA for that exact workload, shows how the ranking reorders once prompt caching is on, and gives you a faithfulness test you can run on your own documents instead of trusting a leaderboard.
+
+> **Best LLM for RAG, in one paragraph**: for most teams the best RAG model is the cheapest one that passes your citation check, because 94% of a RAG prompt is repeated context. On TokenPAPA's live prices (read 2026-11-19), at a 75% cache hit rate, Mimo V2.6 Flash costs about **$0.49 per 1,000 grounded answers**, DeepSeek V4 Flash about **$1.26**, Claude Sonnet 5.5 and GPT-6.1 Sol about **$8.97**, and Claude Fable 5.1 about **$44.54**. Run the cheap tier first, escalate only answers that fail validation.
+
+---
+
+## Why does RAG billing behave nothing like chat billing?
+
+A chatbot call is balanced: a 400-token question, a 400-token answer. RAG is deliberately lopsided, because the whole point of retrieval is to make the model read more than it writes.
+
+| Component of the prompt | Tokens | Repeat on every question? |
+|---|---:|:---:|
+| System prompt + citation rules (answer only from context, cite chunk ids, refuse if unsupported) | ~1,000 | Yes |
+| Retrieved document context (5 chunks at ~1,000 tokens) | ~5,000 | Yes, in multi-turn or same-corpus chat |
+| Fresh retrieval + user question + short history | ~2,000 | No |
+| **Total input** | **~8,000** | |
+| **Output** (answer + citation markers) | **~500** | |
+
+That is **94.1% input, 5.9% output**. Three consequences follow, and they explain why so many RAG bills surprise people:
+
+1. **Output multipliers matter far less than they look.** A model with an 8× output multiplier is only paying that multiplier on 6% of its tokens.
+2. **Input price and the cache ratio decide everything.** Six thousand of those eight thousand tokens are byte-identical between questions — exactly the shape prompt caching was invented for.
+3. **A long output budget is pure waste.** If you leave `max_tokens` at 2,000 on a grounded-answer task, you are paying for tokens the model never needed to write.
+
+> **Key insight**: in RAG the model reads about 16 tokens for every token it writes. Any selection process that starts from output price is optimising 6% of the bill.
+
+---
+
+## What does one grounded answer cost on 17 models?
+
+Assume the workload above, 1,000 questions, and prices taken from TokenPAPA's live pricing endpoint (`/api/pricing`, read 2026-11-19). "Cold" means every call pays full input price. "Cached" means a 75% hit rate on the 6,000-token static prefix — 6,000 tokens at the cached rate, 2,000 at the normal rate, 500 output tokens.
+
+| Model | Input /1M | Output /1M | Cached input /1M | Cold, 1k answers | Cached, 1k answers |
+|---|---:|---:|---:|---:|---:|
+| Claude Haiku 5.5 | $0.01 | $0.50 | $0.01 | **$0.33** | **$0.33** |
+| Mimo V2.6 Flash | $0.156 | $0.313 | $0.003 | $1.40 | $0.49 |
+| Doubao Seed 2.0 Lite | $0.094 | $0.562 | $0.017 | $1.03 | $0.57 |
+| Qwen 3.8 Flash | $0.12 | $0.50 | $0.015 | $1.21 | $0.58 |
+| GLM-5.3-Flash | $0.12 | $0.42 | $0.04 | $1.17 | $0.69 |
+| MiniMax M3.1 Flash | $0.16 | $0.63 | $0.016 | $1.59 | $0.73 |
+| Qwen 3.7 Plus | $0.20 | $0.83 | $0.04 | $2.02 | $1.05 |
+| DeepSeek V4 Flash | $0.30 | $1.20 | $0.01 | $3.00 | $1.26 |
+| Gemini 3.8 Flash | $0.62 | $3.10 | $0.062 | $6.51 | $3.16 |
+| DeepSeek V4 Pro | $1.40 | $4.00 | $0.05 | $13.20 | $5.10 |
+| Gemini 4 Argon | $1.64 | $8.20 | $0.082 | $17.22 | $7.87 |
+| Claude Sonnet 5.5 | $1.86 | $9.30 | $0.10 | $19.53 | $8.97 |
+| GPT-6.1 Sol | $1.86 | $9.30 | $0.10 | $19.53 | $8.97 |
+| Kimi K3 | $3.125 | $15.62 | $0.312 | $32.81 | $15.93 |
+| Claude Opus 5.5 | $3.72 | $18.60 | $0.20 | $39.06 | $17.94 |
+| GPT-5.6 Sol | $4.64 | $37.12 | $0.46 | $55.68 | $30.60 |
+| Claude Fable 5.1 | $9.60 | $47.80 | $0.24 | $100.70 | $44.54 |
+
+Read the two right-hand columns against each other, because that is the whole argument. Claude Sonnet 5.5 and GPT-6.1 Sol cost **7.1×** more than DeepSeek V4 Flash per grounded answer, and **18×** more than Mimo V2.6 Flash. The model with the lowest output price in the table — Mimo V2.6 Flash at $0.313 — is not the model with the lowest bill: Claude Haiku 5.5 still wins at a 75% hit rate because its input price is so low that even a zero cache discount beats everybody.
+
+> **According to TokenPAPA's live pricing data (2026-11-19)**, the spread between the cheapest and most expensive model on the same 8,000-in / 500-out RAG workload is **135×** — from $0.33 to $44.54 per 1,000 answers. No benchmark gap justifies that spread for a task that is mostly copying sentences out of retrieved context.
+
+---
+
+## Which models discount cached input the most?
+
+The cache ratio is not a minor footnote — it is the largest single lever in the table. Here is what each model charges for cached input, expressed as a discount off its own input price:
+
+| Model | Cached input /1M | Discount vs input | Effect on the 75%-hit bill |
+|---|---:|---:|:---:|
+| Claude Haiku 5.5 | $0.01 | **0%** | none — caching saves nothing |
+| GLM-5.3-Flash | $0.04 | 66.7% | −41% |
+| Qwen 3.7 Plus | $0.04 | 80.0% | −48% |
+| Doubao Seed 2.0 Lite | $0.017 | 81.9% | −45% |
+| Qwen 3.8 Flash | $0.015 | 87.5% | −52% |
+| MiniMax M3.1 Flash | $0.016 | 90.0% | −54% |
+| Gemini 3.8 Flash | $0.062 | 90.0% | −51% |
+| Gemini 4 Argon | $0.082 | 95.0% | −54% |
+| Claude Sonnet 5.5 / GPT-6.1 Sol | $0.10 | 94.6% | −54% |
+| DeepSeek V4 Pro | $0.05 | 96.4% | −61% |
+| DeepSeek V4 Flash | $0.01 | **96.7%** | −58% |
+| Claude Fable 5.1 | $0.24 | 97.5% | −56% |
+| Mimo V2.6 Flash | $0.003 | **98.1%** | −65% |
+
+Two traps hide in that table.
+
+**Trap one: a cheap model with no cache discount loses its edge as soon as the cache hits.** Claude Haiku 5.5 has a $0.01 input price and a $0.01 cached price — a 0% discount — so its per-answer cost is a flat $0.33 no matter how hot the cache runs. Mimo V2.6 Flash starts 4× worse at cold cache ($1.40) but falls to $0.18 per 1,000 answers at a 100% hit rate. The crossover is around an **88% cache hit rate**: below that Haiku 5.5 is the cheapest option, above it Mimo V2.6 Flash wins and keeps widening the gap.
+
+**Trap two: a huge discount on an expensive base is still expensive.** Claude Fable 5.1 cuts cached input by 97.5%, and still lands at $44.54 per 1,000 answers — 91× Mimo V2.6 Flash — because $0.24 cached is a lot more than $0.003.
+
+> **Key takeaway**: rank models by *cached* input price and then sanity-check the hit rate you will realistically achieve. The cached column is what you pay for 75% of your tokens. It does not reshuffle the whole table — DeepSeek V4 Flash sits 8th cheapest in both columns — but it compresses the cheap tier hard: Mimo V2.6 Flash climbs from 5th to 2nd, GLM-5.3-Flash slips from 3rd to 5th, and DeepSeek V4 Flash's absolute cost falls 58% without changing rank.
+
+---
+
+## What if you cannot cache the document context?
+
+Some retrievers cannot cache. If your chunks are re-ranked per request, if you inject timestamps or user ids into the context, or if you query a different document set every time, the cache never hits and you are stuck on the cold column.
+
+That changes the recommendation in two ways:
+
+- **The cheap-input models win outright.** With no cache benefit, Doubao Seed 2.0 Lite ($1.03), GLM-5.3-Flash ($1.17), Qwen 3.8 Flash ($1.21) and Mimo V2.6 Flash ($1.40) all beat DeepSeek V4 Flash ($3.00) per 1,000 answers.
+- **Trimming the prompt beats switching models.** Cutting retrieved context from 5,000 to 3,200 tokens — five smaller chunks instead of five large ones — removes 22% of the bill on every model at once, with no quality cost if your reranker is any good.
+
+The caching mechanics differ per provider, so check what your route actually supports before you build a cost model on it. On TokenPAPA, cached pricing is listed per model in the [pricing table](https://tokenpapa.ai/pricing); the general mechanics of how cache hits are billed are covered in [LLM token pricing explained](https://doc.tokenpapa.ai/en/docs/blog/llm-token-pricing-explained).
+
+---
+
+## Does a cheaper model hurt answer faithfulness?
+
+Sometimes, and it fails in specific, predictable ways rather than "being dumber". Grounded answering is an easier task than reasoning — the answer is usually sitting in the context — so the gap between a $0.003 and a $0.46 cached input model shows up in four places:
+
+| Failure mode | What it looks like | Why cheap models fail it |
+|---|---|---|
+| **Context abandonment** | Model answers from parametric memory, ignoring the retrieved chunks | Weak instruction-following on long context |
+| **Citation drift** | Correct answer, wrong chunk id attached | Poor span grounding |
+| **Unsupported confidence** | Invents a number when the context is silent | No calibrated refusal |
+| **Long-context degradation** | Quality drops past 5-6 chunks | Attention dilution |
+
+None of these show up in a general benchmark, and all four are cheap to test. Build a gold set of 100-200 real questions, each with the correct answer and the id of the chunk that contains it, then score four numbers separately:
+
+1. **Answer correctness** — does it match the reference answer semantically?
+2. **Citation precision** — is the cited chunk actually the one with the answer?
+3. **Refusal rate on unanswerable questions** — give it 20 questions whose answers are *not* in the corpus and check that it says so.
+4. **Hallucination rate** — count answers containing facts absent from context.
+
+Run every candidate on the same set at `temperature: 0`. In practice the cheapest tiers clear correctness and citation precision on single-hop questions and lose on multi-hop synthesis and on refusal — which is precisely why the routing pattern below exists. Teams that need deeper measurement methodology can borrow the execution-accuracy approach from the [text-to-SQL evaluation guide](https://doc.tokenpapa.ai/en/docs/blog/best-llm-for-sql-generation-2026); the principle is identical: compare against ground truth, not against vibes.
+
+---
+
+## How do you structure the prompt so the cache actually hits?
+
+Caching is a prefix-matching problem. Anything that changes early in the prompt invalidates everything after it, so the order is not stylistic — it is the whole mechanism.
+
+```python
+import os
+from openai import OpenAI
+
+client = OpenAI(
+    api_key=os.environ["TOKENPAPA_API_KEY"],
+    base_url="https://tokenpapa.ai/v1",
+)
+
+# 1. Static block: identical on every request -> cacheable prefix
+SYSTEM = """You answer only from the provided context.
+Rules:
+- Cite the chunk id in square brackets after every claim.
+- If the context does not contain the answer, reply exactly: NOT_IN_CONTEXT
+- Never use outside knowledge. Never invent numbers."""
+
+def answer(question: str, chunks: list[dict]) -> str:
+    # 2. Semi-static block: retrieved context, stable order, no timestamps
+    context = "\n\n".join(
+        f"[{c['id']}] {c['text']}" for c in chunks
+    )
+    resp = client.chat.completions.create(
+        model="deepseek-v4-flash",       # swap to qwen3.8-flash with no other change
+        temperature=0,
+        max_tokens=600,                  # grounded answers are short; do not pay for more
+        messages=[
+            {"role": "system", "content": SYSTEM},
+            {"role": "user", "content": f"CONTEXT:\n{context}\n\nQUESTION: {question}"},
+        ],
+    )
+    return resp.choices[0].message.content
+```
+
+Three rules make the difference between a 75% hit rate and a 0% one:
+
+- **Never put a timestamp, request id or user name in the system prompt.** It changes the prefix on every call and you pay full price forever.
+- **Keep chunk order deterministic.** Sort by score, not by dictionary iteration order, or the prefix changes between identical questions.
+- **Cap `max_tokens`.** Output tokens carry a 3-8× multiplier; a 600-token cap is not a quality risk on grounded answering, it is a cost control.
+
+For a full working pipeline, the [DeepSeek RAG cost guide](https://doc.tokenpapa.ai/en/docs/blog/deepseek-rag-cost-guide) walks through retrieval, chunking and re-ranking with the same pricing model.
+
+---
+
+## What does 100,000 grounded answers a month cost?
+
+Multiply the per-1,000 numbers by 100 and the strategic picture appears:
+
+| Strategy | Per 1,000 answers | 100,000 answers / month | Notes |
+|---|---:|---:|---|
+| Claude Haiku 5.5, no cache | $0.33 | **$33** | Cheapest absolute, zero cache benefit, weakest grounding |
+| Mimo V2.6 Flash, 75% cache | $0.49 | **$49** | Best cached-input price on the platform |
+| Qwen 3.8 Flash, 75% cache | $0.58 | $58 | Strong multilingual recall |
+| DeepSeek V4 Flash, 75% cache | $1.26 | **$126** | Best default quality-per-dollar |
+| DeepSeek V4 Pro, 75% cache | $5.10 | $510 | Escalation tier for multi-hop |
+| Claude Sonnet 5.5, 75% cache | $8.97 | $897 | Reference-quality answers |
+| GPT-6.1 Sol, 75% cache | $8.97 | $897 | Same price as Sonnet 5.5 |
+| Claude Opus 5.5, 75% cache | $17.94 | $1,794 | Only for the hardest 5% |
+| GPT-5.6 Sol, 75% cache | $30.60 | $3,060 | Frontier flagship, rarely justified for RAG |
+| Claude Fable 5.1, 75% cache | $44.54 | $4,454 | 135× the cheapest tier |
+
+The interesting row is the mixed one. Send everything to Claude Sonnet 5.5 and you spend $897 a month. Send 70% to DeepSeek V4 Flash, 25% to Sonnet 5.5 and 5% to Opus 5.5 — with a confidence or citation check deciding the upgrade — and you spend **$4.02 per 1,000 answers, or about $402 a month, 55% less**, while every answer that needed a strong model still got one.
+
+That works because the break-even escalation rate is high: you can escalate **86%** of queries to Sonnet 5.5 and still spend less than routing everything there. Any escalation policy tighter than that is pure saving.
+
+---
+
+## Which model should you actually pick?
+
+| Your situation | Pick | Why |
+|---|---|---|
+| High-volume FAQ / support bot, single-hop | **Mimo V2.6 Flash** ($0.49) or **Qwen 3.8 Flash** ($0.58) | Cheapest cached input; correctness is retrieval-bound, not model-bound |
+| General RAG assistant, mixed difficulty | **DeepSeek V4 Flash** ($1.26) | Best quality-per-dollar default; 96.7% cache discount |
+| Multi-hop synthesis, contracts, research | **DeepSeek V4 Pro** ($5.10) → **Claude Sonnet 5.5** ($8.97) | Escalate only after a failed citation check |
+| Strict citation compliance required | **Claude Sonnet 5.5** or **GPT-6.1 Sol** (both $8.97) | Most reliable span grounding in practice |
+| Multilingual (zh/en/ja) corpus | **Qwen 3.8 Flash** or **Qwen 3.7 Plus** | Strong cross-lingual recall at low cached cost |
+| No caching possible | **Doubao Seed 2.0 Lite** ($1.03) or **Claude Haiku 5.5** ($0.33) | Cheapest cold-input options |
+
+One platform note: since one OpenAI-compatible key reaches every model above, the routing table is a config change, not an architecture change. The same pattern — cheap default, strong escalation — is what makes [agent workloads cheap](https://doc.tokenpapa.ai/en/docs/blog/cheap-llm-api-for-ai-agents), and the underlying price mechanics are in the [pricing cheat sheet](https://doc.tokenpapa.ai/en/docs/blog/llm-api-pricing-cheat-sheet-2026).
+
+---
+
+## FAQ
+
+### Which LLM is best for RAG in 2026?
+
+There is no single best model, because a RAG call is 94% input tokens. For an 8,000-token prompt with a 500-token answer, Mimo V2.6 Flash costs about $0.49 per 1,000 answers at a 75% cache hit rate, Qwen 3.8 Flash about $0.58, DeepSeek V4 Flash about $1.26, and Claude Sonnet 5.5 or GPT-6.1 Sol about $8.97 for the same workload. Route cheap first and escalate only answers that fail your citation check.
+
+### Why does prompt caching matter more than list price for RAG?
+
+Because the retrieved chunks and system instructions are resent on every question and are largely identical between turns. Cacheable input is 75% of an 8,000-token RAG prompt, and the cached price ranges from $0.003 per 1M tokens on Mimo V2.6 Flash to $0.46 on GPT-5.6 Sol. Ignoring the cache ratio can make two models with the same output multiplier cost 4× apart in production.
+
+### How do I test whether a cheap RAG model is good enough?
+
+Build a gold set of 100-200 real questions with the correct answer and the chunk that contains it, then score four things separately: answer correctness, citation precision, refusal behaviour when the context is missing, and whether the model invented facts outside the provided context. A model can look fluent and still fail the last two, which are the ones users notice.
+
+### Can I switch RAG models without rewriting my pipeline?
+
+Yes. TokenPAPA exposes one OpenAI-compatible endpoint at `https://tokenpapa.ai/v1` where a single key reaches more than 60 model entries, so moving from `deepseek-v4-flash` to `qwen3.8-flash` or `claude-sonnet-5-5` is a one-line model change. Your retriever, prompt template and citation parser stay the same.
+
+### Is a 2,000-token output budget wasteful for RAG?
+
+It is, unless you cap it. Grounded answers with citations rarely need more than 400-600 tokens, and output tokens are billed at a 3-8× multiplier on most models. Setting `max_tokens` to 600 is the single fastest cost fix in a RAG pipeline, and it also makes latency predictable.
+
+---
+
+## Get started
+
+Pick your default tier, wire the cache-friendly prompt, and measure — the whole loop takes an afternoon.
+
+- Create a key at [tokenpapa.ai/register](https://tokenpapa.ai/register) and manage it in the [API keys console](https://tokenpapa.ai/keys)
+- Point any OpenAI SDK at `https://tokenpapa.ai/v1` — no other code changes
+- Compare live per-model rates on the [pricing page](https://tokenpapa.ai/pricing)
+- Track spend per model in the [dashboard](https://tokenpapa.ai/dashboard/overview)
+
+*Prices in this article were read from TokenPAPA's live pricing endpoint on 2026-11-19 and reflect per-1M-token rates at that time. Last updated 2026-11-19.*

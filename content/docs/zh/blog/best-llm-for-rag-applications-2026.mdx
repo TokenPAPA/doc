@@ -1,0 +1,253 @@
+---
+title: "2026 年做 RAG 该用哪个大模型？按「一次问答成本」选型"
+description: "RAG 提示词 94% 是输入 token，真正决定账单的是缓存价。17 个模型每 1000 次带引用回答的成本实测，附忠实度测试方法。"
+date: 2026-11-19
+authors: [tokenpapa]
+category: "模型对比"
+keywords: ["RAG 用哪个模型", "RAG 大模型选型", "RAG 成本测算", "prompt 缓存 省钱", "最便宜的 RAG 模型", "检索增强生成 API", "RAG 幻觉测试", "大模型 API 价格对比", "RAG 引用准确率", "tokenpapa rag"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-11-19 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;2026 年做 RAG 该用哪个大模型？按「一次问答成本」选型&quot;,&quot;description&quot;:&quot;RAG 提示词 94% 是输入 token，真正决定账单的是缓存价。17 个模型每 1000 次带引用回答的成本实测，附忠实度测试方法。&quot;,&quot;datePublished&quot;:&quot;2026-11-19&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;2026 年做 RAG 该用哪个大模型？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;没有唯一答案，因为 RAG 一次调用里 94% 的 token 是输入。按 8000 token 输入、500 token 输出计算，缓存命中率 75% 时，Mimo V2.6 Flash 每 1000 次回答约 0.49 美元，Qwen 3.8 Flash 约 0.58 美元，DeepSeek V4 Flash 约 1.26 美元，Claude Sonnet 5.5 与 GPT-6.1 Sol 同为 8.97 美元。合理做法是先用便宜档跑，只把引用校验失败的问答升级到强模型。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;为什么 RAG 场景里 prompt 缓存比单价更重要？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;因为检索到的文档片段和系统提示每轮都要重发，而且大部分完全相同。在 8000 token 的 RAG 提示词里，可缓存部分约占 75%，而缓存输入价从 Mimo V2.6 Flash 的 0.003 美元每百万 token 到 GPT-5.6 Sol 的 0.46 美元，相差 150 倍。忽略缓存倍率，两个输出倍率相同的模型实测成本可能差 4 倍。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;怎么验证便宜的模型做 RAG 够不够用？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;准备 100 到 200 条真实问题，每条标注正确答案和包含答案的 chunk id，然后分开打四个分：答案正确性、引用精确度、上下文缺失时的拒答率、以及是否编造了上下文里没有的事实。后两项是用户最容易察觉的失败点，而它们不会出现在通用榜单上。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;换 RAG 模型要重写整条链路吗？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;不需要。TokenPAPA 提供 OpenAI 兼容端点 https://tokenpapa.ai/v1，一个 Key 可调用 60 个以上模型条目，从 deepseek-v4-flash 换到 qwen3.8-flash 或 claude-sonnet-5-5 只改一行 model 名，检索器、提示词模板和引用解析都不用动。&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;RAG 的输出预留 2000 token 是不是浪费？&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;是，除非你设了上限。带引用的回答通常 400 到 600 token 就够，而输出 token 在多数模型上是 3 到 8 倍倍率。把 max_tokens 设成 600 是 RAG 链路里最快见效的成本优化，同时让延迟变得可预测。&quot;}}]}" />
+
+# 2026 年做 RAG 该用哪个大模型？按「一次问答成本」选型
+
+问十个工程师「RAG 用哪个模型」，会得到十个基于榜单的答案。但检索增强生成不是榜单型负载，**它是账单型负载**：每次调用都要塞进五段检索结果、一套引用规则和一个问题，只吐回一小段话。典型是 **8000 token 输入、500 token 输出**——输入占 94%。所以「哪个最好」的关键不在于谁推理更强，而在于谁把重复上下文卖得最便宜、以及它的缓存到底能不能命中。
+
+下面按这个工作量实测 17 个模型在 TokenPAPA 上的价格，看开启缓存后排名怎么变，并给出一套可以拿自己文档跑的忠实度测试。
+
+> **一句话结论**：对大多数团队，最好的 RAG 模型是**能通过你引用校验的最便宜的那个**，因为一次 RAG 调用里 94% 的 token 是重复上下文。按 TokenPAPA 实时价格（2026-11-19 读取），缓存命中 75% 时，Mimo V2.6 Flash 每 1000 次带引用回答约 **0.49 美元**，DeepSeek V4 Flash 约 **1.26 美元**，Claude Sonnet 5.5 与 GPT-6.1 Sol 约 **8.97 美元**，Claude Fable 5.1 约 **44.54 美元**。先用便宜档跑，只升级校验失败的问答。
+
+---
+
+## 为什么 RAG 的账单和聊天完全不是一个形状
+
+聊天是一问一答、输入输出差不多长。RAG 是故意做成「读得多、写得少」的——这正是检索的意义。
+
+| 提示词组成 | token 数 | 是否每次重复 |
+|---|---:|:---:|
+| 系统提示 + 引用规则（只依据上下文、标注 chunk id、无依据则拒答） | ~1000 | 是 |
+| 检索到的文档片段（5 段 × 约 1000 token） | ~5000 | 是（多轮或同一文档集） |
+| 新检索结果 + 用户问题 + 少量历史 | ~2000 | 否 |
+| **输入合计** | **~8000** | |
+| **输出（答案 + 引用标记）** | **~500** | |
+
+也就是 **94.1% 输入、5.9% 输出**。三个直接结论：
+
+1. **输出倍率没那么可怕**，因为它只作用在 6% 的 token 上；
+2. **输入单价和缓存倍率决定一切**——8000 token 里有 6000 是逐字节相同的，正好是 prompt 缓存设计的场景；
+3. **输出预算留太大纯属浪费**——把 `max_tokens` 留在 2000，你就是在为模型根本不需要写的 token 付钱。
+
+> **关键结论**：RAG 里模型每写 1 个 token 要读约 16 个 token。任何从「输出价格」开始的选型，优化的都是那 6%。
+
+---
+
+## 17 个模型答一次到底多少钱
+
+假设上面的工作量、1000 次问答，价格取自 TokenPAPA 实时定价接口（`/api/pricing`，2026-11-19 读取）。「冷」= 每次按全价计输入；「缓存」= 6000 token 静态前缀按 75% 命中率计（6000 走缓存价、2000 走原价、500 输出）。
+
+| 模型 | 输入 /1M | 输出 /1M | 缓存输入 /1M | 冷，1000 次 | 缓存，1000 次 |
+|---|---:|---:|---:|---:|---:|
+| Claude Haiku 5.5 | $0.01 | $0.50 | $0.01 | **$0.33** | **$0.33** |
+| Mimo V2.6 Flash | $0.156 | $0.313 | $0.003 | $1.40 | $0.49 |
+| Doubao Seed 2.0 Lite | $0.094 | $0.562 | $0.017 | $1.03 | $0.57 |
+| Qwen 3.8 Flash | $0.12 | $0.50 | $0.015 | $1.21 | $0.58 |
+| GLM-5.3-Flash | $0.12 | $0.42 | $0.04 | $1.17 | $0.69 |
+| MiniMax M3.1 Flash | $0.16 | $0.63 | $0.016 | $1.59 | $0.73 |
+| Qwen 3.7 Plus | $0.20 | $0.83 | $0.04 | $2.02 | $1.05 |
+| DeepSeek V4 Flash | $0.30 | $1.20 | $0.01 | $3.00 | $1.26 |
+| Gemini 3.8 Flash | $0.62 | $3.10 | $0.062 | $6.51 | $3.16 |
+| DeepSeek V4 Pro | $1.40 | $4.00 | $0.05 | $13.20 | $5.10 |
+| Gemini 4 Argon | $1.64 | $8.20 | $0.082 | $17.22 | $7.87 |
+| Claude Sonnet 5.5 | $1.86 | $9.30 | $0.10 | $19.53 | $8.97 |
+| GPT-6.1 Sol | $1.86 | $9.30 | $0.10 | $19.53 | $8.97 |
+| Kimi K3 | $3.125 | $15.62 | $0.312 | $32.81 | $15.93 |
+| Claude Opus 5.5 | $3.72 | $18.60 | $0.20 | $39.06 | $17.94 |
+| GPT-5.6 Sol | $4.64 | $37.12 | $0.46 | $55.68 | $30.60 |
+| Claude Fable 5.1 | $9.60 | $47.80 | $0.24 | $100.70 | $44.54 |
+
+两个右边列要对着看，这就是全部论点：Claude Sonnet 5.5 / GPT-6.1 Sol 每次都答要比 DeepSeek V4 Flash 贵 **7.1 倍**，比 Mimo V2.6 Flash 贵 **18 倍**。而输出价最低的 Mimo V2.6 Flash（$0.313）并不是账单最低的那个——75% 命中率下仍是 Claude Haiku 5.5 最便宜，因为它的输入价低到即使**缓存零折扣**也打得过所有人。
+
+> **根据 TokenPAPA 实时定价（2026-11-19）**，同一份 8000 输入 / 500 输出的 RAG 工作量，最便宜与最贵模型之间的差距是 **135 倍**——从每次回答 0.00033 美元到 0.0445 美元。对于一个主要是「把检索到的句子抄出来」的任务，没有任何跑分差距支撑得起这个价差。
+
+---
+
+## 缓存折扣：真正的分水岭
+
+缓存倍率不是脚注，它是全表最大的杠杆。下表是各模型的缓存输入价，以及相对自身输入价的折扣：
+
+| 模型 | 缓存输入 /1M | 相对输入价折扣 | 对 75% 命中账单的影响 |
+|---|---:|---:|:---:|
+| Claude Haiku 5.5 | $0.01 | **0%** | 毫无节省 |
+| GLM-5.3-Flash | $0.04 | 66.7% | −41% |
+| Qwen 3.7 Plus | $0.04 | 80.0% | −48% |
+| Doubao Seed 2.0 Lite | $0.017 | 81.9% | −45% |
+| Qwen 3.8 Flash | $0.015 | 87.5% | −52% |
+| MiniMax M3.1 Flash | $0.016 | 90.0% | −54% |
+| Gemini 3.8 Flash | $0.062 | 90.0% | −51% |
+| Gemini 4 Argon | $0.082 | 95.0% | −54% |
+| Claude Sonnet 5.5 / GPT-6.1 Sol | $0.10 | 94.6% | −54% |
+| DeepSeek V4 Pro | $0.05 | 96.4% | −61% |
+| DeepSeek V4 Flash | $0.01 | **96.7%** | −58% |
+| Claude Fable 5.1 | $0.24 | 97.5% | −56% |
+| Mimo V2.6 Flash | $0.003 | **98.1%** | −65% |
+
+**坑一：便宜但没有缓存折扣的模型，缓存一热就失去优势。** Claude Haiku 5.5 输入 $0.01、缓存输入也是 $0.01（0% 折扣），所以命中率再高它都是 0.33 美元/千次。Mimo V2.6 Flash 冷启动贵 4 倍（1.40 美元），但命中率 100% 时降到 0.18 美元。交叉点大约在 **88% 命中率**：低于它 Haiku 5.5 最省，高于它 Mimo V2.6 Flash 反超并越拉越开。
+
+**坑二：贵模型上的巨大折扣依然是贵。** Claude Fable 5.1 缓存打 97.5% 折扣，落地仍是 44.54 美元/千次——是 Mimo V2.6 Flash 的 91 倍，因为 $0.24 比 $0.003 大太多。
+
+> **要点**：先按**缓存输入价**排序，再核对你能真实拿到的命中率。缓存列是你 75% token 的实际单价；它不会重排整张表（DeepSeek V4 Flash 冷热两列都排第 8），但会把便宜档压得很扁：Mimo V2.6 Flash 从第 5 升到第 2，GLM-5.3-Flash 从第 3 掉到第 5，而 DeepSeek V4 Flash 名次不变、绝对成本降 58%。
+
+---
+
+## 如果你的上下文根本缓存不上怎么办
+
+有些检索器天生缓存不命中：每次请求都重新排序、把时间戳或用户 id 塞进上下文、或者每次查的文档集都不同。这时你只能看「冷」那一列。
+
+- **便宜输入价的模型直接胜出**：Doubao Seed 2.0 Lite（1.03）、GLM-5.3-Flash（1.17）、Qwen 3.8 Flash（1.21）、Mimo V2.6 Flash（1.40）都比 DeepSeek V4 Flash（3.00）便宜一半以上。
+- **砍提示词比换模型更有效**：把检索上下文从 5000 砍到 3200 token（5 段小片段代替 5 段大片段），全模型账单同时降 22%，只要重排器不太差，质量基本无感。
+
+各家的缓存计费细节不同，做成本模型前先确认你的路由支持什么。TokenPAPA 上每个模型的缓存价都列在[定价页](https://tokenpapa.ai/pricing)，缓存命中的计费机制可参考[大模型 token 计费详解](https://doc.tokenpapa.ai/zh/docs/blog/llm-token-pricing-explained)。
+
+---
+
+## 便宜的模型会答得更差吗
+
+有时候会，但失败方式很具体，不是笼统的「笨」。带依据回答比推理简单——答案通常就摆在上下文里——所以 0.003 美元和 0.46 美元缓存价的差距，集中体现在四个地方：
+
+| 失败模式 | 表现 | 便宜模型为什么栽 |
+|---|---|---|
+| 抛弃上下文 | 用参数记忆回答，无视检索片段 | 长上下文指令遵循弱 |
+| 引用漂移 | 答案对，chunk id 指错 | span 定位能力差 |
+| 无依据自信 | 上下文里没有也照样编数字 | 拒答校准差 |
+| 长上下文衰减 | 超过 5-6 段后质量下滑 | 注意力稀释 |
+
+这四项都不会出现在通用榜单上，但都很容易测。准备 100-200 条真实问题，每条标注正确答案和对应的 chunk id，然后分开打四个分：答案正确性、引用精确度、**不可答问题上的拒答率**（另准备 20 条语料里没有答案的问题）、以及编造率。全部用 `temperature: 0` 跑同一套题。
+
+实测经验是：最便宜那档在单跳问题上正确性和引用都不差，栽的是多跳综合和拒答——这正是下面分流方案存在的理由。需要更严谨的评测方法，可以借用 [Text-to-SQL 评测指南](https://doc.tokenpapa.ai/zh/docs/blog/best-llm-for-sql-generation-2026)里的执行准确率思路：比对标准答案，而不是凭感觉。
+
+---
+
+## 提示词怎么写，缓存才真的命中
+
+缓存是前缀匹配。任何在提示词前部变化的内容都会让后面全部失效，所以顺序不是文风问题，而是机制本身。
+
+```python
+import os
+from openai import OpenAI
+
+client = OpenAI(
+    api_key=os.environ["TOKENPAPA_API_KEY"],
+    base_url="https://tokenpapa.ai/v1",
+)
+
+# 1. 静态块：每次完全一致 → 可缓存前缀
+SYSTEM = """只依据给定上下文回答。
+规则：
+- 每个结论后用方括号标注 chunk id。
+- 上下文里没有答案时，只回复 NOT_IN_CONTEXT。
+- 不使用外部知识，不编造数字。"""
+
+def answer(question: str, chunks: list[dict]) -> str:
+    # 2. 半静态块：检索上下文，顺序稳定，不塞时间戳
+    context = "\n\n".join(f"[{c['id']}] {c['text']}" for c in chunks)
+    resp = client.chat.completions.create(
+        model="deepseek-v4-flash",       # 换成 qwen3.8-flash 即可，其他不用改
+        temperature=0,
+        max_tokens=600,                  # 带引用的回答很短，不要为多余输出付钱
+        messages=[
+            {"role": "system", "content": SYSTEM},
+            {"role": "user", "content": f"CONTEXT:\n{context}\n\nQUESTION: {question}"},
+        ],
+    )
+    return resp.choices[0].message.content
+```
+
+三条规则决定你是 75% 命中还是 0%：
+
+- **系统提示里绝不放假时间戳、请求 id、用户名**——前缀每次都变，你就永远按全价付费；
+- **chunk 顺序必须确定**——按分数排序，不要用字典遍历顺序，否则同样的问题前缀也不一样；
+- **`max_tokens` 必须设上限**——输出有 3-8 倍倍率，600 对带引用的回答不是质量风险，是成本控制。
+
+完整链路（切片、重排、成本模型）可以看[DeepSeek RAG 成本指南](https://doc.tokenpapa.ai/zh/docs/blog/deepseek-rag-cost-guide)。
+
+---
+
+## 每月 10 万次带引用回答要花多少钱
+
+把每千次成本乘 100，战略图景就出来了：
+
+| 方案 | 每千次 | 每月 10 万次 | 说明 |
+|---|---:|---:|---|
+| Claude Haiku 5.5（无缓存） | $0.33 | **$33** | 绝对最便宜，零缓存收益，依据能力最弱 |
+| Mimo V2.6 Flash（75% 缓存） | $0.49 | **$49** | 平台最低缓存输入价 |
+| Qwen 3.8 Flash（75% 缓存） | $0.58 | $58 | 多语种召回强 |
+| DeepSeek V4 Flash（75% 缓存） | $1.26 | **$126** | 质量/价格比最好的默认档 |
+| DeepSeek V4 Pro（75% 缓存） | $5.10 | $510 | 多跳问题的升级档 |
+| Claude Sonnet 5.5（75% 缓存） | $8.97 | $897 | 引用质量参考档 |
+| GPT-6.1 Sol（75% 缓存） | $8.97 | $897 | 与 Sonnet 5.5 同价 |
+| Claude Opus 5.5（75% 缓存） | $17.94 | $1,794 | 只给最难的 5% |
+| GPT-5.6 Sol（75% 缓存） | $30.60 | $3,060 | 旗舰，RAG 场景很少值这个价 |
+| Claude Fable 5.1（75% 缓存） | $44.54 | $4,454 | 是最便宜档的 135 倍 |
+
+最有意思的是混跑那一行。全走 Claude Sonnet 5.5 是每月 897 美元；70% 走 DeepSeek V4 Flash、25% 走 Sonnet 5.5、5% 走 Opus 5.5（用置信度或引用校验决定要不要升级），每千次 **4.02 美元、每月约 402 美元，省 55%**，而真正难的问答照样落在强模型上。
+
+这能成立是因为盈亏平衡点很高：**86% 的查询升级到 Sonnet 5.5** 都比全部走它便宜。比这更保守的升级策略，省下的都是纯利润。
+
+---
+
+## 所以到底选哪个
+
+| 你的场景 | 选它 | 原因 |
+|---|---|---|
+| 高频 FAQ / 客服机器人，单跳问题 | **Mimo V2.6 Flash**（$0.49）或 **Qwen 3.8 Flash**（$0.58） | 缓存输入价最低；正确率取决于检索而非模型 |
+| 通用 RAG 助手，难度混杂 | **DeepSeek V4 Flash**（$1.26） | 质量/价格比最好的默认档，缓存折扣 96.7% |
+| 多跳综合、合同、研报 | **DeepSeek V4 Pro**（$5.10）→ **Claude Sonnet 5.5**（$8.97） | 只在引用校验失败后升级 |
+| 引用合规要求高 | **Claude Sonnet 5.5** 或 **GPT-6.1 Sol**（均 $8.97） | span 定位最稳 |
+| 中英日多语料 | **Qwen 3.8 Flash** 或 **Qwen 3.7 Plus** | 跨语种召回强、缓存价低 |
+| 完全无法缓存 | **Doubao Seed 2.0 Lite**（$1.03）或 **Claude Haiku 5.5**（$0.33） | 冷输入最便宜 |
+
+一个平台层面的便利：上面这张分流表只是改配置，不是改架构——一个 OpenAI 兼容 Key 就能打到所有模型。同样的「便宜档打底 + 强模型兜底」思路也适用于 [AI Agent 的成本优化](https://doc.tokenpapa.ai/zh/docs/blog/cheap-llm-api-for-ai-agents)，底层计价机制见[大模型 API 价格速查](https://doc.tokenpapa.ai/zh/docs/blog/llm-api-pricing-cheat-sheet-2026)。
+
+---
+
+## 常见问题
+
+### 2026 年做 RAG 该用哪个大模型？
+
+没有唯一答案，因为 RAG 一次调用里 94% 的 token 是输入。按 8000 token 输入、500 token 输出计算，缓存命中率 75% 时，Mimo V2.6 Flash 每 1000 次回答约 0.49 美元，Qwen 3.8 Flash 约 0.58 美元，DeepSeek V4 Flash 约 1.26 美元，Claude Sonnet 5.5 与 GPT-6.1 Sol 同为 8.97 美元。合理做法是先用便宜档跑，只把引用校验失败的问答升级到强模型。
+
+### 为什么 RAG 场景里 prompt 缓存比单价更重要？
+
+因为检索到的文档片段和系统提示每轮都要重发，而且大部分完全相同。在 8000 token 的 RAG 提示词里，可缓存部分约占 75%，而缓存输入价从 Mimo V2.6 Flash 的 0.003 美元每百万 token 到 GPT-5.6 Sol 的 0.46 美元，相差 150 倍。忽略缓存倍率，两个输出倍率相同的模型实测成本可能差 4 倍。
+
+### 怎么验证便宜的模型做 RAG 够不够用？
+
+准备 100 到 200 条真实问题，每条标注正确答案和包含答案的 chunk id，然后分开打四个分：答案正确性、引用精确度、上下文缺失时的拒答率、以及是否编造了上下文里没有的事实。后两项是用户最容易察觉的失败点，而它们不会出现在通用榜单上。
+
+### 换 RAG 模型要重写整条链路吗？
+
+不需要。TokenPAPA 提供 OpenAI 兼容端点 `https://tokenpapa.ai/v1`，一个 Key 可调用 60 个以上模型条目，从 `deepseek-v4-flash` 换到 `qwen3.8-flash` 或 `claude-sonnet-5-5` 只改一行 model 名，检索器、提示词模板和引用解析都不用动。
+
+### RAG 的输出预留 2000 token 是不是浪费？
+
+是，除非你设了上限。带引用的回答通常 400 到 600 token 就够，而输出 token 在多数模型上是 3 到 8 倍倍率。把 `max_tokens` 设成 600 是 RAG 链路里最快见效的成本优化，同时让延迟变得可预测。
+
+---
+
+## 开始接入
+
+选好默认档、按上面的顺序写提示词、然后拿自己的文档测一遍——整个循环一个下午能跑完。
+
+- 在 [tokenpapa.ai/register](https://tokenpapa.ai/register) 注册，到 [API Key 控制台](https://tokenpapa.ai/keys) 创建 Key
+- 把任意 OpenAI SDK 的 base_url 指向 `https://tokenpapa.ai/v1`，其他代码不用改
+- 实时比价看[定价页](https://tokenpapa.ai/pricing)
+- 在[控制台](https://tokenpapa.ai/dashboard/overview)按模型看消耗
+
+*本文价格读取自 TokenPAPA 实时定价接口，时间为 2026-11-19，为当时每百万 token 单价。最后更新：2026-11-19。*
