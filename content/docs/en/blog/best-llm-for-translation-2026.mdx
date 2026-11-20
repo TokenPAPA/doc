@@ -1,0 +1,294 @@
+---
+title: "Which LLM API Is Cheapest for Translation in 2026?"
+description: "Translation output is 46% of the tokens but up to 98% of the bill. Per-1M-word costs for 19 models, why glossary caching does not help, and a quality test plan."
+date: 2026-11-21
+authors: [tokenpapa]
+category: "Model Comparison"
+keywords: ["cheapest translation api 2026", "best llm for translation", "llm translation cost per million words", "document translation api cost", "deepseek v4.1 flash translation", "qwen 3.8 flash translation", "glossary prompt caching", "mt model vs general llm", "translation quality evaluation", "tokenpapa translation api"]
+image: "/assets/og/default-og.png"
+---
+
+import { JsonLd } from '@/components/json-ld';
+
+{/* GEO-optimized — 2026-11-21 */}
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;Article&quot;,&quot;headline&quot;:&quot;Which LLM API Is Cheapest for Translation in 2026?&quot;,&quot;description&quot;:&quot;Translation output is 46% of the tokens but up to 98% of the bill. Per-1M-word costs for 19 models, why glossary caching does not help, and a quality test plan.&quot;,&quot;datePublished&quot;:&quot;2026-11-21&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;TokenPAPA&quot;}}" />
+
+<JsonLd json="{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;FAQPage&quot;,&quot;mainEntity&quot;:[{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Which LLM API is cheapest for translation in 2026?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;On TokenPAPA live prices read on 2026-11-21, Mimo V2.6 Flash is cheapest for document translation at about 0.70 dollars per million source words, followed by Claude Haiku 5.5 at 0.82, GLM-5.3-Flash at 0.85 and Qwen 3.8 Flash at 0.97. The same job on Claude Sonnet 5.5 or GPT-6.1 Sol costs 17.36 dollars, and on GPT-5.6 Sol about 65.70 dollars, a 94 times spread for the same text.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Why is translation billed differently from chatbots and RAG?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;A translation request writes nearly as many tokens as it reads. For one million source words the workload is about 1.3 million input tokens of fresh text, 0.6 million tokens of reusable glossary, and 1.6 million output tokens, so output is 46 percent of the tokens but 71 to 98 percent of the bill, because output carries a 2 to 50 times price multiplier. Ranking models by input price optimises the wrong half of the invoice.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Does prompt caching reduce translation costs?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Barely, and that is the structural difference from RAG. In translation the source text is new on every call, so the only cacheable prefix is the system prompt and glossary, roughly 600 tokens per request. Cutting chunk size from 4000 words to 500 words raises glossary overhead four times yet changes the total bill by under 1 percent on DeepSeek V4.1 Flash, from 2.31 to 2.32 dollars per million words.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;Is a dedicated machine translation model cheaper than a general LLM?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;No, it is far more expensive per token. The TokenPAPA catalog lists Hy-MT2 Pro at 75 dollars per million input and 300 dollars per million output tokens, which is about 622.50 dollars per million source words against 0.70 for Mimo V2.6 Flash, roughly 890 times more. That price is only rational if the specialised model removes about 20 hours of human post-editing per million words, so measure defect rates before you assume it saves money.&quot;}},{&quot;@type&quot;:&quot;Question&quot;,&quot;name&quot;:&quot;How do I test whether a cheap translation model is good enough?&quot;,&quot;acceptedAnswer&quot;:{&quot;@type&quot;:&quot;Answer&quot;,&quot;text&quot;:&quot;Run four measurable checks on 200 to 500 real segments: a terminology hit rate against your glossary, placeholder and markup integrity for variables and Markdown, a chrF or COMET score against a reference translation, and a defect count per 1000 words from a human spot check. Track cost per accepted segment rather than cost per token, since rework is what actually makes cheap models expensive.&quot;}}]}" />
+
+# Which LLM API Is Cheapest for Translation in 2026?
+
+Translation is the oldest LLM workload there is, and it is the one where price intuition fails most often. Teams compare input prices, pick the model with the lowest number, and then discover that their bill is decided by something else entirely: the output side.
+
+This guide prices a realistic localisation job — one million source words, English into a target language — across 19 models on TokenPAPA, using live per-token rates read on 2026-11-21. It explains why output tokens dominate a translation invoice when they dominate nothing in a RAG pipeline, why the usual advice about prompt caching does almost nothing here, and how to test whether a $0.70-per-million-words model is actually good enough to ship.
+
+> **Best LLM for translation, in one paragraph**: for document translation, rank models by output price, not input price, because output tokens are 46% of the workload and 71-98% of the bill. On TokenPAPA's live rates (2026-11-21), Mimo V2.6 Flash costs about **$0.70 per million source words**, Claude Haiku 5.5 about **$0.82**, GLM-5.3-Flash about **$0.85**, Qwen 3.8 Flash about **$0.97**, DeepSeek V4.1 Flash about **$2.32**, Claude Sonnet 5.5 and GPT-6.1 Sol about **$17.36**, and GPT-5.6 Sol about **$65.70**. The spread between the cheapest and most expensive general model is **94×** for identical text.
+
+---
+
+## Why does translation billing look nothing like chat or RAG billing?
+
+A chatbot call reads a short question and writes a similar-length answer. A RAG call reads 8,000 tokens of retrieved context and writes 500. Translation is the opposite shape from RAG: it **reads new text and writes new text of comparable length**, every single time.
+
+Here is the workload this article prices, for one million source words:
+
+| Component | Tokens | Reusable across calls? |
+|---|---:|---:|
+| Source text (1.3 tokens per English word) | 1,300,000 | **No** — always new |
+| System prompt + glossary + style rules (600 tokens per 1,000-word chunk, 1,000 chunks) | 600,000 | Yes, if cached |
+| **Total input** | **1.9M** | |
+| **Output** (target text, 1.6 tokens per source word) | **1,600,000** | |
+
+That is **54.3% input and 45.7% output** — a near-even split. Compare it with the RAG workload we priced earlier this month at 94.1% input, and the reason the advice differs becomes obvious.
+
+Then apply the price multiplier. Every model on the platform charges more for output than for input, and the multiplier ranges from **1× to 50×**. On a workload that is 46% output, that multiplier is not a detail — it is the invoice.
+
+> **Key insight**: in RAG the model reads about 16 tokens for every token it writes. In translation it writes more than half the tokens it reads, and each of those tokens costs 2 to 50 times more. Two workloads, two completely different optimisation targets.
+
+---
+
+## What does one million words of translation cost on 19 models?
+
+Prices below are TokenPAPA's live per-1M-token rates read on 2026-11-21. The cost column applies the workload above: 1.3M fresh input tokens, 0.6M glossary tokens billed at each model's cached rate, 1.6M output tokens. The last column answers a different question — how much of that bill is output, i.e. how much of your spend is exposed to the output multiplier.
+
+| Model | Input /1M | Output /1M | Cached input /1M | Cost per 1M source words | Output share of bill |
+|---|---:|---:|---:|---:|---:|
+| Mimo V2.6 Flash | $0.16 | $0.31 | $0.003 | **$0.70** | 71% |
+| Claude Haiku 5.5 | $0.01 | $0.50 | $0.010 | **$0.82** | 98% |
+| GLM-5.3-Flash | $0.12 | $0.42 | $0.040 | **$0.85** | 79% |
+| Qwen 3.8 Flash | $0.12 | $0.50 | $0.015 | **$0.97** | 83% |
+| Doubao Seed 2.0 Lite | $0.09 | $0.56 | $0.017 | **$1.03** | 87% |
+| MiniMax M3.1 Flash | $0.16 | $0.63 | $0.016 | **$1.23** | 82% |
+| Qwen 3.7 Plus | $0.20 | $0.83 | $0.040 | **$1.61** | 82% |
+| DeepSeek V4.1 Flash | $0.30 | $1.20 | $0.010 | **$2.32** | 83% |
+| Gemini 3.5 Flash | $1.21 | $1.21 | $0.121 | **$3.59** | 54% |
+| Qwen 3.7 Max | $0.62 | $1.66 | $0.250 | **$3.61** | 74% |
+| Gemini 3.8 Flash | $0.62 | $3.10 | $0.062 | **$5.80** | 85% |
+| Hy4 | $1.00 | $2.80 | $0.050 | **$5.81** | 77% |
+| GLM-5.1 | $0.86 | $3.43 | $0.185 | **$6.71** | 82% |
+| Claude Sonnet 5.5 | $1.86 | $9.30 | $0.100 | **$17.36** | 86% |
+| GPT-6.1 Sol | $1.86 | $9.30 | $0.100 | **$17.36** | 86% |
+| Kimi K3.1 Pro | $2.10 | $10.60 | $0.210 | **$19.82** | 86% |
+| Claude Opus 5.5 | $3.72 | $18.60 | $0.200 | **$34.72** | 86% |
+| GPT-5.6 Sol | $4.64 | $37.12 | $0.460 | **$65.70** | 90% |
+| Hy-MT2 Pro (MT-specialised) | $75.00 | $300.00 | $75.000 | **$622.50** | 77% |
+
+Three things are worth pulling out of that table before reading further.
+
+**One: the cheapest model is not the one with the cheapest input.** Claude Haiku 5.5 charges $0.01 per million input tokens — 16× less than Mimo V2.6 Flash — and still loses, because its 50× output multiplier turns a rounding error into 98% of the bill. This is the single most common translation-cost mistake.
+
+**Two: a 1× output multiplier is a real structural advantage.** Gemini 3.5 Flash charges the same rate for input and output ($1.2115), so only 54% of its bill is output. It still lands mid-table because its input price is ten times the cheap tier — but if you are translating very long documents where output dominates even harder, the shape of its price matters more than its level.
+
+**Three: the spread is enormous for identical text.** $0.70 to $65.70 across general-purpose models is **94×**. Nothing about translation quality varies by 94×. Most of that range is brand pricing, not capability.
+
+> **According to TokenPAPA's live pricing data (2026-11-21)**, the cheapest tier for translation is now the "flash" class — Mimo V2.6 Flash, Claude Haiku 5.5, GLM-5.3-Flash and Qwen 3.8 Flash all land under $1.00 per million source words — while frontier flagships cost 17× to 94× more for the same source text.
+
+---
+
+## Why is the output multiplier more important than list price?
+
+Because translation writes as much as it reads. Put the multipliers side by side and the ranking stops being surprising:
+
+| Model | Output multiplier | Output share of the bill |
+|---|---:|---:|
+| Gemini 3.5 Flash | **1.0×** | 54% |
+| Mimo V2.6 Flash | **2.0×** | 71% |
+| Qwen 3.7 Max | 2.7× | 74% |
+| Hy4 | 2.8× | 77% |
+| GLM-5.3-Flash | 3.5× | 79% |
+| DeepSeek V4.1 Flash | 4.0× | 83% |
+| Qwen 3.8 Flash | 4.2× | 83% |
+| Claude Sonnet 5.5 / GPT-6.1 Sol | 5.0× | 86% |
+| Claude Opus 5.5 | 5.0× | 86% |
+| GLM-5.1 | 4.0× | 82% |
+| GPT-5.6 Sol | 8.0× | 90% |
+| Claude Haiku 5.5 | **50.0×** | 98% |
+
+Two practical rules fall out of this.
+
+- **A low input price cannot rescue a high output multiplier.** Haiku 5.5 is the clearest case: its input is effectively free and 98% of its cost is still output. If you are translating 20 million words a month, that difference is hundreds of dollars.
+- **When two models are close on output price, use input price as the tie-break.** Mimo V2.6 Flash ($0.31 output) and Claude Haiku 5.5 ($0.50 output) differ by 61% on the output side, which is why Mimo wins despite a 16× higher input rate.
+
+---
+
+## Does glossary caching or chunking actually save money?
+
+No, and the reason is structural rather than a quirk of any provider. In a RAG pipeline 75% of every prompt is byte-identical retrieved context — caching was invented for that shape. In translation the source text is different on every call by definition. The only reusable prefix is your system prompt and glossary, and that is a few hundred tokens.
+
+Here is the effect of chunk size on the same one-million-word job, on DeepSeek V4.1 Flash, with the glossary billed at its cached price:
+
+| Words per request | Glossary tokens billed per 1M words | Total cost per 1M words |
+|---:|---:|---:|
+| 500 | 1.20M | $2.32 |
+| 1,000 | 0.60M | $2.32 |
+| 2,000 | 0.30M | $2.31 |
+| 4,000 | 0.15M | $2.31 |
+| 8,000 | 0.08M | $2.31 |
+
+An eight-fold increase in glossary overhead moves the bill by **one cent per million words**. The cached rate is roughly 3% of the input rate on this model, and the glossary is a small fraction of a workload whose bulk is fresh source and output text.
+
+> **Key takeaway**: prompt caching is worth engineering for in RAG, in agent loops and in multi-turn chat. For document translation it is a rounding error. Spend that engineering time on segmentation quality, glossary enforcement and output caps instead.
+
+Where caching *does* matter in translation is a different workload: a live chat translator resending the same system prompt thousands of times per hour, or a translation memory that replays the same source segments. Cache hits follow repeated prefixes, not repeated intentions.
+
+---
+
+## Is a dedicated machine translation model worth $75 per million tokens?
+
+The most interesting line in the price table is the last one. The TokenPAPA catalog lists **Hy-MT2 Pro** — a translation-specialised model, not a general chat model — at **$75 per million input and $300 per million output tokens**. On the workload above, that is **$622.50 per million source words**: about **890× Mimo V2.6 Flash** and **36× GPT-5.6 Sol**.
+
+That price only makes sense under one condition: it removes human post-editing. Do the arithmetic honestly and the break-even is easy to state. The gap against a mid-tier general model is roughly $605 per million words. At a post-editing rate of $30 per hour, that is **about 20 hours of editing per million words**, or **1.2 minutes per 1,000 words**. If the specialised model saves you less than a minute and a quarter of fixes per thousand words, it is the more expensive choice despite sounding like the purpose-built one.
+
+A dedicated MT model is worth testing when you are producing regulated or brand-sensitive text at volume, where a professional reviewer is already in the loop and the only question is how many corrections they make per page. It is almost never worth it for internal content, support macros or catalogue copy, where output is checked by the person who asked for it.
+
+> **Note on catalogue availability**: list price in the catalogue and callability are two different facts. Before you design a pipeline around a specialised model, send one real request through your own key and confirm the route answers — a model can be listed and still have no live upstream channel. Check the same way for any new entry you have not called yet.
+
+---
+
+## How do you know a cheap model is good enough?
+
+You measure four things, and you measure them on your own text rather than on a leaderboard. Translation quality on a general benchmark says very little about whether a model respects your product glossary or preserves your Markdown.
+
+| Test | What it catches | How to run it |
+|---|---|---|
+| **Terminology hit rate** | Product names, legal terms, brand voice drift | Ship a 50-term glossary, count exact matches in output; target >98% |
+| **Placeholder integrity** | Broken templates after translation | Include variables, HTML tags and Markdown in the source; parse the output and assert every token survived |
+| **Reference similarity** | Silent omissions, dropped sentences | Score against 200-500 human-translated segments with chrF or COMET |
+| **Defect rate per 1,000 words** | Everything a human notices | Blind spot check by a native reviewer, count corrections, not opinions |
+
+Run every candidate at a low temperature with the same prompt, and record **cost per accepted segment** rather than cost per token. A model at $0.70 that needs 15% rework is not cheaper than one at $0.97 that needs 5% — take the ratio of the two numbers and you have a decision, not a preference.
+
+Placeholder integrity deserves its own step because it is the failure that breaks production. The test is mechanical:
+
+```text
+source:  Hello {first_name}, your order #{order_id} ships on {date}.
+         See **{policy_link}** for details.
+expect:  every {variable} and every ** marker present exactly once,
+         no translated variable names, no reordered markdown fences
+```
+
+A model that translates `{first_name}` into a localised identifier has failed the test no matter how elegant the sentence reads. Treat this as a hard gate, and keep a deterministic fallback that reverts the whole segment to the source when the parse fails.
+
+---
+
+## Which model should you pick for which job?
+
+| Your situation | Pick | Why |
+|---|---|---|
+| High-volume document localisation, cost-sensitive | **Mimo V2.6 Flash** ($0.70) | Lowest bill in the table; 2× output multiplier |
+| Very short segments, input price dominates | **Claude Haiku 5.5** ($0.82) | $0.01 input; cheapest cold tier |
+| Mixed workload, want one default | **GLM-5.3-Flash** ($0.85) or **Qwen 3.8 Flash** ($0.97) | Good balance of output price and multilingual coverage |
+| Chinese-centric source or target | **Qwen 3.8 Flash**, **Qwen 3.7 Plus** or **Hy4** | Trained heavily on Chinese-English pairs |
+| Long documents with heavy output | **Gemini 3.5 Flash** ($3.59) | 1× output multiplier caps the output-side exposure |
+| Legal, medical or brand-critical copy | **Claude Sonnet 5.5** or **GPT-6.1 Sol** ($17.36) | Strongest instruction and glossary adherence in practice |
+| You need a purpose-built MT model | **Hy-MT2 Pro** ($622.50) | Only if it removes measurable post-editing |
+
+The practical pattern for most teams is a two-tier pipeline: the cheap tier handles everything, a validation step catches glossary misses and placeholder failures, and only the failing segments escalate to a stronger model. Because one OpenAI-compatible key reaches every model on the platform, that escalation is a model-string change, not a second integration. The same routing idea is what makes [agent workloads cheap](https://doc.tokenpapa.ai/en/docs/blog/best-llm-for-rag-applications-2026), and the underlying per-token mechanics are in the [pricing cheat sheet](https://doc.tokenpapa.ai/en/docs/blog/llm-api-pricing-cheat-sheet-2026).
+
+---
+
+## What does the code look like?
+
+The whole optimisation in one snippet: a cached glossary prefix, a placeholder guard, a capped output budget, and a validation step that decides whether to escalate.
+
+```python
+import os
+from openai import OpenAI
+
+client = OpenAI(
+    api_key=os.environ["TOKENPAPA_API_KEY"],
+    base_url="https://tokenpapa.ai/v1",
+)
+
+GLOSSARY = """Translate English into Simplified Chinese.
+Keep these terms in English exactly as written: TokenPAPA, API key, base_url, endpoint.
+Preserve every {variable}, HTML tag and Markdown marker exactly.
+Output only the translation, with no commentary."""
+
+def translate(segment: str, model: str = "deepseek-v4.1-flash") -> str:
+    resp = client.chat.completions.create(
+        model=model,
+        temperature=0.2,
+        max_tokens=int(len(segment.split()) * 4),  # cap output, do not pay for padding
+        messages=[
+            {"role": "system", "content": GLOSSARY},   # cacheable prefix, first
+            {"role": "user", "content": segment},
+        ],
+    )
+    return resp.choices[0].message.content
+
+def placeholders(text: str) -> set[str]:
+    import re
+    return set(re.findall(r"\{[a-z_]+\}", text))
+
+def translate_safe(segment: str) -> str:
+    out = translate(segment)
+    if placeholders(segment) != placeholders(out):
+        out = translate(segment, model="claude-sonnet-5-5")  # escalate once
+    return out
+```
+
+Two details matter more than the model choice. `max_tokens` is derived from the segment length instead of being left at a default — CJK output runs longer in tokens than the English source in some pairs and shorter in others, so a generous default is pure waste. And the glossary sits in the **system** message, ahead of the source text, so it can be cached at all; putting it after the source text guarantees a cache miss on every call.
+
+For a fuller service — queueing, batching and a glossary store — the [DeepSeek translation API guide](https://doc.tokenpapa.ai/en/docs/blog/deepseek-translation-api-guide) walks through the same pricing model with a FastAPI wrapper.
+
+---
+
+## What does 20 million words a month cost?
+
+Localisation teams usually quote volume in words per month, so multiply the per-million numbers out. Twenty million words is roughly a mid-sized product documentation set in twelve languages.
+
+| Strategy | Per 1M words | 20M words / month | Notes |
+|---|---:|---:|---|
+| Mimo V2.6 Flash | $0.70 | **$14** | Cheapest absolute; validate placeholders first |
+| Claude Haiku 5.5 | $0.82 | $16 | Cheapest input price, 50× output multiplier |
+| GLM-5.3-Flash | $0.85 | $17 | Balanced default |
+| Qwen 3.8 Flash | $0.97 | $19 | Strong Chinese coverage |
+| DeepSeek V4.1 Flash | $2.32 | $46 | Familiar default for many pipelines |
+| Gemini 3.5 Flash | $3.59 | $72 | 1× output multiplier |
+| Gemini 3.8 Flash | $5.80 | $116 | |
+| Hy4 | $5.81 | $116 | |
+| Claude Sonnet 5.5 | $17.36 | $347 | Premium tier for regulated copy |
+| GPT-5.6 Sol | $65.70 | $1,314 | Rarely justified for translation |
+| Hy-MT2 Pro | $622.50 | $12,450 | Only with measured post-editing savings |
+
+Add a realistic correction factor: a 15% retry rate on failed segments adds about 15% to any row, and human review dwarfs every number in this table regardless of model. At $0.03 per word a freelance translator charges **$600,000** for the same twenty million words — the API line item is no longer the interesting part of the budget; the throughput and the review loop are.
+
+> **Key insight**: at 2026 prices, machine translation cost has collapsed to the point where model choice is a quality decision, not a budget decision. A 94× price difference on 20 million words is $14 versus $1,314 — real money, but smaller than one week of a reviewer's time.
+
+---
+
+## FAQ
+
+### Which LLM API is cheapest for translation in 2026?
+
+On TokenPAPA live prices read on 2026-11-21, Mimo V2.6 Flash is cheapest for document translation at about $0.70 per million source words, followed by Claude Haiku 5.5 at $0.82, GLM-5.3-Flash at $0.85 and Qwen 3.8 Flash at $0.97. The same job on Claude Sonnet 5.5 or GPT-6.1 Sol costs $17.36, and on GPT-5.6 Sol about $65.70 — a 94× spread for the same text.
+
+### Why is translation billed differently from chatbots and RAG?
+
+A translation request writes nearly as many tokens as it reads. For one million source words the workload is about 1.3 million input tokens of fresh text, 0.6 million tokens of reusable glossary, and 1.6 million output tokens — output is 46% of tokens but 71-98% of the bill, because output carries a 2× to 50× price multiplier. Ranking models by input price optimises the wrong half of the invoice.
+
+### Does prompt caching reduce translation costs?
+
+Barely, and that is the structural difference from RAG. In translation the source text is new on every call, so the only cacheable prefix is the system prompt and glossary — roughly 600 tokens per request. Cutting chunk size from 4,000 words to 500 words raises glossary overhead four-fold yet changes the total bill by under 1% on DeepSeek V4.1 Flash ($2.31 to $2.32 per million words).
+
+### Is a dedicated machine translation model cheaper than a general LLM?
+
+No, it is far more expensive per token. The catalog lists Hy-MT2 Pro at $75 per million input and $300 per million output tokens, about $622.50 per million source words against $0.70 for Mimo V2.6 Flash — roughly 890× more. That is only rational if the specialised model removes about 20 hours of human post-editing per million words, so measure defect rates before assuming it saves money.
+
+### How do I test whether a cheap translation model is good enough?
+
+Run four measurable checks on 200-500 real segments: terminology hit rate against your glossary, placeholder and markup integrity for variables and Markdown, a chrF or COMET score against reference translations, and a defect count per 1,000 words from a native reviewer's spot check. Track cost per accepted segment rather than cost per token, because rework is what makes a cheap model expensive.
+
+---
+
+## Get started
+
+Pick a cheap default, gate it with the placeholder test, and escalate only the segments that fail.
+
+- Create a key at [tokenpapa.ai/register](https://tokenpapa.ai/register) and manage it in the [API keys console](https://tokenpapa.ai/keys)
+- Point any OpenAI SDK at `https://tokenpapa.ai/v1` — the same key reaches every model in the table above
+- Compare live per-model rates on the [pricing page](https://tokenpapa.ai/pricing)
+- Watch spend per model in the [dashboard](https://tokenpapa.ai/dashboard/overview)
+
+*Prices in this article were read from TokenPAPA's live pricing endpoint on 2026-11-21 and reflect per-1M-token rates at that time. Cost figures are modelled from the stated token assumptions, not measured invoices. Last updated 2026-11-21.*

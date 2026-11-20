@@ -4,6 +4,7 @@
   "icon": "Newspaper",
   "root": true,
   "pages": [
+    "best-llm-for-translation-2026",
     "best-llm-for-rag-applications-2026",
     "claude-code-custom-api-endpoint",
     "best-llm-for-sql-generation-2026",
